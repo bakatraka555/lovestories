@@ -548,8 +548,14 @@
                 });
 
                 if (!generateResponse.ok) {
-                    const error = await generateResponse.json();
-                    throw new Error(error.error || 'Generation failed');
+                    let error;
+                    try {
+                        error = await generateResponse.json();
+                    } catch (e) {
+                        const errorText = await generateResponse.text();
+                        throw new Error(errorText || 'Generation failed');
+                    }
+                    throw new Error(error.error || error.details || 'Generation failed');
                 }
 
                 const generateResult = await generateResponse.json();
