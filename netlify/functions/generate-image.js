@@ -83,48 +83,80 @@ exports.handler = async (event, context) => {
       const BUNNY_STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
       
       if (!BUNNY_API_KEY || !BUNNY_STORAGE_ZONE) {
-        throw new Error('Bunny.net API not configured');
+        console.error('Bunny.net config missing:', { 
+          hasApiKey: !!BUNNY_API_KEY, 
+          hasStorageZone: !!BUNNY_STORAGE_ZONE 
+        });
+        throw new Error('Bunny.net API not configured - check BUNNY_API_KEY and BUNNY_STORAGE_ZONE environment variables');
       }
 
-      const imageBuffer = Buffer.from(imageBase64, 'base64');
-      const uploadUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${filename}`;
-      
-      const uploadResponse = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: {
-          'AccessKey': BUNNY_API_KEY,
-          'Content-Type': 'image/jpeg'
-        },
-        body: imageBuffer
-      });
+      try {
+        const imageBuffer = Buffer.from(imageBase64, 'base64');
+        const uploadUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${filename}`;
+        
+        console.log('Uploading to Bunny.net:', uploadUrl.substring(0, 80) + '...');
+        
+        const uploadResponse = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'AccessKey': BUNNY_API_KEY,
+            'Content-Type': 'image/jpeg'
+          },
+          body: imageBuffer
+        });
 
-      if (!uploadResponse.ok) {
-        const errorText = await uploadResponse.text();
-        throw new Error(`Bunny.net upload failed: ${errorText}`);
+        if (!uploadResponse.ok) {
+          const errorText = await uploadResponse.text();
+          console.error('Bunny.net upload error:', {
+            status: uploadResponse.status,
+            statusText: uploadResponse.statusText,
+            error: errorText
+          });
+          throw new Error(`Bunny.net upload failed (${uploadResponse.status}): ${errorText}`);
+        }
+
+        // CDN URL
+        const cdnUrl = `https://lovestories-cdn.b-cdn.net/${filename}`;
+        console.log('Upload successful, CDN URL:', cdnUrl);
+        return cdnUrl;
+      } catch (error) {
+        console.error('Error in uploadToBunny:', error);
+        throw error;
       }
-
-      // CDN URL
-      const cdnUrl = `https://lovestories-cdn.b-cdn.net/${filename}`;
-      return cdnUrl;
     };
 
     // 1. Upload slike na Bunny.net prvo
-    const image1Base64 = image1.includes(',') ? image1.split(',')[1] : image1;
-    const timestamp = Date.now();
-    const userId = `user-${timestamp}-${Math.random().toString(36).substr(2, 9)}`;
+    let image1Url, image2Url;
     
-    console.log('Uploading image1 to Bunny.net...');
-    const image1Filename = `temp/${userId}-image1.jpg`;
-    const image1Url = await uploadToBunny(image1Base64, image1Filename);
-    console.log('Image1 uploaded to Bunny.net:', image1Url);
+    try {
+      const image1Base64 = image1.includes(',') ? image1.split(',')[1] : image1;
+      const timestamp = Date.now();
+      const userId = `user-${timestamp}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      console.log('Uploading image1 to Bunny.net...');
+      const image1Filename = `temp/${userId}-image1.jpg`;
+      image1Url = await uploadToBunny(image1Base64, image1Filename);
+      console.log('Image1 uploaded to Bunny.net:', image1Url);
 
-    let image2Url = null;
-    if (!isCouple && image2) {
-      const image2Base64 = image2.includes(',') ? image2.split(',')[1] : image2;
-      console.log('Uploading image2 to Bunny.net...');
-      const image2Filename = `temp/${userId}-image2.jpg`;
-      image2Url = await uploadToBunny(image2Base64, image2Filename);
-      console.log('Image2 uploaded to Bunny.net:', image2Url);
+      if (!isCouple && image2) {
+        const image2Base64 = image2.includes(',') ? image2.split(',')[1] : image2;
+        console.log('Uploading image2 to Bunny.net...');
+        const image2Filename = `temp/${userId}-image2.jpg`;
+        image2Url = await uploadToBunny(image2Base64, image2Filename);
+        console.log('Image2 uploaded to Bunny.net:', image2Url);
+      } else {
+        image2Url = null;
+      }
+    } catch (uploadError) {
+      console.error('Error uploading images to Bunny.net:', uploadError);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Failed to upload images to Bunny.net', 
+          details: uploadError.message 
+        })
+      };
     }
 
     // Logo URL (već je na Bunny.net)
