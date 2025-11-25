@@ -77,59 +77,57 @@ exports.handler = async (event, context) => {
     const prompt = getPrompt(template.id, isCouple);
     console.log('Using prompt from MD file for:', template.id, 'isCouple:', isCouple);
 
-    // Upload slike na Replicate storage prvo (kao u screenshotu - koristi URL-ove)
+    // Helper funkcija za upload na Bunny.net
+    const uploadToBunny = async (imageBase64, filename) => {
+      const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
+      const BUNNY_STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
+      
+      if (!BUNNY_API_KEY || !BUNNY_STORAGE_ZONE) {
+        throw new Error('Bunny.net API not configured');
+      }
+
+      const imageBuffer = Buffer.from(imageBase64, 'base64');
+      const uploadUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${filename}`;
+      
+      const uploadResponse = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'AccessKey': BUNNY_API_KEY,
+          'Content-Type': 'image/jpeg'
+        },
+        body: imageBuffer
+      });
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        throw new Error(`Bunny.net upload failed: ${errorText}`);
+      }
+
+      // CDN URL
+      const cdnUrl = `https://lovestories-cdn.b-cdn.net/${filename}`;
+      return cdnUrl;
+    };
+
+    // 1. Upload slike na Bunny.net prvo
     const image1Base64 = image1.includes(',') ? image1.split(',')[1] : image1;
-    const image1Buffer = Buffer.from(image1Base64, 'base64');
+    const timestamp = Date.now();
+    const userId = `user-${timestamp}-${Math.random().toString(36).substr(2, 9)}`;
     
-    console.log('Uploading image1 to Replicate storage...');
-    const image1UploadResponse = await fetch('https://api.replicate.com/v1/files', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Token ${REPLICATE_API_TOKEN}`,
-        'Content-Type': 'image/jpeg'
-      },
-      body: image1Buffer
-    });
-
-    if (!image1UploadResponse.ok) {
-      const errorText = await image1UploadResponse.text();
-      console.error('Failed to upload image1:', errorText);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'Failed to upload image1 to Replicate', details: errorText })
-      };
-    }
-
-    const image1File = await image1UploadResponse.json();
-    const image1Url = image1File.url || image1File;
-    console.log('Image1 uploaded:', image1Url);
+    console.log('Uploading image1 to Bunny.net...');
+    const image1Filename = `temp/${userId}-image1.jpg`;
+    const image1Url = await uploadToBunny(image1Base64, image1Filename);
+    console.log('Image1 uploaded to Bunny.net:', image1Url);
 
     let image2Url = null;
     if (!isCouple && image2) {
       const image2Base64 = image2.includes(',') ? image2.split(',')[1] : image2;
-      const image2Buffer = Buffer.from(image2Base64, 'base64');
-      
-      console.log('Uploading image2 to Replicate storage...');
-      const image2UploadResponse = await fetch('https://api.replicate.com/v1/files', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${REPLICATE_API_TOKEN}`,
-          'Content-Type': 'image/jpeg'
-        },
-        body: image2Buffer
-      });
-
-      if (image2UploadResponse.ok) {
-        const image2File = await image2UploadResponse.json();
-        image2Url = image2File.url || image2File;
-        console.log('Image2 uploaded:', image2Url);
-      } else {
-        console.warn('Failed to upload image2, continuing without it');
-      }
+      console.log('Uploading image2 to Bunny.net...');
+      const image2Filename = `temp/${userId}-image2.jpg`;
+      image2Url = await uploadToBunny(image2Base64, image2Filename);
+      console.log('Image2 uploaded to Bunny.net:', image2Url);
     }
 
-    // Logo URL
+    // Logo URL (već je na Bunny.net)
     const logoUrl = 'https://examples.b-cdn.net/logo.jpg';
 
     // Pozovi Replicate API s URL-ovima (kao u screenshotu)
@@ -153,7 +151,10 @@ exports.handler = async (event, context) => {
     console.log('Calling Replicate API with:', {
       templateId,
       isCouple,
-      hasImage2: !!image2DataUri,
+      hasImage2: !!image2Url,
+      image1Url: image1Url.substring(0, 50) + '...',
+      image2Url: image2Url ? image2Url.substring(0, 50) + '...' : null,
+      logoUrl: logoUrl,
       promptLength: prompt.length
     });
 
