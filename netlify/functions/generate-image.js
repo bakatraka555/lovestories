@@ -247,16 +247,15 @@ exports.handler = async (event, context) => {
     });
 
     // Provjeri response
-    const responseText = await replicateResponse.text();
     console.log('Replicate response status:', replicateResponse.status);
-    console.log('Replicate response:', responseText.substring(0, 200));
-
+    
     if (!replicateResponse.ok) {
+      const errorText = await replicateResponse.text();
       let errorDetails;
       try {
-        errorDetails = JSON.parse(responseText);
+        errorDetails = JSON.parse(errorText);
       } catch (e) {
-        errorDetails = responseText;
+        errorDetails = errorText;
       }
       console.error('Replicate API error:', errorDetails);
       return {
@@ -270,17 +269,24 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Parse JSON response (201 Created je uspješan odgovor)
     let prediction;
     try {
-      prediction = JSON.parse(responseText);
+      prediction = await replicateResponse.json();
+      console.log('Replicate prediction created:', {
+        id: prediction.id,
+        status: prediction.status,
+        urls: prediction.urls
+      });
     } catch (e) {
       console.error('Failed to parse Replicate response:', e);
+      const errorText = await replicateResponse.text().catch(() => 'Unable to read response');
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'Invalid response from Replicate API',
-          details: responseText.substring(0, 500)
+          details: errorText.substring(0, 500)
         })
       };
     }
