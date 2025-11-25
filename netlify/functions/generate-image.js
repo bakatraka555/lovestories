@@ -249,30 +249,24 @@ exports.handler = async (event, context) => {
     // Provjeri response
     console.log('Replicate response status:', replicateResponse.status);
     
-    if (!replicateResponse.ok) {
-      const errorText = await replicateResponse.text();
-      let errorDetails;
-      try {
-        errorDetails = JSON.parse(errorText);
-      } catch (e) {
-        errorDetails = errorText;
-      }
-      console.error('Replicate API error:', errorDetails);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Replicate API error', 
-          details: errorDetails,
-          status: replicateResponse.status
-        })
-      };
-    }
-
     // Parse JSON response (201 Created je uspješan odgovor)
     let prediction;
     try {
       prediction = await replicateResponse.json();
+      
+      if (!replicateResponse.ok) {
+        console.error('Replicate API error:', prediction);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'Replicate API error', 
+            details: prediction,
+            status: replicateResponse.status
+          })
+        };
+      }
+      
       console.log('Replicate prediction created:', {
         id: prediction.id,
         status: prediction.status,
@@ -282,6 +276,15 @@ exports.handler = async (event, context) => {
     } catch (e) {
       console.error('Failed to parse Replicate response:', e);
       console.error('Error details:', e.message, e.stack);
+      
+      // Ako je greška u parsiranju, pokušaj pročitati kao text
+      try {
+        const errorText = await replicateResponse.text();
+        console.error('Response text:', errorText.substring(0, 500));
+      } catch (textError) {
+        console.error('Could not read response as text:', textError);
+      }
+      
       return {
         statusCode: 500,
         headers,
