@@ -15,6 +15,12 @@ const fetch = require('node-fetch');
 const { getPrompt } = require('./prompts');
 
 exports.handler = async (event, context) => {
+  // Log svaki poziv funkcije
+  console.log('=== generate-image function called ===');
+  console.log('HTTP Method:', event.httpMethod);
+  console.log('Path:', event.path);
+  console.log('Has body:', !!event.body);
+  
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -25,6 +31,7 @@ exports.handler = async (event, context) => {
 
   // Handle preflight
   if (event.httpMethod === 'OPTIONS') {
+    console.log('OPTIONS request - returning CORS headers');
     return {
       statusCode: 200,
       headers,
@@ -34,6 +41,7 @@ exports.handler = async (event, context) => {
 
   // Only allow POST
   if (event.httpMethod !== 'POST') {
+    console.log('Method not allowed:', event.httpMethod);
     return {
       statusCode: 405,
       headers,
@@ -42,15 +50,26 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { templateId, image1, image2, isCouple } = JSON.parse(event.body);
+    console.log('Parsing request body...');
+    const body = JSON.parse(event.body);
+    console.log('Request body parsed. Keys:', Object.keys(body));
+    console.log('Has templateId:', !!body.templateId);
+    console.log('Has image1:', !!body.image1);
+    console.log('Has image2:', !!body.image2);
+    console.log('isCouple:', body.isCouple);
+    
+    const { templateId, image1, image2, isCouple } = body;
 
     if (!templateId || !image1) {
+      console.log('Missing required parameters');
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ error: 'Missing required parameters: templateId, image1' })
       };
     }
+    
+    console.log('All parameters present, proceeding...');
 
     const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
     if (!REPLICATE_API_TOKEN) {
