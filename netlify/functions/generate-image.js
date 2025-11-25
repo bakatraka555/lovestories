@@ -45,7 +45,14 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 405,
       headers,
-      body: JSON.stringify({ error: 'Method not allowed' })
+      body: JSON.stringify({ 
+        error: 'Method not allowed',
+        message: 'This function only accepts POST requests',
+        receivedMethod: event.httpMethod,
+        expectedMethod: 'POST',
+        functionName: 'generate-image',
+        path: event.path
+      })
     };
   }
 
