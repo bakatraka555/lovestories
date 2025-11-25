@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naruči Transformaciju - Love Stories Museum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .template-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .template-info h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .template-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .upload-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .upload-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .upload-option {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+
+        .upload-option:hover {
+            background: #e9ecef;
+            border-color: #764ba2;
+        }
+
+        .upload-option input[type="file"] {
+            display: none;
+        }
+
+        .upload-option label {
+            cursor: pointer;
+            display: block;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .preview-section {
+            margin-bottom: 30px;
+        }
+
+        .preview-images {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .preview-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 1;
+            background: #f8f9fa;
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-item .remove {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 0, 0, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .generate-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .generate-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .generate-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-item h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .result-item img,
+        .result-item video {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .download-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-button:hover {
+            background: #764ba2;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #c33;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            color: #0066cc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #0066cc;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .upload-options {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💑 Naruči Svoju Transformaciju</h1>
+        <p class="subtitle">Uploadaj svoje slike i dobit ćeš AI transformaciju</p>
+
+        <div class="template-info" id="templateInfo">
+            <h2>Učitavanje template-a...</h2>
+            <p>Molimo pričekajte</p>
+        </div>
+
+        <div class="upload-section">
+            <h3>📸 Odaberi Slike</h3>
+            <div class="info-box">
+                💡 Možeš uploadati <strong>1 sliku s parom</strong> ili <strong>2 odvojene slike</strong> (jedna po osobi)
+            </div>
+            
+            <div class="upload-options">
+                <div class="upload-option">
+                    <input type="file" id="coupleImage" accept="image/*" />
+                    <label for="coupleImage">
+                        <div class="upload-icon">👫</div>
+                        <div class="upload-text">Par na jednoj slici</div>
+                        <div class="upload-hint">1 slika</div>
+                    </label>
+                </div>
+                <div class="upload-option">
+                    <input type="file" id="person1Image" accept="image/*" />
+                    <label for="person1Image">
+                        <div class="upload-icon">👤</div>
+                        <div class="upload-text">Osoba 1</div>
+                        <div class="upload-hint">1. slika</div>
+                    </label>
+                </div>
+            </div>
+            <div class="upload-options">
+                <div class="upload-option" style="grid-column: 1 / -1;">
+                    <input type="file" id="person2Image" accept="image/*" />
+                    <label for="person2Image">
+                        <div class="upload-icon">👤</div>
+                        <div class="upload-text">Osoba 2 (opciono)</div>
+                        <div class="upload-hint">2. slika - samo ako koristiš odvojene slike</div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="preview-section" id="previewSection" style="display: none;">
+                <h3>👀 Pregled</h3>
+                <div class="preview-images" id="previewImages"></div>
+            </div>
+        </div>
+
+        <div id="errorMessage" class="error" style="display: none;"></div>
+
+        <button class="generate-button" id="generateButton" disabled>
+            ✨ Generiraj Transformaciju
+        </button>
+
+        <div class="loading" id="loadingSection" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>AI generira tvoju transformaciju...</p>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">Ovo može potrajati 1-2 minute</p>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h3>🎉 Tvoja Transformacija je Spremna!</h3>
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Get template from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const templateId = urlParams.get('template');
+        
+        let currentTemplate = null;
+        let uploadedImages = {
+            couple: null,
+            person1: null,
+            person2: null
+        };
+
+        // Load template info
+        async function loadTemplateInfo() {
+            try {
+                const response = await fetch('docs/couples-templates-database.json');
+                const data = await response.json();
+                currentTemplate = data.templates.find(t => t.id === templateId);
+                
+                if (currentTemplate) {
+                    document.getElementById('templateInfo').innerHTML = `
+                        <h2>${currentTemplate.number}. ${currentTemplate.name}</h2>
+                        <p>${currentTemplate.description}</p>
+                    `;
+                } else {
+                    document.getElementById('templateInfo').innerHTML = `
+                        <h2>Template nije pronađen</h2>
+                        <p>Molimo vratite se i odaberite template ponovno</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading template:', error);
+                document.getElementById('templateInfo').innerHTML = `
+                    <h2>Greška pri učitavanju</h2>
+                    <p>Molimo osvježite stranicu</p>
+                `;
+            }
+        }
+
+        // File upload handlers
+        document.getElementById('coupleImage').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                uploadedImages.couple = e.target.files[0];
+                uploadedImages.person1 = null;
+                uploadedImages.person2 = null;
+                document.getElementById('person1Image').value = '';
+                document.getElementById('person2Image').value = '';
+                updatePreview();
+            }
+        });
+
+        document.getElementById('person1Image').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                uploadedImages.person1 = e.target.files[0];
+                uploadedImages.couple = null;
+                document.getElementById('coupleImage').value = '';
+                updatePreview();
+            }
+        });
+
+        document.getElementById('person2Image').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                uploadedImages.person2 = e.target.files[0];
+                updatePreview();
+            }
+        });
+
+        // Update preview
+        function updatePreview() {
+            const previewSection = document.getElementById('previewSection');
+            const previewImages = document.getElementById('previewImages');
+            previewImages.innerHTML = '';
+
+            if (uploadedImages.couple) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImages.innerHTML = `
+                        <div class="preview-item">
+                            <img src="${e.target.result}" alt="Par">
+                            <button class="remove" onclick="removeImage('couple')">×</button>
+                        </div>
+                    `;
+                    previewSection.style.display = 'block';
+                    checkGenerateButton();
+                };
+                reader.readAsDataURL(uploadedImages.couple);
+            } else if (uploadedImages.person1) {
+                const images = [];
+                const readers = [];
+                
+                if (uploadedImages.person1) {
+                    const reader1 = new FileReader();
+                    reader1.onload = function(e) {
+                        images.push({src: e.target.result, type: 'person1'});
+                        if (images.length === (uploadedImages.person2 ? 2 : 1)) {
+                            displayPreview(images);
+                        }
+                    };
+                    readers.push(reader1);
+                    reader1.readAsDataURL(uploadedImages.person1);
+                }
+                
+                if (uploadedImages.person2) {
+                    const reader2 = new FileReader();
+                    reader2.onload = function(e) {
+                        images.push({src: e.target.result, type: 'person2'});
+                        if (images.length === 2) {
+                            displayPreview(images);
+                        }
+                    };
+                    readers.push(reader2);
+                    reader2.readAsDataURL(uploadedImages.person2);
+                }
+            }
+        }
+
+        function displayPreview(images) {
+            const previewImages = document.getElementById('previewImages');
+            previewImages.innerHTML = images.map((img, index) => `
+                <div class="preview-item">
+                    <img src="${img.src}" alt="Osoba ${index + 1}">
+                    <button class="remove" onclick="removeImage('${img.type}')">×</button>
+                </div>
+            `).join('');
+            document.getElementById('previewSection').style.display = 'block';
+            checkGenerateButton();
+        }
+
+        function removeImage(type) {
+            if (type === 'couple') {
+                uploadedImages.couple = null;
+                document.getElementById('coupleImage').value = '';
+            } else if (type === 'person1') {
+                uploadedImages.person1 = null;
+                document.getElementById('person1Image').value = '';
+            } else if (type === 'person2') {
+                uploadedImages.person2 = null;
+                document.getElementById('person2Image').value = '';
+            }
+            
+            if (!uploadedImages.couple && !uploadedImages.person1) {
+                document.getElementById('previewSection').style.display = 'none';
+            } else {
+                updatePreview();
+            }
+            checkGenerateButton();
+        }
+
+        function checkGenerateButton() {
+            const hasImages = uploadedImages.couple || uploadedImages.person1;
+            document.getElementById('generateButton').disabled = !hasImages || !currentTemplate;
+        }
+
+        // Generate transformation
+        document.getElementById('generateButton').addEventListener('click', async function() {
+            if (!currentTemplate) {
+                showError('Template nije učitan. Molimo osvježite stranicu.');
+                return;
+            }
+
+            const hasImages = uploadedImages.couple || uploadedImages.person1;
+            if (!hasImages) {
+                showError('Molimo odaberite barem jednu sliku.');
+                return;
+            }
+
+            // Hide error, show loading
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('resultsSection').classList.remove('show');
+            document.getElementById('generateButton').disabled = true;
+
+            try {
+                // TODO: Implement Replicate API call
+                // For now, simulate delay
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // This is a placeholder - you'll need to implement actual Replicate API integration
+                showError('Replicate API integracija još nije implementirana. Provjeri dokumentaciju.');
+                
+                // Hide loading
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('generateButton').disabled = false;
+                
+            } catch (error) {
+                console.error('Generation error:', error);
+                showError('Greška pri generiranju. Molimo pokušajte ponovno.');
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('generateButton').disabled = false;
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showResults(imageUrl, videoUrl) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.innerHTML = '';
+            
+            if (imageUrl) {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'result-item';
+                imageDiv.innerHTML = `
+                    <h4>📸 Transformirana Slika</h4>
+                    <img src="${imageUrl}" alt="Rezultat">
+                    <a href="${imageUrl}" download="lovestories-image.jpg" class="download-button">⬇️ Download Sliku</a>
+                `;
+                resultsContainer.appendChild(imageDiv);
+            }
+            
+            if (videoUrl) {
+                const videoDiv = document.createElement('div');
+                videoDiv.className = 'result-item';
+                videoDiv.innerHTML = `
+                    <h4>🎬 Transformirani Video</h4>
+                    <video src="${videoUrl}" controls></video>
+                    <a href="${videoUrl}" download="lovestories-video.mp4" class="download-button">⬇️ Download Video</a>
+                `;
+                resultsContainer.appendChild(videoDiv);
+            }
+            
+            document.getElementById('resultsSection').classList.add('show');
+            document.getElementById('loadingSection').style.display = 'none';
+        }
+
+        // Initialize
+        loadTemplateInfo();
+        checkGenerateButton();
+    </script>
+</body>
+</html>
+
