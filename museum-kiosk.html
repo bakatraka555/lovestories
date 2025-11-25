@@ -481,23 +481,70 @@
         // Update QR code
         function updateQRCode(template) {
             const qrCodeDiv = document.getElementById('qrCode');
-            qrCodeDiv.innerHTML = '';
+            if (!qrCodeDiv) {
+                console.error('QR code div not found');
+                return;
+            }
+            
+            qrCodeDiv.innerHTML = '<div style="text-align: center; padding: 20px;">Učitavanje QR koda...</div>';
 
             // Generate order URL (replace with actual order page)
             const orderUrl = `https://lovestories-dubrovnik.netlify.app/order?template=${template.id}`;
             
-            QRCode.toCanvas(qrCodeDiv, orderUrl, {
+            // Check if QRCode library is loaded
+            if (typeof QRCode === 'undefined') {
+                console.error('QRCode library not loaded');
+                qrCodeDiv.innerHTML = '<p style="color: red;">QR biblioteka nije učitana</p>';
+                return;
+            }
+            
+            // Try canvas method first
+            try {
+                const canvas = document.createElement('canvas');
+                
+                QRCode.toCanvas(canvas, orderUrl, {
+                    width: 200,
+                    margin: 2,
+                    color: {
+                        dark: '#667eea',
+                        light: '#ffffff'
+                    },
+                    errorCorrectionLevel: 'M'
+                }, function (error) {
+                    if (error) {
+                        console.error('QR code canvas error:', error);
+                        // Fallback to DataURL method
+                        generateQRCodeDataURL(orderUrl, qrCodeDiv);
+                    } else {
+                        qrCodeDiv.innerHTML = '';
+                        qrCodeDiv.appendChild(canvas);
+                        console.log('QR code generated successfully');
+                    }
+                });
+            } catch (error) {
+                console.error('QR code error:', error);
+                // Fallback to DataURL method
+                generateQRCodeDataURL(orderUrl, qrCodeDiv);
+            }
+        }
+        
+        // Fallback method using toDataURL
+        function generateQRCodeDataURL(url, container) {
+            QRCode.toDataURL(url, {
                 width: 200,
-                height: 200,
                 margin: 2,
                 color: {
                     dark: '#667eea',
                     light: '#ffffff'
-                }
-            }, function (error) {
+                },
+                errorCorrectionLevel: 'M'
+            }, function (error, url) {
                 if (error) {
-                    console.error('QR code error:', error);
-                    qrCodeDiv.innerHTML = '<p style="color: red;">Greška pri generiranju QR koda</p>';
+                    console.error('QR code DataURL error:', error);
+                    container.innerHTML = '<p style="color: red;">Greška pri generiranju QR koda</p>';
+                } else {
+                    container.innerHTML = `<img src="${url}" alt="QR Code" style="max-width: 200px; height: auto;">`;
+                    console.log('QR code generated via DataURL');
                 }
             });
         }
