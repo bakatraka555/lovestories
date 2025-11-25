@@ -1,0 +1,392 @@
+{
+  "version": "1.0",
+  "lastUpdated": "2025-01-25",
+  "totalTemplates": 13,
+  "templates": [
+    {
+      "id": "template-01",
+      "number": 1,
+      "name": "Vintage Romance (1920s)",
+      "description": "Romantični par u vintage stilu 1920-ih godina",
+      "category": "vintage",
+      "keywords": ["vintage", "1920s", "retro", "romantic"],
+      "examples": {
+        "image": [
+          {
+            "id": "vintage-1920s-image-1",
+            "url": "https://bunny.net/examples/template-01/vintage-1920s-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-1-thumb.jpg",
+            "order": 1,
+            "description": "Par u vintage odjeći, 1920s stil"
+          },
+          {
+            "id": "vintage-1920s-image-2",
+            "url": "https://bunny.net/examples/template-01/vintage-1920s-2.jpg",
+            "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-2-thumb.jpg",
+            "order": 2,
+            "description": "Vintage par - varijanta 2"
+          }
+        ],
+        "video": [
+          {
+            "id": "vintage-1920s-video-1",
+            "url": "https://bunny.net/examples/template-01/vintage-1920s-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Vintage par u pokretu"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-02",
+      "number": 2,
+      "name": "Medieval Romance",
+      "description": "Kralj i kraljica u Dubrovniku, Game of Thrones stil",
+      "category": "fantasy",
+      "keywords": ["medieval", "king", "queen", "dubrovnik", "got"],
+      "examples": {
+        "image": [
+          {
+            "id": "medieval-romance-image-1",
+            "url": "https://bunny.net/examples/template-02/medieval-romance-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-02/thumbs/medieval-romance-1-thumb.jpg",
+            "order": 1,
+            "description": "Kralj i kraljica na Stradunu"
+          }
+        ],
+        "video": [
+          {
+            "id": "medieval-romance-video-1",
+            "url": "https://bunny.net/examples/template-02/medieval-romance-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-02/thumbs/medieval-romance-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Kraljevski par u Dubrovniku"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-03",
+      "number": 3,
+      "name": "Beach Sunset",
+      "description": "Romantičan zalazak sunca na plaži",
+      "category": "nature",
+      "keywords": ["beach", "sunset", "romantic", "ocean"],
+      "examples": {
+        "image": [
+          {
+            "id": "beach-sunset-image-1",
+            "url": "https://bunny.net/examples/template-03/beach-sunset-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-03/thumbs/beach-sunset-1-thumb.jpg",
+            "order": 1,
+            "description": "Par na plaži za zalaska sunca"
+          }
+        ],
+        "video": [
+          {
+            "id": "beach-sunset-video-1",
+            "url": "https://bunny.net/examples/template-03/beach-sunset-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-03/thumbs/beach-sunset-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Romantičan zalazak sunca"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-04",
+      "number": 4,
+      "name": "City Lights",
+      "description": "Noćni grad s bokeh efektom, glamurozno",
+      "category": "modern",
+      "keywords": ["city", "night", "lights", "glamour", "bokeh"],
+      "examples": {
+        "image": [
+          {
+            "id": "city-lights-image-1",
+            "url": "https://bunny.net/examples/template-04/city-lights-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-04/thumbs/city-lights-1-thumb.jpg",
+            "order": 1,
+            "description": "Par u noćnom gradu s bokeh svjetlima"
+          }
+        ],
+        "video": [
+          {
+            "id": "city-lights-video-1",
+            "url": "https://bunny.net/examples/template-04/city-lights-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-04/thumbs/city-lights-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Glamurozna noćna scena"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-05",
+      "number": 5,
+      "name": "Garden Wedding",
+      "description": "Vjenčanje u romantičnom vrtu",
+      "category": "wedding",
+      "keywords": ["wedding", "garden", "romantic", "flowers"],
+      "examples": {
+        "image": [
+          {
+            "id": "garden-wedding-image-1",
+            "url": "https://bunny.net/examples/template-05/garden-wedding-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-05/thumbs/garden-wedding-1-thumb.jpg",
+            "order": 1,
+            "description": "Vjenčanje u vrtu"
+          }
+        ],
+        "video": [
+          {
+            "id": "garden-wedding-video-1",
+            "url": "https://bunny.net/examples/template-05/garden-wedding-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-05/thumbs/garden-wedding-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Romantično vjenčanje"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-06",
+      "number": 6,
+      "name": "Casino Glamour",
+      "description": "Poker partija, elegantno i glamurozno",
+      "category": "glamour",
+      "keywords": ["casino", "poker", "glamour", "elegant"],
+      "examples": {
+        "image": [
+          {
+            "id": "casino-glamour-image-1",
+            "url": "https://bunny.net/examples/template-06/casino-glamour-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-06/thumbs/casino-glamour-1-thumb.jpg",
+            "order": 1,
+            "description": "Par u casino, poker partija"
+          }
+        ],
+        "video": [
+          {
+            "id": "casino-glamour-video-1",
+            "url": "https://bunny.net/examples/template-06/casino-glamour-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-06/thumbs/casino-glamour-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Elegantna casino scena"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-07",
+      "number": 7,
+      "name": "Chibi 3D",
+      "description": "3D chibi karakteri, slatko i romantično",
+      "category": "cute",
+      "keywords": ["chibi", "3d", "cute", "kawaii"],
+      "examples": {
+        "image": [
+          {
+            "id": "chibi-3d-image-1",
+            "url": "https://bunny.net/examples/template-07/chibi-3d-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-07/thumbs/chibi-3d-1-thumb.jpg",
+            "order": 1,
+            "description": "3D chibi par"
+          }
+        ],
+        "video": [
+          {
+            "id": "chibi-3d-video-1",
+            "url": "https://bunny.net/examples/template-07/chibi-3d-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-07/thumbs/chibi-3d-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Slatki chibi par"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-08",
+      "number": 8,
+      "name": "Trading Card Style",
+      "description": "Epic trading card dizajn, dinamično",
+      "category": "fantasy",
+      "keywords": ["trading", "card", "epic", "dynamic"],
+      "examples": {
+        "image": [
+          {
+            "id": "trading-card-image-1",
+            "url": "https://bunny.net/examples/template-08/trading-card-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-08/thumbs/trading-card-1-thumb.jpg",
+            "order": 1,
+            "description": "Trading card stil par"
+          }
+        ],
+        "video": [
+          {
+            "id": "trading-card-video-1",
+            "url": "https://bunny.net/examples/template-08/trading-card-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-08/thumbs/trading-card-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Epic trading card video"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-09",
+      "number": 9,
+      "name": "Dubrovnik Sunrise",
+      "description": "Zora u Dubrovniku, crkva sv. Vlaho",
+      "category": "travel",
+      "keywords": ["dubrovnik", "sunrise", "travel", "church"],
+      "examples": {
+        "image": [
+          {
+            "id": "dubrovnik-sunrise-image-1",
+            "url": "https://bunny.net/examples/template-09/dubrovnik-sunrise-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-09/thumbs/dubrovnik-sunrise-1-thumb.jpg",
+            "order": 1,
+            "description": "Par u Dubrovniku za zore"
+          }
+        ],
+        "video": [
+          {
+            "id": "dubrovnik-sunrise-video-1",
+            "url": "https://bunny.net/examples/template-09/dubrovnik-sunrise-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-09/thumbs/dubrovnik-sunrise-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Romantična zora u Dubrovniku"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-10",
+      "number": 10,
+      "name": "Volcano Adventure",
+      "description": "3D big head caricature, avantura",
+      "category": "adventure",
+      "keywords": ["volcano", "3d", "caricature", "adventure"],
+      "examples": {
+        "image": [
+          {
+            "id": "volcano-adventure-image-1",
+            "url": "https://bunny.net/examples/template-10/volcano-adventure-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-10/thumbs/volcano-adventure-1-thumb.jpg",
+            "order": 1,
+            "description": "3D caricature par"
+          }
+        ],
+        "video": [
+          {
+            "id": "volcano-adventure-video-1",
+            "url": "https://bunny.net/examples/template-10/volcano-adventure-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-10/thumbs/volcano-adventure-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Avanturistički par"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-11",
+      "number": 11,
+      "name": "Instagram Frame",
+      "description": "Social media stil, finger heart",
+      "category": "social",
+      "keywords": ["instagram", "social", "frame", "cute"],
+      "examples": {
+        "image": [
+          {
+            "id": "instagram-frame-image-1",
+            "url": "https://bunny.net/examples/template-11/instagram-frame-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-11/thumbs/instagram-frame-1-thumb.jpg",
+            "order": 1,
+            "description": "Par u Instagram frame-u"
+          }
+        ],
+        "video": [
+          {
+            "id": "instagram-frame-video-1",
+            "url": "https://bunny.net/examples/template-11/instagram-frame-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-11/thumbs/instagram-frame-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Social media par"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-12",
+      "number": 12,
+      "name": "Forever Together Box",
+      "description": "3D collectible figure u kutiji",
+      "category": "collectible",
+      "keywords": ["3d", "collectible", "box", "figure"],
+      "examples": {
+        "image": [
+          {
+            "id": "forever-together-image-1",
+            "url": "https://bunny.net/examples/template-12/forever-together-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-12/thumbs/forever-together-1-thumb.jpg",
+            "order": 1,
+            "description": "3D figure u kutiji"
+          }
+        ],
+        "video": [
+          {
+            "id": "forever-together-video-1",
+            "url": "https://bunny.net/examples/template-12/forever-together-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-12/thumbs/forever-together-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Kolekcionarski par"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-13",
+      "number": 13,
+      "name": "Cinematic Travel",
+      "description": "Putnička fotografija, profesionalno",
+      "category": "travel",
+      "keywords": ["travel", "cinematic", "professional", "dubrovnik"],
+      "examples": {
+        "image": [
+          {
+            "id": "cinematic-travel-image-1",
+            "url": "https://bunny.net/examples/template-13/cinematic-travel-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-13/thumbs/cinematic-travel-1-thumb.jpg",
+            "order": 1,
+            "description": "Cinematic putnička fotografija"
+          }
+        ],
+        "video": [
+          {
+            "id": "cinematic-travel-video-1",
+            "url": "https://bunny.net/examples/template-13/cinematic-travel-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-13/thumbs/cinematic-travel-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Profesionalna putnička scena"
+          }
+        ]
+      }
+    }
+  ]
+}
+

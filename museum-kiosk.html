@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Stories Museum - Photo Booth</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .kiosk-container {
+            display: flex;
+            height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        /* LEFT: Template Selector */
+        .template-selector {
+            flex: 0 0 350px;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .template-selector h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .template-item {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .template-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .template-item.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .template-item h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .template-item p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .template-item.selected p {
+            opacity: 0.9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        /* RIGHT: Preview & Order */
+        .preview-area {
+            flex: 1;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            margin-bottom: 30px;
+        }
+
+        .preview-header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .preview-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .preview-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .preview-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .preview-box h4 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            font-size: 18px;
+        }
+
+        .example-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .example-item {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .example-item:hover {
+            transform: scale(1.05);
+        }
+
+        .example-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .example-item video {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .example-item .play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(102, 126, 234, 0.8);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        /* Order Section */
+        .order-section {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e9ecef;
+        }
+
+        .order-section h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .selected-template-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .selected-template-info strong {
+            color: #667eea;
+        }
+
+        .order-button {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .order-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .order-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .qr-instruction {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .qr-instruction p {
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        #qrCode {
+            display: inline-block;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .kiosk-container {
+                flex-direction: column;
+            }
+
+            .template-selector {
+                flex: 0 0 auto;
+                max-height: 200px;
+            }
+
+            .template-selector h2 {
+                font-size: 20px;
+            }
+
+            .template-item {
+                display: inline-block;
+                width: 200px;
+                margin-right: 10px;
+            }
+        }
+
+        /* Scrollbar */
+        .template-selector::-webkit-scrollbar,
+        .preview-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .template-selector::-webkit-scrollbar-track,
+        .preview-area::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .template-selector::-webkit-scrollbar-thumb,
+        .preview-area::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="kiosk-container">
+        <!-- LEFT: Template Selector -->
+        <div class="template-selector">
+            <h2>💑 Odaberi Template</h2>
+            <div id="templateList">
+                <div class="loading">Učitavanje template-a...</div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Preview & Order -->
+        <div class="preview-area">
+            <div class="preview-header">
+                <h1>👀 Pregledaj Primjere</h1>
+                <p>Klikni na template lijevo da vidiš primjere slika i videa</p>
+            </div>
+            <div class="preview-content">
+                <div class="preview-box">
+                    <h4>📸 Primjeri Slika</h4>
+                    <div id="imagePreview" class="empty-state">
+                        <div>Odaberi template da vidiš primjere</div>
+                    </div>
+                    <div class="example-gallery" id="imageGallery"></div>
+                </div>
+                <div class="preview-box">
+                    <h4>🎬 Primjeri Videa</h4>
+                    <div id="videoPreview" class="empty-state">
+                        <div>Odaberi template da vidiš primjere</div>
+                    </div>
+                    <div class="example-gallery" id="videoGallery"></div>
+                </div>
+            </div>
+            <div class="order-section">
+                <h2>📸 Naruči Svoju Transformaciju</h2>
+                <div class="selected-template-info">
+                    <strong>Odabrani template:</strong> <span id="selectedTemplateName">-</span>
+                </div>
+                <button class="order-button" onclick="startOrder()" id="orderButton" disabled>
+                    📸 Počni Narudžbu
+                </button>
+                <div class="qr-instruction">
+                    <p>Skeniraj QR kod za narudžbu na svom mobitelu</p>
+                    <div id="qrCode"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Template Database
+        let templatesDB = {};
+        let currentTemplate = null;
+
+        // Load templates from JSON
+        async function loadTemplates() {
+            try {
+                // Check if running from file:// protocol (CORS issue)
+                if (window.location.protocol === 'file:') {
+                    throw new Error('Molimo pokrenite stranicu kroz lokalni web server (npr. Python: python -m http.server ili Node: npx http-server)');
+                }
+                
+                const response = await fetch('docs/couples-templates-database.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data || !data.templates || !Array.isArray(data.templates)) {
+                    throw new Error('Invalid JSON structure: missing templates array');
+                }
+                
+                templatesDB = data;
+                initializeTemplates();
+            } catch (error) {
+                console.error('Error loading templates:', error);
+                const errorMsg = error.message || 'Nepoznata greška';
+                document.getElementById('templateList').innerHTML = 
+                    '<div class="loading" style="color: red; padding: 20px; text-align: center;">' +
+                    '<strong>Greška pri učitavanju template-a</strong><br>' +
+                    '<small style="font-size: 12px; margin-top: 10px; display: block;">' + errorMsg + '</small>' +
+                    '</div>';
+            }
+        }
+
+        // Initialize template list
+        function initializeTemplates() {
+            const templateList = document.getElementById('templateList');
+            templateList.innerHTML = '';
+
+            templatesDB.templates.forEach(template => {
+                const templateItem = document.createElement('div');
+                templateItem.className = 'template-item';
+                templateItem.dataset.templateId = template.id;
+                templateItem.innerHTML = `
+                    <h3>${template.number}. ${template.name}</h3>
+                    <p>${template.description}</p>
+                `;
+                templateItem.addEventListener('click', () => selectTemplate(template.id));
+                templateList.appendChild(templateItem);
+            });
+        }
+
+        // Select template
+        function selectTemplate(templateId) {
+            // Update selected state
+            document.querySelectorAll('.template-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelector(`[data-template-id="${templateId}"]`).classList.add('selected');
+
+            // Find template
+            currentTemplate = templatesDB.templates.find(t => t.id === templateId);
+            
+            // Update preview
+            updatePreview(currentTemplate);
+            
+            // Update order section
+            document.getElementById('selectedTemplateName').textContent = currentTemplate.name;
+            document.getElementById('orderButton').disabled = false;
+            
+            // Update QR code
+            updateQRCode(currentTemplate);
+        }
+
+        // Update preview
+        function updatePreview(template) {
+            const imageGallery = document.getElementById('imageGallery');
+            const videoGallery = document.getElementById('videoGallery');
+            const imagePreview = document.getElementById('imagePreview');
+            const videoPreview = document.getElementById('videoPreview');
+
+            // Clear previous
+            imageGallery.innerHTML = '';
+            videoGallery.innerHTML = '';
+
+            // Show images
+            if (template.examples.image && template.examples.image.length > 0) {
+                imagePreview.style.display = 'none';
+                template.examples.image.forEach(image => {
+                    const imgItem = document.createElement('div');
+                    imgItem.className = 'example-item';
+                    imgItem.innerHTML = `
+                        <img src="${image.thumbnail || image.url}" alt="${image.description}" 
+                             onclick="showImage('${image.url}')">
+                    `;
+                    imageGallery.appendChild(imgItem);
+                });
+            } else {
+                imagePreview.style.display = 'block';
+            }
+
+            // Show videos
+            if (template.examples.video && template.examples.video.length > 0) {
+                videoPreview.style.display = 'none';
+                template.examples.video.forEach(video => {
+                    const videoItem = document.createElement('div');
+                    videoItem.className = 'example-item';
+                    videoItem.innerHTML = `
+                        <video src="${video.url}" 
+                               poster="${video.thumbnail || ''}" 
+                               onclick="showVideo('${video.url}')"
+                               controls>
+                        </video>
+                    `;
+                    videoGallery.appendChild(videoItem);
+                });
+            } else {
+                videoPreview.style.display = 'block';
+            }
+        }
+
+        // Show image in fullscreen
+        function showImage(url) {
+            window.open(url, '_blank');
+        }
+
+        // Show video in fullscreen
+        function showVideo(url) {
+            window.open(url, '_blank');
+        }
+
+        // Update QR code
+        function updateQRCode(template) {
+            const qrCodeDiv = document.getElementById('qrCode');
+            qrCodeDiv.innerHTML = '';
+
+            // Generate order URL (replace with actual order page)
+            const orderUrl = `https://lovestories-dubrovnik.netlify.app/order?template=${template.id}`;
+            
+            QRCode.toCanvas(qrCodeDiv, orderUrl, {
+                width: 200,
+                height: 200,
+                margin: 2,
+                color: {
+                    dark: '#667eea',
+                    light: '#ffffff'
+                }
+            }, function (error) {
+                if (error) {
+                    console.error('QR code error:', error);
+                    qrCodeDiv.innerHTML = '<p style="color: red;">Greška pri generiranju QR koda</p>';
+                }
+            });
+        }
+
+        // Start order
+        function startOrder() {
+            if (!currentTemplate) return;
+            
+            // Generate order URL
+            const orderUrl = `https://lovestories-dubrovnik.netlify.app/order?template=${currentTemplate.id}`;
+            
+            // Open in new window (for testing, in production this would be handled by QR code)
+            window.open(orderUrl, '_blank');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTemplates();
+            
+            // Refresh QR code every 30 seconds
+            setInterval(() => {
+                if (currentTemplate) {
+                    updateQRCode(currentTemplate);
+                }
+            }, 30000);
+        });
+    </script>
+</body>
+</html>
+
