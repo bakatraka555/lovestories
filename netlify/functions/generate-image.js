@@ -108,19 +108,27 @@ exports.handler = async (event, context) => {
       const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
       const BUNNY_STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
       
+      console.log('Bunny.net config check:', { 
+        hasApiKey: !!BUNNY_API_KEY, 
+        hasStorageZone: !!BUNNY_STORAGE_ZONE,
+        storageZone: BUNNY_STORAGE_ZONE ? BUNNY_STORAGE_ZONE.substring(0, 10) + '...' : 'missing',
+        apiKeyLength: BUNNY_API_KEY ? BUNNY_API_KEY.length : 0
+      });
+      
       if (!BUNNY_API_KEY || !BUNNY_STORAGE_ZONE) {
         console.error('Bunny.net config missing:', { 
           hasApiKey: !!BUNNY_API_KEY, 
           hasStorageZone: !!BUNNY_STORAGE_ZONE 
         });
-        throw new Error('Bunny.net API not configured - check BUNNY_API_KEY and BUNNY_STORAGE_ZONE environment variables');
+        throw new Error('Bunny.net API not configured - check BUNNY_API_KEY and BUNNY_STORAGE_ZONE environment variables in Netlify Dashboard');
       }
 
       try {
         const imageBuffer = Buffer.from(imageBase64, 'base64');
         const uploadUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${filename}`;
         
-        console.log('Uploading to Bunny.net:', uploadUrl.substring(0, 80) + '...');
+        console.log('Uploading to Bunny.net:', uploadUrl.substring(0, 100) + '...');
+        console.log('File size:', imageBuffer.length, 'bytes');
         
         const uploadResponse = await fetch(uploadUrl, {
           method: 'PUT',
@@ -131,14 +139,25 @@ exports.handler = async (event, context) => {
           body: imageBuffer
         });
 
+        const responseText = await uploadResponse.text();
+        
         if (!uploadResponse.ok) {
-          const errorText = await uploadResponse.text();
           console.error('Bunny.net upload error:', {
             status: uploadResponse.status,
             statusText: uploadResponse.statusText,
-            error: errorText
+            error: responseText,
+            url: uploadUrl.substring(0, 80) + '...',
+            headers: {
+              hasAccessKey: !!BUNNY_API_KEY,
+              accessKeyLength: BUNNY_API_KEY.length
+            }
           });
-          throw new Error(`Bunny.net upload failed (${uploadResponse.status}): ${errorText}`);
+          
+          if (uploadResponse.status === 401) {
+            throw new Error('Bunny.net 401 Unauthorized - check BUNNY_API_KEY and BUNNY_STORAGE_ZONE in Netlify Environment Variables. Make sure API key is correct and Storage Zone name matches exactly.');
+          }
+          
+          throw new Error(`Bunny.net upload failed (${uploadResponse.status}): ${responseText}`);
         }
 
         // CDN URL

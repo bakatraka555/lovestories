@@ -1,36 +1,105 @@
 /**
- * Prompt templates iz NANO_BANANA_PROMPT.md
- * Parsira se iz markdown filea
+ * Prompt templates - hardcoded jer Netlify Functions ne uključuje docs/ folder
  */
 
-const fs = require('fs');
-const path = require('path');
+// Hardcoded promptovi iz NANO_BANANA_PROMPT.md
+const prompts = {
+  'template-01': `Ultra-photorealistic, highly cinematic vintage 1920s photograph.
 
-// Učitaj promptove iz MD filea
-function loadPromptsFromMD() {
-  try {
-    const mdPath = path.join(__dirname, '../../docs/NANO_BANANA_PROMPT.md');
-    const mdContent = fs.readFileSync(mdPath, 'utf-8');
-    
-    // Parsiraj sve templatee - traži sve ### Template XX: pattern
-    const prompts = {};
-    const templateRegex = /### Template (\d+): ([^\n]+)\s+```([\s\S]*?)```/g;
-    let match;
-    
-    while ((match = templateRegex.exec(mdContent)) !== null) {
-      const templateNum = match[1].padStart(2, '0');
-      const templateId = `template-${templateNum}`;
-      const promptText = match[3].trim();
-      prompts[templateId] = promptText;
-      console.log(`Loaded prompt for ${templateId}`);
-    }
-    
-    return prompts;
-  } catch (error) {
-    console.error('Error loading prompts from MD:', error);
-    return {};
-  }
-}
+CRITICAL: INPUT IMAGE PROCESSING
+- TWO INPUT IMAGES:
+  * IMAGE 1: MALE FACE (reference model - use this face for male person)
+  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
+- ONE LOGO IMAGE (Love Stories Museum logo)
+
+FACE RECOGNITION & CONSISTENCY:
+- LOAD and ANALYZE both input images
+- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
+- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
+- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
+- PRESERVE all distinctive facial features from both reference images
+- KEEP both faces 100% ACCURATE from their reference images
+- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
+- CONSISTENT faces across all images and videos - same male person, same female person, same faces
+- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
+- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
+
+LOGO INTEGRATION:
+- LOAD the logo image
+- REMOVE white background (make transparent)
+- PLACE in BOTTOM RIGHT CORNER
+- SIZE: 10-15% of image width
+- OPACITY: 70-80%
+
+SCENE: Romantic couple in elegant 1920s style clothing, vintage fashion, art deco aesthetic
+LOCATION: Vintage setting, 1920s atmosphere, glamorous environment, period-appropriate background
+STYLE: Black and white or sepia tone, art deco style, timeless elegance, glamorous, sophisticated
+COMPOSITION: Both people in period-appropriate clothing, natural romantic interaction, professional vintage photography quality, high resolution, sharp details, balanced composition with both faces clearly visible`,
+
+  'template-02': `Ultra-photorealistic, highly cinematic medieval fantasy photograph.
+
+CRITICAL: INPUT IMAGE PROCESSING
+- TWO INPUT IMAGES:
+  * IMAGE 1: MALE FACE (reference model - will be KING, use this face)
+  * IMAGE 2: FEMALE FACE (reference model - will be QUEEN, use this face)
+- ONE LOGO IMAGE (Love Stories Museum logo)
+
+FACE RECOGNITION & CONSISTENCY:
+- LOAD and ANALYZE both input images
+- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics (KING)
+- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics (QUEEN)
+- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
+- PRESERVE all distinctive facial features from both reference images
+- KEEP both faces 100% ACCURATE from their reference images
+- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
+- CONSISTENT faces across all images and videos - same male person (KING), same female person (QUEEN), same faces
+- The male person from IMAGE 1 must appear as KING in ALL generated images with the SAME face
+- The female person from IMAGE 2 must appear as QUEEN in ALL generated images with the SAME face
+
+LOGO INTEGRATION:
+- LOAD the logo image
+- REMOVE white background (make transparent)
+- PLACE in BOTTOM RIGHT CORNER
+- SIZE: 10-15% of image width
+- OPACITY: 70-80%
+
+SCENE: King and queen in Dubrovnik, Game of Thrones style, majestic and regal, epic fantasy
+LOCATION: Dubrovnik old town, Stradun, medieval architecture in background, Croatian landmarks visible
+STYLE: Epic fantasy, cinematic, dramatic lighting, royal atmosphere, medieval aesthetic
+COMPOSITION: Both people in royal medieval attire, majestic poses, Dubrovnik landmarks visible, professional photography quality, high resolution, sharp details, balanced composition with both faces clearly visible`,
+
+  'template-03': `Ultra-photorealistic, highly cinematic beach sunset photograph.
+
+CRITICAL: INPUT IMAGE PROCESSING
+- TWO INPUT IMAGES:
+  * IMAGE 1: MALE FACE (reference model - use this face for male person)
+  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
+- ONE LOGO IMAGE (Love Stories Museum logo)
+
+FACE RECOGNITION & CONSISTENCY:
+- LOAD and ANALYZE both input images
+- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
+- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
+- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
+- PRESERVE all distinctive facial features from both reference images
+- KEEP both faces 100% ACCURATE from their reference images
+- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
+- CONSISTENT faces across all images and videos - same male person, same female person, same faces
+- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
+- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
+
+LOGO INTEGRATION:
+- LOAD the logo image
+- REMOVE white background (make transparent)
+- PLACE in BOTTOM RIGHT CORNER
+- SIZE: 10-15% of image width
+- OPACITY: 70-80%
+
+SCENE: Romantic couple on beach during sunset, warm golden hour lighting, ocean waves
+LOCATION: Beautiful beach, ocean waves, sunset sky, romantic beach setting
+STYLE: Warm colors, golden hour, romantic atmosphere, natural lighting, cinematic
+COMPOSITION: Both people on beach, romantic interaction, sunset in background, professional photography quality, high resolution, sharp details, balanced composition with both faces clearly visible`
+};
 
 // Fallback promptovi ako MD ne radi
 const fallbackPrompts = {
@@ -43,9 +112,7 @@ const fallbackPrompts = {
 };
 
 function getPrompt(templateId, isCouple) {
-  const prompts = loadPromptsFromMD();
-  
-  // Ako ima prompt u MD fileu, koristi ga
+  // Koristi hardcoded promptove
   if (prompts[templateId]) {
     let prompt = prompts[templateId];
     
