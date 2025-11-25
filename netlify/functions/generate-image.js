@@ -12,6 +12,7 @@
  */
 
 const fetch = require('node-fetch');
+const { getPrompt } = require('./prompts');
 
 exports.handler = async (event, context) => {
   // CORS headers
@@ -72,39 +73,81 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Kreiraj prompt za template (s logo URL-om)
-    const prompt = createPrompt(template, isCouple);
+    // Učitaj prompt iz MD filea
+    const prompt = getPrompt(template.id, isCouple);
+    console.log('Using prompt from MD file for:', template.id, 'isCouple:', isCouple);
 
-    // Upload slike na Replicate storage prvo (Replicate API očekuje URL-ove ili file objekte)
-    // Za sada koristimo base64 data URI format
+    // Upload slike na Replicate storage prvo (kao u screenshotu - koristi URL-ove)
     const image1Base64 = image1.includes(',') ? image1.split(',')[1] : image1;
-    const image1DataUri = `data:image/jpeg;base64,${image1Base64}`;
+    const image1Buffer = Buffer.from(image1Base64, 'base64');
     
-    let image2DataUri = null;
-    if (!isCouple && image2) {
-      const image2Base64 = image2.includes(',') ? image2.split(',')[1] : image2;
-      image2DataUri = `data:image/jpeg;base64,${image2Base64}`;
+    console.log('Uploading image1 to Replicate storage...');
+    const image1UploadResponse = await fetch('https://api.replicate.com/v1/files', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Token ${REPLICATE_API_TOKEN}`,
+        'Content-Type': 'image/jpeg'
+      },
+      body: image1Buffer
+    });
+
+    if (!image1UploadResponse.ok) {
+      const errorText = await image1UploadResponse.text();
+      console.error('Failed to upload image1:', errorText);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Failed to upload image1 to Replicate', details: errorText })
+      };
     }
 
-    // Logo URL direktno u promptu
+    const image1File = await image1UploadResponse.json();
+    const image1Url = image1File.url || image1File;
+    console.log('Image1 uploaded:', image1Url);
+
+    let image2Url = null;
+    if (!isCouple && image2) {
+      const image2Base64 = image2.includes(',') ? image2.split(',')[1] : image2;
+      const image2Buffer = Buffer.from(image2Base64, 'base64');
+      
+      console.log('Uploading image2 to Replicate storage...');
+      const image2UploadResponse = await fetch('https://api.replicate.com/v1/files', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${REPLICATE_API_TOKEN}`,
+          'Content-Type': 'image/jpeg'
+        },
+        body: image2Buffer
+      });
+
+      if (image2UploadResponse.ok) {
+        const image2File = await image2UploadResponse.json();
+        image2Url = image2File.url || image2File;
+        console.log('Image2 uploaded:', image2Url);
+      } else {
+        console.warn('Failed to upload image2, continuing without it');
+      }
+    }
+
+    // Logo URL
     const logoUrl = 'https://examples.b-cdn.net/logo.jpg';
 
-    // Pozovi Replicate API
+    // Pozovi Replicate API s URL-ovima (kao u screenshotu)
     const inputData = {
       prompt: prompt,
-      image: image1DataUri,
-      logo: logoUrl,  // Koristi URL umjesto base64
+      image: image1Url,  // Koristi URL umjesto base64
+      logo: logoUrl,
       logo_position: 'bottom-right',
       logo_size: 0.12,
       logo_opacity: 0.75,
       num_outputs: 1,
-      guidance_scale: 7.5,
+      guidance_scale: 9.0,  // Povećano za bolju face consistency
       num_inference_steps: 50
     };
 
     // Ako nije couple i ima image2, dodaj image2
-    if (!isCouple && image2DataUri) {
-      inputData.image2 = image2DataUri;
+    if (!isCouple && image2Url) {
+      inputData.image2 = image2Url;
     }
 
     console.log('Calling Replicate API with:', {
@@ -231,157 +274,5 @@ exports.handler = async (event, context) => {
   }
 };
 
-function createPrompt(template, isCouple) {
-  const prompts = {
-    'template-01': {
-      scene: 'Romantic couple in elegant 1920s style clothing, vintage fashion, art deco aesthetic',
-      location: 'Vintage setting, 1920s atmosphere, glamorous environment, period-appropriate background',
-      style: 'Black and white or sepia tone, art deco style, timeless elegance, glamorous, sophisticated'
-    },
-    'template-02': {
-      scene: 'King and queen in Dubrovnik, Game of Thrones style, majestic and regal, epic fantasy',
-      location: 'Dubrovnik old town, Stradun, medieval architecture in background, Croatian landmarks visible',
-      style: 'Epic fantasy, cinematic, dramatic lighting, royal atmosphere, medieval aesthetic'
-    },
-    'template-03': {
-      scene: 'Romantic couple on beach during sunset, warm golden hour lighting, ocean waves',
-      location: 'Beautiful beach, ocean waves, sunset sky, romantic beach setting',
-      style: 'Warm colors, golden hour, romantic atmosphere, natural lighting, cinematic'
-    },
-    'template-04': {
-      scene: 'Couple in city at night with bokeh lights, glamorous, sophisticated, urban atmosphere',
-      location: 'Urban city setting, night time, city lights, bokeh effects',
-      style: 'Glamorous, sophisticated, cinematic, urban night photography'
-    },
-    'template-05': {
-      scene: 'Romantic wedding in garden setting, flowers, natural light, elegant and romantic atmosphere',
-      location: 'Beautiful garden, flowers, natural setting, wedding atmosphere',
-      style: 'Elegant, romantic, natural lighting, wedding photography'
-    },
-    'template-06': {
-      scene: 'Elegant couple at poker table, sophisticated, glamorous, casino atmosphere',
-      location: 'Casino setting, poker table, elegant environment',
-      style: 'Glamorous, sophisticated, casino aesthetic, elegant'
-    },
-    'template-07': {
-      scene: 'Cute 3D chibi characters, kawaii style, sweet and romantic, colorful',
-      location: '3D chibi style environment, colorful, kawaii aesthetic',
-      style: '3D chibi, kawaii, cute, colorful, sweet'
-    },
-    'template-08': {
-      scene: 'Epic trading card design, dynamic composition, fantasy elements, dramatic lighting',
-      location: 'Trading card style environment, epic fantasy setting',
-      style: 'Epic, dynamic, fantasy, trading card aesthetic, dramatic'
-    },
-    'template-09': {
-      scene: 'Romantic couple in Dubrovnik at sunrise, St. Vlaho church in background, warm morning light',
-      location: 'Dubrovnik, St. Vlaho church, sunrise, Croatian landmarks',
-      style: 'Travel photography, cinematic, warm morning light, professional'
-    },
-    'template-10': {
-      scene: '3D big head caricature, adventure theme, volcano background, fun and playful',
-      location: 'Volcano setting, adventure environment, 3D style',
-      style: '3D caricature, fun, playful, adventure, big head style'
-    },
-    'template-11': {
-      scene: 'Social media aesthetic, finger heart gesture, modern, trendy, colorful',
-      location: 'Modern social media setting, trendy environment',
-      style: 'Social media, Instagram frame style, modern, trendy, colorful'
-    },
-    'template-12': {
-      scene: 'Couple as 3D collectible figures in box, premium quality, detailed, collectible style',
-      location: 'Collectible box setting, 3D figure display',
-      style: '3D collectible, premium quality, detailed, collectible aesthetic'
-    },
-    'template-13': {
-      scene: 'Professional travel photograph, Dubrovnik location, cinematic composition',
-      location: 'Dubrovnik, travel destination, Croatian landmarks',
-      style: 'Professional travel photography, cinematic, high quality'
-    }
-  };
-
-  const templatePrompt = prompts[template.id] || {
-    scene: 'Romantic couple',
-    location: 'Beautiful location',
-    style: 'Cinematic, professional'
-  };
-
-  // Različiti prompt ovisno o tome je li couple ili odvojene slike
-  if (isCouple) {
-    return `Ultra-photorealistic, highly cinematic photograph.
-
-CRITICAL: INPUT IMAGE PROCESSING
-- ONE INPUT IMAGE: COUPLE IMAGE (contains both MALE and FEMALE person together)
-- ONE LOGO IMAGE: https://examples.b-cdn.net/logo.jpg
-
-FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE the input couple image
-- IDENTIFY the MALE person from the couple image - recognize ALL facial features, bone structure, distinctive characteristics
-- IDENTIFY the FEMALE person from the couple image - recognize ALL facial features, bone structure, distinctive characteristics
-- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
-- PRESERVE all distinctive facial features from both people in the reference image
-- KEEP both faces 100% ACCURATE from their reference image
-- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
-- CONSISTENT faces across all images and videos - same male person, same female person, same faces
-- The male person from the couple image must appear in ALL generated images with the SAME face
-- The female person from the couple image must appear in ALL generated images with the SAME face
-- EXTRACT both faces from the single couple image and use them as reference models
-
-LOGO INTEGRATION:
-- LOAD the logo image from: https://examples.b-cdn.net/logo.jpg
-- REMOVE white background (make transparent)
-- PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
-
-SCENE: ${templatePrompt.scene}
-LOCATION: ${templatePrompt.location}
-STYLE: ${templatePrompt.style}
-
-COMPOSITION:
-- Both people should be clearly visible in the scene
-- Natural interaction between the couple
-- Professional photography quality
-- High resolution, sharp details
-- Balanced composition with both faces clearly visible`;
-  } else {
-    return `Ultra-photorealistic, highly cinematic photograph.
-
-CRITICAL: INPUT IMAGE PROCESSING
-- TWO INPUT IMAGES:
-  * IMAGE 1: MALE FACE (reference model - use this face for male person)
-  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
-- ONE LOGO IMAGE: https://examples.b-cdn.net/logo.jpg
-
-FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE both input images
-- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
-- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
-- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
-- PRESERVE all distinctive facial features from both reference images
-- KEEP both faces 100% ACCURATE from their reference images
-- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
-- CONSISTENT faces across all images and videos - same male person, same female person, same faces
-- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
-- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
-
-LOGO INTEGRATION:
-- LOAD the logo image from: https://examples.b-cdn.net/logo.jpg
-- REMOVE white background (make transparent)
-- PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
-
-SCENE: ${templatePrompt.scene}
-LOCATION: ${templatePrompt.location}
-STYLE: ${templatePrompt.style}
-
-COMPOSITION:
-- Both people should be clearly visible in the scene
-- Natural interaction between the couple
-- Professional photography quality
-- High resolution, sharp details
-- Balanced composition with both faces clearly visible`;
-  }
-}
+// createPrompt funkcija je uklonjena - sada koristimo getPrompt iz prompts.js
 
