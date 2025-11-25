@@ -32,16 +32,21 @@ with open('docs/couples-templates-database.json', 'r', encoding='utf-8') as f:
 IMAGE_MODEL = "google/nano-banana-pro"
 VIDEO_MODEL = "kwaivgi/kling-v2.5-turbo-pro"
 LOGO_PATH = "logo.png"  # Promijeni ako je drugačije
-TEST_IMAGE_PATH = "test-couple.jpg"  # Promijeni na tvoju test sliku
+MALE_FACE_PATH = "male-face.jpg"  # Muško lice - reference model
+FEMALE_FACE_PATH = "female-face.jpg"  # Žensko lice - reference model
 
 # Provjeri da li postoje potrebne datoteke
 if not os.path.exists(LOGO_PATH):
     print(f"⚠️  UPOZORENJE: Logo datoteka '{LOGO_PATH}' ne postoji!")
     print("   Kreiraj transparentan PNG logo prije pokretanja.")
 
-if not os.path.exists(TEST_IMAGE_PATH):
-    print(f"⚠️  UPOZORENJE: Test slika '{TEST_IMAGE_PATH}' ne postoji!")
-    print("   Dodaj test sliku para prije pokretanja.")
+if not os.path.exists(MALE_FACE_PATH):
+    print(f"⚠️  UPOZORENJE: Muško lice '{MALE_FACE_PATH}' ne postoji!")
+    print("   Dodaj sliku muškog lica (reference model) prije pokretanja.")
+
+if not os.path.exists(FEMALE_FACE_PATH):
+    print(f"⚠️  UPOZORENJE: Žensko lice '{FEMALE_FACE_PATH}' ne postoji!")
+    print("   Dodaj sliku ženskog lica (reference model) prije pokretanja.")
 
 # Prompt template za svaki template
 PROMPTS = {
@@ -100,25 +105,72 @@ PROMPTS = {
 }
 
 def generate_image(template_id, prompt, output_path):
-    """Generira sliku koristeći nano-banana-pro"""
+    """Generira sliku koristeći nano-banana-pro s 2 input slike (muško + žensko lice)"""
     print(f"📸 Generiranje slike za {template_id}...")
     
     try:
-        # Upload logo i test sliku
+        # Učitaj logo i reference slike
         logo_file = open(LOGO_PATH, 'rb')
-        test_image_file = open(TEST_IMAGE_PATH, 'rb')
+        male_face_file = open(MALE_FACE_PATH, 'rb')
+        female_face_file = open(FEMALE_FACE_PATH, 'rb')
+        
+        # Dodaj face consistency instrukcije u prompt
+        enhanced_prompt = f"""Ultra-photorealistic, highly cinematic photograph.
+
+CRITICAL: INPUT IMAGE PROCESSING
+- TWO INPUT IMAGES:
+  * IMAGE 1: MALE FACE (reference model - use this face for male person)
+  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
+- ONE LOGO IMAGE (Love Stories Museum logo)
+
+FACE RECOGNITION & CONSISTENCY:
+- LOAD and ANALYZE both input images
+- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
+- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
+- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
+- PRESERVE all distinctive facial features from both reference images
+- KEEP both faces 100% ACCURATE from their reference images
+- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
+- CONSISTENT faces across all images and videos - same male person, same female person, same faces
+- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
+- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
+
+LOGO INTEGRATION:
+- LOAD the logo image
+- REMOVE white background (make transparent)
+- PLACE in BOTTOM RIGHT CORNER
+- SIZE: 10-15% of image width
+- OPACITY: 70-80%
+
+{prompt}
+
+COMPOSITION:
+- Both people should be clearly visible in the scene
+- Natural interaction between the couple
+- Professional photography quality
+- High resolution, sharp details
+- Balanced composition with both faces clearly visible"""
         
         output = client.run(
             IMAGE_MODEL,
             input={
-                "prompt": prompt,
-                "image": test_image_file,
+                "prompt": enhanced_prompt,
+                "image": male_face_file,      # IMAGE 1: Muško lice
+                "image2": female_face_file,  # IMAGE 2: Žensko lice
                 "logo": logo_file,
                 "logo_position": "bottom-right",
                 "logo_size": 0.12,
-                "logo_opacity": 0.75
+                "logo_opacity": 0.75,
+                "num_outputs": 1,
+                "guidance_scale": 7.5,
+                "num_inference_steps": 50
             }
         )
+        
+        # Zatvori fileove
+        logo_file.close()
+        male_face_file.close()
+        female_face_file.close()
         
         # Download rezultat
         # output je URL ili file path

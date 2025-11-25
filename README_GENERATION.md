@@ -37,8 +37,12 @@ pip install -r requirements.txt
 ## 🖼️ Korak 3: Pripremi Datoteke
 
 1. **Logo:** Spremi transparentan PNG kao `logo.png` u root folderu
-2. **Test slika:** Spremi sliku para kao `test-couple.jpg` u root folderu
-   - Može biti 1 slika s parom ili 2 odvojene slike lica
+2. **Muško lice:** Spremi sliku muškog lica kao `male-face.jpg` u root folderu
+   - Reference model - ovo lice će biti korišteno za muškog modela u svim generacijama
+3. **Žensko lice:** Spremi sliku ženskog lica kao `female-face.jpg` u root folderu
+   - Reference model - ovo lice će biti korišteno za ženskog modela u svim generacijama
+   
+**VAŽNO:** Ove dvije slike će biti konstantne kroz sve generacije - ista lica će se pojavljivati u svim templateima!
 
 ---
 
