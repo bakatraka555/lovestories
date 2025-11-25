@@ -1,0 +1,16 @@
+{
+  "name": "lovestories-museum",
+  "version": "1.0.0",
+  "description": "Love Stories Museum Photo Booth",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+

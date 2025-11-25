@@ -520,24 +520,91 @@
             document.getElementById('generateButton').disabled = true;
 
             try {
-                // TODO: Implement Replicate API call
-                // For now, simulate delay
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // Konvertuj slike u base64
+                const image1Promise = uploadedImages.couple 
+                    ? fileToBase64(uploadedImages.couple)
+                    : fileToBase64(uploadedImages.person1);
                 
-                // This is a placeholder - you'll need to implement actual Replicate API integration
-                showError('Replicate API integracija još nije implementirana. Provjeri dokumentaciju.');
-                
-                // Hide loading
-                document.getElementById('loadingSection').style.display = 'none';
-                document.getElementById('generateButton').disabled = false;
+                const image2Promise = uploadedImages.person2 
+                    ? fileToBase64(uploadedImages.person2)
+                    : Promise.resolve(null);
+
+                const [image1Base64, image2Base64] = await Promise.all([image1Promise, image2Promise]);
+                const isCouple = !!uploadedImages.couple;
+
+                // Pozovi Netlify Function za generiranje
+                console.log('Calling generate-image function...');
+                const generateResponse = await fetch('/.netlify/functions/generate-image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        templateId: currentTemplate.id,
+                        image1: image1Base64,
+                        image2: image2Base64,
+                        isCouple: isCouple
+                    })
+                });
+
+                if (!generateResponse.ok) {
+                    const error = await generateResponse.json();
+                    throw new Error(error.error || 'Generation failed');
+                }
+
+                const generateResult = await generateResponse.json();
+                console.log('Generation result:', generateResult);
+
+                if (!generateResult.success || !generateResult.imageUrl) {
+                    throw new Error('No image URL returned');
+                }
+
+                // Upload na Bunny.net
+                console.log('Uploading to Bunny.net...');
+                const uploadResponse = await fetch('/.netlify/functions/upload-to-bunny', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        imageUrl: generateResult.imageUrl,
+                        templateId: currentTemplate.id,
+                        userId: generateUserId() // Generiraj unique user ID
+                    })
+                });
+
+                if (!uploadResponse.ok) {
+                    const error = await uploadResponse.json();
+                    throw new Error(error.error || 'Upload failed');
+                }
+
+                const uploadResult = await uploadResponse.json();
+                console.log('Upload result:', uploadResult);
+
+                // Prikaži rezultate
+                showResults(uploadResult.cdnUrl, null);
                 
             } catch (error) {
                 console.error('Generation error:', error);
-                showError('Greška pri generiranju. Molimo pokušajte ponovno.');
+                showError('Greška pri generiranju: ' + error.message);
                 document.getElementById('loadingSection').style.display = 'none';
                 document.getElementById('generateButton').disabled = false;
             }
         });
+
+        // Helper funkcije
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function generateUserId() {
+            return 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        }
 
         function showError(message) {
             const errorDiv = document.getElementById('errorMessage');
