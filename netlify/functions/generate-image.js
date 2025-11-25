@@ -276,29 +276,48 @@ exports.handler = async (event, context) => {
       console.log('Replicate prediction created:', {
         id: prediction.id,
         status: prediction.status,
-        urls: prediction.urls
+        urls: prediction.urls,
+        output: prediction.output
       });
     } catch (e) {
       console.error('Failed to parse Replicate response:', e);
-      const errorText = await replicateResponse.text().catch(() => 'Unable to read response');
+      console.error('Error details:', e.message, e.stack);
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'Invalid response from Replicate API',
-          details: errorText.substring(0, 500)
+          details: e.message
         })
       };
     }
+    
+    if (!prediction || !prediction.id) {
+      console.error('Invalid prediction response:', prediction);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Invalid prediction response from Replicate',
+          details: 'Missing prediction ID'
+        })
+      };
+    }
+    
+    console.log('Starting to poll for prediction result, prediction ID:', prediction.id);
     
     // Čekaj da se generacija završi
     let result = prediction;
     let maxWaitTime = 300; // Max 5 minuta
     let waitCount = 0;
     
+    console.log('Initial prediction status:', result.status);
+    
     while ((result.status === 'starting' || result.status === 'processing') && waitCount < maxWaitTime) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Čekaj 2 sekunde između provjera
       waitCount++;
+      
+      console.log(`Checking prediction status (attempt ${waitCount}/${maxWaitTime})...`);
       
       const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${result.id}`, {
         headers: {
@@ -308,14 +327,15 @@ exports.handler = async (event, context) => {
       
       if (!statusResponse.ok) {
         const errorText = await statusResponse.text();
+        console.error('Status check failed:', statusResponse.status, errorText);
         throw new Error(`Status check failed: ${statusResponse.status} - ${errorText}`);
       }
       
-      const statusText = await statusResponse.text();
       try {
-        result = JSON.parse(statusText);
+        result = await statusResponse.json();
+        console.log(`Prediction status: ${result.status} (attempt ${waitCount})`);
       } catch (e) {
-        console.error('Failed to parse status response:', statusText.substring(0, 200));
+        console.error('Failed to parse status response:', e);
         throw new Error('Invalid status response from Replicate');
       }
     }
