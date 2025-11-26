@@ -160,10 +160,11 @@ exports.handler = async (event, context) => {
           throw new Error(`Bunny.net upload failed (${uploadResponse.status}): ${responseText}`);
         }
 
-        // CDN URL
-        const cdnUrl = `https://lovestories-cdn.b-cdn.net/${filename}`;
-        console.log('Upload successful, CDN URL:', cdnUrl);
-        return cdnUrl;
+        // Koristi direktan Storage URL umjesto CDN URL-a (CDN domain možda nije konfiguriran)
+        // Format: https://storage.bunnycdn.com/{storageZone}/{filename}
+        const storageUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${filename}`;
+        console.log('Upload successful, Storage URL:', storageUrl);
+        return storageUrl;
       } catch (error) {
         console.error('Error in uploadToBunny:', error);
         throw error;
