@@ -762,55 +762,26 @@
                 return;
             }
             
-            // Try canvas method first
+            // qrcodejs uses constructor approach
             try {
-                const canvas = document.createElement('canvas');
+                // Clear previous QR code
+                qrContainer.innerHTML = '';
                 
-                QRCode.toCanvas(canvas, imageUrl, {
+                // Generate QR code using qrcodejs API
+                new QRCode(qrContainer, {
+                    text: imageUrl,
                     width: 250,
-                    margin: 2,
-                    color: {
-                        dark: '#667eea',
-                        light: '#ffffff'
-                    },
-                    errorCorrectionLevel: 'M'
-                }, function (error) {
-                    if (error) {
-                        console.error('QR code canvas error:', error);
-                        // Fallback to DataURL method
-                        generateQRCodeDataURL(imageUrl, qrContainer);
-                    } else {
-                        qrContainer.innerHTML = '';
-                        qrContainer.appendChild(canvas);
-                        console.log('QR code generated successfully');
-                    }
+                    height: 250,
+                    colorDark: '#667eea',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.M
                 });
+                
+                console.log('QR code generated successfully');
             } catch (error) {
                 console.error('QR code error:', error);
-                // Fallback to DataURL method
-                generateQRCodeDataURL(imageUrl, qrContainer);
+                qrContainer.innerHTML = '<p style="color: red;">Greška pri generiranju QR koda</p>';
             }
-        }
-        
-        // Fallback method using toDataURL
-        function generateQRCodeDataURL(url, container) {
-            QRCode.toDataURL(url, {
-                width: 250,
-                margin: 2,
-                color: {
-                    dark: '#667eea',
-                    light: '#ffffff'
-                },
-                errorCorrectionLevel: 'M'
-            }, function (error, url) {
-                if (error) {
-                    console.error('QR code DataURL error:', error);
-                    container.innerHTML = '<p style="color: red;">Greška pri generiranju QR koda</p>';
-                } else {
-                    container.innerHTML = `<img src="${url}" alt="QR Code" style="max-width: 100%; height: auto;">`;
-                    console.log('QR code generated successfully (DataURL)');
-                }
-            });
         }
 
         // Initialize
