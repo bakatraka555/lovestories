@@ -153,11 +153,11 @@ function getPrompt(templateId, isCouple) {
     return `Ultra-photorealistic, highly cinematic photograph.
 
 CRITICAL: INPUT IMAGE PROCESSING
-- ONE INPUT IMAGE: COUPLE IMAGE (contains both MALE and FEMALE person together)
-- ONE LOGO IMAGE: https://examples.b-cdn.net/logo.jpg
+- The image_input array contains: ONE COUPLE IMAGE (contains both MALE and FEMALE person together) and ONE LOGO IMAGE
+- Use the couple image to extract both faces as reference models
 
 FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE the input couple image
+- LOAD and ANALYZE the couple image from image_input
 - IDENTIFY the MALE person from the couple image - recognize ALL facial features, bone structure, distinctive characteristics
 - IDENTIFY the FEMALE person from the couple image - recognize ALL facial features, bone structure, distinctive characteristics
 - MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
@@ -170,7 +170,7 @@ FACE RECOGNITION & CONSISTENCY:
 - EXTRACT both faces from the single couple image and use them as reference models
 
 LOGO INTEGRATION:
-- LOAD the logo image from: https://examples.b-cdn.net/logo.jpg
+- Use the logo image from image_input array
 - REMOVE white background (make transparent)
 - PLACE in BOTTOM RIGHT CORNER
 - SIZE: 10-15% of image width
@@ -190,13 +190,12 @@ COMPOSITION:
     return `Ultra-photorealistic, highly cinematic photograph.
 
 CRITICAL: INPUT IMAGE PROCESSING
-- TWO INPUT IMAGES:
-  * IMAGE 1: MALE FACE (reference model - use this face for male person)
-  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
-- ONE LOGO IMAGE: https://examples.b-cdn.net/logo.jpg
+- The image_input array contains: IMAGE 1 (MALE FACE), IMAGE 2 (FEMALE FACE), and ONE LOGO IMAGE
+- IMAGE 1: MALE FACE (reference model - use this face for male person)
+- IMAGE 2: FEMALE FACE (reference model - use this face for female person)
 
 FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE both input images
+- LOAD and ANALYZE both input images from image_input array
 - IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
 - IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
 - MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
@@ -208,7 +207,7 @@ FACE RECOGNITION & CONSISTENCY:
 - The female person from IMAGE 2 must appear in ALL generated images with the SAME face
 
 LOGO INTEGRATION:
-- LOAD the logo image from: https://examples.b-cdn.net/logo.jpg
+- Use the logo image from image_input array
 - REMOVE white background (make transparent)
 - PLACE in BOTTOM RIGHT CORNER
 - SIZE: 10-15% of image width
