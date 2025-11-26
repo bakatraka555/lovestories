@@ -551,13 +551,23 @@
                 let generateResult;
                 try {
                     generateResult = await generateResponse.json();
+                    
+                    if (!generateResponse.ok) {
+                        throw new Error(generateResult.error || generateResult.details || 'Generation failed');
+                    }
                 } catch (e) {
-                    const errorText = await generateResponse.text();
-                    throw new Error(errorText || 'Failed to parse response');
-                }
-
-                if (!generateResponse.ok) {
-                    throw new Error(generateResult.error || generateResult.details || 'Generation failed');
+                    // Ako je greška u parsiranju ili response nije ok, baci grešku
+                    if (e.message && e.message.includes('Generation failed')) {
+                        throw e; // Već ima poruku
+                    }
+                    // Ako je greška u parsiranju JSON-a, pokušaj pročitati kao text
+                    try {
+                        const errorText = await generateResponse.text();
+                        throw new Error(errorText || 'Failed to parse response');
+                    } catch (textError) {
+                        // Ako ni text() ne radi, body je već potrošen
+                        throw new Error(e.message || 'Failed to parse response');
+                    }
                 }
 
                 console.log('Generation result:', generateResult);
