@@ -13,6 +13,11 @@
 const fetch = require('node-fetch');
 
 exports.handler = async (event, context) => {
+  console.log('=== upload-to-bunny function called ===');
+  console.log('HTTP Method:', event.httpMethod);
+  console.log('Path:', event.path);
+  console.log('Has body:', !!event.body);
+  
   // CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -40,7 +45,12 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('Parsing request body...');
     const { imageUrl, templateId, userId } = JSON.parse(event.body);
+    console.log('Request body parsed. Keys:', Object.keys({ imageUrl, templateId, userId }));
+    console.log('imageUrl:', imageUrl ? imageUrl.substring(0, 50) + '...' : 'null');
+    console.log('templateId:', templateId);
+    console.log('userId:', userId);
 
     if (!imageUrl || !templateId) {
       return {

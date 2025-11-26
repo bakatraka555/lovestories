@@ -562,13 +562,25 @@
                 }
 
                 console.log('Generation result:', generateResult);
+                console.log('Generation result.success:', generateResult.success);
+                console.log('Generation result.imageUrl:', generateResult.imageUrl);
 
                 if (!generateResult.success || !generateResult.imageUrl) {
+                    console.error('Missing success or imageUrl in result:', {
+                        success: generateResult.success,
+                        imageUrl: generateResult.imageUrl,
+                        fullResult: generateResult
+                    });
                     throw new Error('No image URL returned');
                 }
 
                 // Upload na Bunny.net
                 console.log('Uploading to Bunny.net...');
+                console.log('Calling upload-to-bunny with:', {
+                    imageUrl: generateResult.imageUrl,
+                    templateId: currentTemplate.id,
+                    userId: generateUserId()
+                });
                 const uploadResponse = await fetch('/.netlify/functions/upload-to-bunny', {
                     method: 'POST',
                     headers: {
