@@ -337,7 +337,7 @@
 
         <div class="loading" id="loadingSection" style="display: none;">
             <div class="loading-spinner"></div>
-            <p>AI generira tvoju transformaciju...</p>
+            <p id="loadingMessage">AI generira tvoju transformaciju...</p>
             <p style="font-size: 14px; color: #666; margin-top: 10px;">Ovo može potrajati 1-2 minute</p>
         </div>
 
@@ -594,6 +594,12 @@
 
                     console.log(`Checking prediction status (attempt ${attempt}/${maxAttempts})...`);
                     
+                    // Ažuriraj loading poruku
+                    const loadingMessage = document.getElementById('loadingMessage');
+                    if (loadingMessage) {
+                        loadingMessage.textContent = `AI generira tvoju transformaciju... (${attempt}/${maxAttempts})`;
+                    }
+                    
                     const statusResponse = await fetch(`/.netlify/functions/check-prediction-status?predictionId=${predictionId}`);
                     const statusText = await statusResponse.text();
                     
@@ -613,6 +619,9 @@
 
                     if (statusResult.status === 'succeeded') {
                         console.log('Generation successful! Image URL:', statusResult.imageUrl);
+                        if (loadingMessage) {
+                            loadingMessage.textContent = 'Generiranje završeno! Uploadujem na Bunny.net...';
+                        }
                         break;
                     } else if (statusResult.status === 'failed') {
                         throw new Error(statusResult.error || 'Generation failed');
