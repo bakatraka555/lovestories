@@ -207,18 +207,18 @@ exports.handler = async (event, context) => {
     // Logo URL (već je na Bunny.net)
     const logoUrl = 'https://examples.b-cdn.net/logo.jpg';
 
-    // Pripremi image_input array (kao u tvom primjeru)
+    // Pripremi image_input array (kao u tvom uspješnom primjeru)
     const imageInput = [image1Url];
     if (!isCouple && image2Url) {
       imageInput.push(image2Url);
     }
     imageInput.push(logoUrl); // Logo je uvijek zadnji
 
-    // Pozovi Replicate API s URL-ovima (kao u tvom primjeru)
+    // Pozovi Replicate API s URL-ovima (kao u tvom uspješnom primjeru)
     const inputData = {
       prompt: prompt,
-      image_input: imageInput,  // Koristi array umjesto zasebnih image/image2/logo
-      aspect_ratio: '9:16',  // Vertikalni format
+      image_input: imageInput,  // Array: [couple_image, logo] ili [male_image, female_image, logo]
+      aspect_ratio: '4:3',  // Kao u tvom uspješnom primjeru (može biti i '9:16' za vertikalni)
       output_format: 'png',
       resolution: '2K',
       safety_filter_level: 'block_only_high'
@@ -234,12 +234,12 @@ exports.handler = async (event, context) => {
       promptLength: prompt.length
     });
 
+    // Replicate API poziv (bez Prefer: wait - koristimo polling kao u dokumentaciji)
     const replicateResponse = await fetch('https://api.replicate.com/v1/models/google/nano-banana-pro/predictions', {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${REPLICATE_API_TOKEN}`,  // Replicate koristi Token, ne Bearer
-        'Content-Type': 'application/json',
-        'Prefer': 'wait'  // Čekaj da se generacija završi prije nego vratiš response
+        'Authorization': `Token ${REPLICATE_API_TOKEN}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         input: inputData
