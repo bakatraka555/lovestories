@@ -547,14 +547,21 @@
                     })
                 });
 
+                // Prvo pročitaj kao text da vidimo što se vraća
+                const responseText = await generateResponse.text();
+                console.log('Response status:', generateResponse.status);
+                console.log('Response headers:', Object.fromEntries(generateResponse.headers.entries()));
+                console.log('Response text (first 500 chars):', responseText.substring(0, 500));
+                
                 // Parse response body samo jednom
                 let generateResult;
                 try {
-                    generateResult = await generateResponse.json();
+                    generateResult = JSON.parse(responseText);
                 } catch (e) {
-                    // Ako json() ne uspije, body je već potrošen - ne pokušavaj čitati text()
+                    // Ako JSON parsing ne uspije, pokaži što se stvarno vratilo
                     console.error('Failed to parse JSON response:', e);
-                    throw new Error('Failed to parse response: ' + (e.message || 'Invalid JSON'));
+                    console.error('Full response text:', responseText);
+                    throw new Error('Failed to parse response: ' + (e.message || 'Invalid JSON') + '. Response: ' + responseText.substring(0, 200));
                 }
 
                 if (!generateResponse.ok) {
