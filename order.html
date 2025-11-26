@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Naruči Transformaciju - Love Stories Museum</title>
+    <script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -291,34 +292,35 @@
         <div class="upload-section">
             <h3>📸 Odaberi Slike</h3>
             <div class="info-box">
-                💡 Možeš uploadati <strong>1 sliku s parom</strong> ili <strong>2 odvojene slike</strong> (jedna po osobi)
+                💡 Možeš uploadati <strong>1 sliku s parom</strong> ili <strong>2 odvojene slike</strong> (jedna po osobi)<br>
+                📱 Na mobitelu možeš odabrati sliku iz <strong>galerije</strong> ili <strong>snimiti novu s kamerom</strong>
             </div>
             
             <div class="upload-options">
                 <div class="upload-option">
-                    <input type="file" id="coupleImage" accept="image/*" />
+                    <input type="file" id="coupleImage" accept="image/*" capture="environment" />
                     <label for="coupleImage">
                         <div class="upload-icon">👫</div>
                         <div class="upload-text">Par na jednoj slici</div>
-                        <div class="upload-hint">1 slika</div>
+                        <div class="upload-hint">📷 Galerija ili Kamera</div>
                     </label>
                 </div>
                 <div class="upload-option">
-                    <input type="file" id="person1Image" accept="image/*" />
+                    <input type="file" id="person1Image" accept="image/*" capture="environment" />
                     <label for="person1Image">
                         <div class="upload-icon">👤</div>
                         <div class="upload-text">Osoba 1</div>
-                        <div class="upload-hint">1. slika</div>
+                        <div class="upload-hint">📷 Galerija ili Kamera</div>
                     </label>
                 </div>
             </div>
             <div class="upload-options">
                 <div class="upload-option" style="grid-column: 1 / -1;">
-                    <input type="file" id="person2Image" accept="image/*" />
+                    <input type="file" id="person2Image" accept="image/*" capture="environment" />
                     <label for="person2Image">
                         <div class="upload-icon">👤</div>
                         <div class="upload-text">Osoba 2 (opciono)</div>
-                        <div class="upload-hint">2. slika - samo ako koristiš odvojene slike</div>
+                        <div class="upload-hint">📷 Galerija ili Kamera - samo ako koristiš odvojene slike</div>
                     </label>
                 </div>
             </div>
@@ -718,6 +720,9 @@
                     <a href="${imageUrl}" download="lovestories-image.jpg" class="download-button">⬇️ Download Sliku</a>
                 `;
                 resultsContainer.appendChild(imageDiv);
+                
+                // Generiraj QR kod za sliku
+                generateQRCodeForImage(imageUrl, resultsContainer);
             }
             
             if (videoUrl) {
@@ -733,6 +738,79 @@
             
             document.getElementById('resultsSection').classList.add('show');
             document.getElementById('loadingSection').style.display = 'none';
+        }
+        
+        // Generiraj QR kod za sliku
+        function generateQRCodeForImage(imageUrl, container) {
+            const qrDiv = document.createElement('div');
+            qrDiv.className = 'result-item';
+            qrDiv.style.textAlign = 'center';
+            qrDiv.style.padding = '20px';
+            qrDiv.style.background = '#f8f9fa';
+            qrDiv.style.borderRadius = '12px';
+            qrDiv.style.marginTop = '20px';
+            qrDiv.innerHTML = '<h4>📱 Skeniraj QR kod za pristup na mobitelu</h4><div id="qrCodeContainer" style="display: inline-block; padding: 20px; background: white; border-radius: 8px; margin-top: 10px;"></div>';
+            container.appendChild(qrDiv);
+            
+            const qrContainer = qrDiv.querySelector('#qrCodeContainer');
+            qrContainer.innerHTML = '<div style="text-align: center; padding: 20px;">Učitavanje QR koda...</div>';
+            
+            // Check if QRCode library is loaded
+            if (typeof QRCode === 'undefined') {
+                console.error('QRCode library not loaded');
+                qrContainer.innerHTML = '<p style="color: red;">QR biblioteka nije učitana</p>';
+                return;
+            }
+            
+            // Try canvas method first
+            try {
+                const canvas = document.createElement('canvas');
+                
+                QRCode.toCanvas(canvas, imageUrl, {
+                    width: 250,
+                    margin: 2,
+                    color: {
+                        dark: '#667eea',
+                        light: '#ffffff'
+                    },
+                    errorCorrectionLevel: 'M'
+                }, function (error) {
+                    if (error) {
+                        console.error('QR code canvas error:', error);
+                        // Fallback to DataURL method
+                        generateQRCodeDataURL(imageUrl, qrContainer);
+                    } else {
+                        qrContainer.innerHTML = '';
+                        qrContainer.appendChild(canvas);
+                        console.log('QR code generated successfully');
+                    }
+                });
+            } catch (error) {
+                console.error('QR code error:', error);
+                // Fallback to DataURL method
+                generateQRCodeDataURL(imageUrl, qrContainer);
+            }
+        }
+        
+        // Fallback method using toDataURL
+        function generateQRCodeDataURL(url, container) {
+            QRCode.toDataURL(url, {
+                width: 250,
+                margin: 2,
+                color: {
+                    dark: '#667eea',
+                    light: '#ffffff'
+                },
+                errorCorrectionLevel: 'M'
+            }, function (error, url) {
+                if (error) {
+                    console.error('QR code DataURL error:', error);
+                    container.innerHTML = '<p style="color: red;">Greška pri generiranju QR koda</p>';
+                } else {
+                    container.innerHTML = `<img src="${url}" alt="QR Code" style="max-width: 100%; height: auto;">`;
+                    console.log('QR code generated successfully (DataURL)');
+                }
+            });
         }
 
         // Initialize
