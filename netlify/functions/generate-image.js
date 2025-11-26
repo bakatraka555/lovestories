@@ -277,23 +277,16 @@ exports.handler = async (event, context) => {
         output: prediction.output
       });
     } catch (e) {
+      // Ako json() ne uspije, body je već potrošen - ne pokušavaj čitati text()
       console.error('Failed to parse Replicate response:', e);
       console.error('Error details:', e.message, e.stack);
-      
-      // Ako je greška u parsiranju, pokušaj pročitati kao text
-      try {
-        const errorText = await replicateResponse.text();
-        console.error('Response text:', errorText.substring(0, 500));
-      } catch (textError) {
-        console.error('Could not read response as text:', textError);
-      }
       
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'Invalid response from Replicate API',
-          details: e.message
+          details: e.message || 'Failed to parse JSON response'
         })
       };
     }
@@ -330,19 +323,21 @@ exports.handler = async (event, context) => {
         }
       });
       
-      if (!statusResponse.ok) {
-        const errorText = await statusResponse.text();
-        console.error('Status check failed:', statusResponse.status, errorText);
-        throw new Error(`Status check failed: ${statusResponse.status} - ${errorText}`);
-      }
-      
+      let result;
       try {
         result = await statusResponse.json();
-        console.log(`Prediction status: ${result.status} (attempt ${waitCount})`);
       } catch (e) {
+        // Ako json() ne uspije, body je već potrošen
         console.error('Failed to parse status response:', e);
-        throw new Error('Invalid status response from Replicate');
+        throw new Error(`Failed to parse status response: ${e.message || 'Invalid JSON'}`);
       }
+      
+      if (!statusResponse.ok) {
+        console.error('Status check failed:', statusResponse.status, result);
+        throw new Error(`Status check failed: ${statusResponse.status} - ${JSON.stringify(result)}`);
+      }
+      
+      console.log(`Prediction status: ${result.status} (attempt ${waitCount})`);
     }
     
     if (waitCount >= maxWaitTime) {
