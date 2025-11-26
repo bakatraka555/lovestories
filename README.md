@@ -48,7 +48,7 @@ lovestories/
 3. Beach Sunset
 4. City Lights
 5. Garden Wedding
-6. Casino Glamour
+6. Love Walks Through Time 🆕
 7. Chibi 3D
 8. Trading Card Style
 9. Dubrovnik Sunrise

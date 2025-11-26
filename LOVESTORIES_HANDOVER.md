@@ -57,7 +57,7 @@ lovestories dubrovnik/
 3. **Beach Sunset** - Romantičan zalazak sunca
 4. **City Lights** - Noćni grad s bokeh efektom
 5. **Garden Wedding** - Vjenčanje u vrtu
-6. **Casino Glamour** - Poker partija, elegantno
+6. **Love Walks Through Time** - Romantična šetnja kišom 🆕
 7. **Chibi 3D** - 3D chibi karakteri
 8. **Trading Card Style** - Trading card dizajn
 9. **Dubrovnik Sunrise** - Zora u Dubrovniku
