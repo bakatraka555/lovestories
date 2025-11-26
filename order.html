@@ -547,18 +547,19 @@
                     })
                 });
 
-                if (!generateResponse.ok) {
-                    let error;
-                    try {
-                        error = await generateResponse.json();
-                    } catch (e) {
-                        const errorText = await generateResponse.text();
-                        throw new Error(errorText || 'Generation failed');
-                    }
-                    throw new Error(error.error || error.details || 'Generation failed');
+                // Parse response body samo jednom
+                let generateResult;
+                try {
+                    generateResult = await generateResponse.json();
+                } catch (e) {
+                    const errorText = await generateResponse.text();
+                    throw new Error(errorText || 'Failed to parse response');
                 }
 
-                const generateResult = await generateResponse.json();
+                if (!generateResponse.ok) {
+                    throw new Error(generateResult.error || generateResult.details || 'Generation failed');
+                }
+
                 console.log('Generation result:', generateResult);
 
                 if (!generateResult.success || !generateResult.imageUrl) {
