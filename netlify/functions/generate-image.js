@@ -295,53 +295,93 @@ exports.handler = async (event, context) => {
       };
     }
     
-    // S `Prefer: wait` header, Replicate će vratiti gotov rezultat direktno
-    // Nema potrebe za polling!
-    console.log('Prediction response:', {
-      id: prediction.id,
-      status: prediction.status,
-      output: prediction.output
-    });
-    
-    if (prediction.status === 'failed') {
-      console.error('Generation failed:', prediction.error);
+    // Provjeri da li ima prediction ID
+    if (!prediction || !prediction.id) {
+      console.error('Invalid prediction response:', prediction);
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
-          error: 'Generation failed', 
-          details: prediction.error || 'Unknown error'
+          error: 'Invalid prediction response from Replicate',
+          details: 'Missing prediction ID'
         })
       };
     }
     
-    if (prediction.status !== 'succeeded') {
-      // Ako status nije succeeded, možda je još u procesu (iako bi trebao biti gotov s Prefer: wait)
-      console.warn('Unexpected status:', prediction.status);
+    console.log('Prediction created, ID:', prediction.id, 'Status:', prediction.status);
+    
+    // Polling za rezultat (kao u dokumentaciji i tvom uspješnom primjeru)
+    let result = prediction;
+    let maxWaitTime = 300; // Max 5 minuta
+    let waitCount = 0;
+    
+    while ((result.status === 'starting' || result.status === 'processing') && waitCount < maxWaitTime) {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Čekaj 2 sekunde
+      waitCount++;
+      
+      console.log(`Checking prediction status (attempt ${waitCount}/${maxWaitTime})...`);
+      
+      const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${result.id}`, {
+        headers: {
+          'Authorization': `Token ${REPLICATE_API_TOKEN}`
+        }
+      });
+      
+      if (!statusResponse.ok) {
+        const errorText = await statusResponse.text();
+        console.error('Status check failed:', statusResponse.status, errorText);
+        throw new Error(`Status check failed: ${statusResponse.status} - ${errorText}`);
+      }
+      
+      try {
+        result = await statusResponse.json();
+        console.log(`Prediction status: ${result.status} (attempt ${waitCount})`);
+      } catch (e) {
+        console.error('Failed to parse status response:', e);
+        throw new Error('Invalid status response from Replicate');
+      }
+    }
+    
+    if (waitCount >= maxWaitTime) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Generation timeout', predictionId: result.id })
+      };
+    }
+
+    if (result.status === 'failed') {
+      console.error('Generation failed:', result.error);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Generation failed', details: result.error })
+      };
+    }
+
+    if (result.status !== 'succeeded') {
+      console.error('Unexpected status:', result.status);
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'Generation not completed', 
-          status: prediction.status,
-          details: 'Expected succeeded status but got ' + prediction.status
+          status: result.status
         })
       };
     }
 
-    // Output može biti string (jedna slika) ili array (više slika)
-    const imageUrl = Array.isArray(prediction.output) 
-      ? prediction.output[0] 
-      : prediction.output;
+    // Output je string URL (kao u tvom uspješnom primjeru)
+    const imageUrl = result.output;
     
     if (!imageUrl) {
-      console.error('No image URL in output:', prediction);
+      console.error('No image URL in output:', result);
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'No image URL in response',
-          details: 'Output is empty or invalid'
+          details: 'Output is empty'
         })
       };
     }
