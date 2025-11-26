@@ -15,14 +15,37 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import io
 
+# Load .env file if it exists
+def load_env_file():
+    """Load environment variables from .env file"""
+    env_path = Path('.env')
+    if env_path.exists():
+        with open(env_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    key = key.strip()
+                    value = value.strip().strip('"').strip("'")
+                    os.environ[key] = value
+
+# Load .env file
+load_env_file()
+
 # Konfiguracija
 BUNNY_STORAGE_ZONE = os.getenv('BUNNY_STORAGE_ZONE', 'lovestories-examples')
 BUNNY_API_KEY = os.getenv('BUNNY_API_KEY')
 CDN_DOMAIN = 'examples.b-cdn.net'  # CDN domain za pristup
 
 if not BUNNY_API_KEY:
-    print('❌ ERROR: BUNNY_API_KEY not set!')
-    print('Set it with: export BUNNY_API_KEY="your-api-key"')
+    print('ERROR: BUNNY_API_KEY not set!')
+    print('\nOptions to set it:')
+    print('1. Create .env file with: BUNNY_API_KEY=your-api-key')
+    print('2. PowerShell: $env:BUNNY_API_KEY="your-api-key"')
+    print('3. CMD: set BUNNY_API_KEY=your-api-key')
+    print('\nTo get your API key from Netlify:')
+    print('1. Go to: https://app.netlify.com/sites/YOUR_SITE/settings/deploys#environment-variables')
+    print('2. Find BUNNY_API_KEY and copy the value')
     exit(1)
 
 # Učitaj template database
@@ -109,31 +132,30 @@ def setup_template_examples(template):
     template_name = template['name']
     results = []
     
-    print(f'\n📁 Template: {template_id} - {template_name}')
+    print(f'\nTemplate: {template_id} - {template_name}')
     
     # Upload image examples
     if 'examples' in template and 'image' in template['examples']:
         for img_example in template['examples']['image']:
-            # Ekstraktiraj filename iz URL-a
+            # Extract filename from URL
             url = img_example['url']
-            # Format: https://bunny.net/examples/template-01/vintage-1920s-1.jpg
-            # Ili: https://examples.b-cdn.net/template-01/vintage-1920s-1.jpg
+            # Format: https://examples.b-cdn.net/template-01/vintage-1920s-1.jpg
             filename = url.split('/')[-1]
             remote_path = f'{template_id}/{filename}'
             
-            # Generiraj placeholder (4:3 aspect ratio, 1200x900)
+            # Generate placeholder (4:3 aspect ratio, 1200x900)
             placeholder_text = f"{template_name}\n{img_example.get('description', 'Example')}"
             image_data = generate_placeholder_image(1200, 900, placeholder_text)
             
-            # Upload glavnu sliku
+            # Upload main image
             result = upload_to_bunny(image_data, remote_path, 'image/jpeg')
             if result['success']:
-                print(f'  ✅ Image: {remote_path}')
+                print(f'  [OK] Image: {remote_path}')
                 results.append({'type': 'image', 'path': remote_path, 'url': result['cdn_url']})
             else:
-                print(f'  ❌ Image failed: {remote_path} - {result.get("error", "Unknown")}')
+                print(f'  [FAIL] Image: {remote_path} - {result.get("error", "Unknown")}')
             
-            # Generiraj i upload thumbnail
+            # Generate and upload thumbnail
             if 'thumbnail' in img_example:
                 thumb_url = img_example['thumbnail']
                 thumb_filename = thumb_url.split('/')[-1]
@@ -142,11 +164,11 @@ def setup_template_examples(template):
                 thumb_data = generate_thumbnail(image_data)
                 thumb_result = upload_to_bunny(thumb_data, thumb_remote_path, 'image/jpeg')
                 if thumb_result['success']:
-                    print(f'  ✅ Thumbnail: {thumb_remote_path}')
+                    print(f'  [OK] Thumbnail: {thumb_remote_path}')
                 else:
-                    print(f'  ❌ Thumbnail failed: {thumb_remote_path}')
+                    print(f'  [FAIL] Thumbnail: {thumb_remote_path}')
     
-    # Upload video thumbnails (video fajlovi će biti uploadani ručno)
+    # Upload video thumbnails (video files will be uploaded manually)
     if 'examples' in template and 'video' in template['examples']:
         for vid_example in template['examples']['video']:
             if 'thumbnail' in vid_example:
@@ -154,52 +176,52 @@ def setup_template_examples(template):
                 thumb_filename = thumb_url.split('/')[-1]
                 thumb_remote_path = f'{template_id}/thumbs/{thumb_filename}'
                 
-                # Generiraj placeholder za video thumbnail
+                # Generate placeholder for video thumbnail
                 placeholder_text = f"{template_name}\nVideo Preview"
                 image_data = generate_placeholder_image(1200, 900, placeholder_text, bg_color=(234, 118, 75))
                 thumb_data = generate_thumbnail(image_data)
                 
                 thumb_result = upload_to_bunny(thumb_data, thumb_remote_path, 'image/jpeg')
                 if thumb_result['success']:
-                    print(f'  ✅ Video Thumbnail: {thumb_remote_path}')
+                    print(f'  [OK] Video Thumbnail: {thumb_remote_path}')
                 else:
-                    print(f'  ❌ Video Thumbnail failed: {thumb_remote_path}')
+                    print(f'  [FAIL] Video Thumbnail: {thumb_remote_path}')
     
     return results
 
 def create_temp_folder():
-    """Kreira temp/ folder strukturu za korisničke uploads"""
-    print('\n📁 Creating temp/ folder structure...')
+    """Create temp/ folder structure for user uploads"""
+    print('\nCreating temp/ folder structure...')
     
-    # Kreiraj placeholder file u temp/ folderu (Bunny.net kreira foldere automatski)
-    placeholder_data = generate_placeholder_image(100, 100, 'temp')
+    # Create placeholder file in temp/ folder (Bunny.net creates folders automatically)
+    placeholder_data = b'placeholder'  # Simple text placeholder
     result = upload_to_bunny(placeholder_data, 'temp/.placeholder', 'text/plain')
     
     if result['success']:
-        print('  ✅ temp/ folder created')
+        print('  [OK] temp/ folder created')
     else:
-        print(f'  ⚠️  temp/ folder: {result.get("error", "Unknown")}')
+        print(f'  [WARN] temp/ folder: {result.get("error", "Unknown")}')
 
 def main():
-    print('🚀 Setting up Bunny.net Storage Structure')
-    print(f'📦 Storage Zone: {BUNNY_STORAGE_ZONE}')
-    print(f'🌐 CDN Domain: {CDN_DOMAIN}')
+    print('Setting up Bunny.net Storage Structure')
+    print(f'Storage Zone: {BUNNY_STORAGE_ZONE}')
+    print(f'CDN Domain: {CDN_DOMAIN}')
     print('=' * 60)
     
-    # Kreiraj temp folder
+    # Create temp folder
     create_temp_folder()
     
-    # Setup svaki template
+    # Setup each template
     all_results = []
     for template in templates_db['templates']:
         results = setup_template_examples(template)
         all_results.extend(results)
     
     print('\n' + '=' * 60)
-    print('📊 Summary:')
-    print(f'   ✅ Uploaded: {len(all_results)} placeholder images')
-    print(f'   📁 Templates: {len(templates_db["templates"])}')
-    print('\n💡 Next Steps:')
+    print('Summary:')
+    print(f'   [OK] Uploaded: {len(all_results)} placeholder images')
+    print(f'   Templates: {len(templates_db["templates"])}')
+    print('\nNext Steps:')
     print('   1. Replace placeholder images with real generated examples')
     print('   2. Upload video files manually to each template folder')
     print('   3. Update URLs in couples-templates-database.json if needed')
