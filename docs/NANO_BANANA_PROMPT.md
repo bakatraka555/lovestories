@@ -1,192 +1,208 @@
-# 🎨 nano-banana-pro Prompt - Dva Modela (Muško + Žensko Lice)
+# 🎨 Love Stories Museum - Prompt Templates
 
-## 📋 Osnovna Struktura
+## 📋 Pregled
 
-nano-banana-pro podržava **2 input slike** (muško i žensko lice) koja će biti **konstantna kroz sve generacije**.
+Ovaj dokument sadrži sve **13 prompt template-a** za Love Stories Museum Photo Booth.
+
+Svaki prompt podržava:
+- **COUPLE IMAGE**: 1 slika s parom (oba lica zajedno)
+- **SEPARATE IMAGES**: 2 odvojene slike (muško + žensko lice)
+- **LOGO**: Treća slika u `image_input` array (transparent PNG s Bunny CDN-a)
 
 ---
 
-## 🔑 Ključni Prompt Elementi
+## 🔑 Image Input Array Format
 
-### Osnovni Format:
-
+### Za COUPLE (1 slika para):
+```javascript
+image_input: [
+  "https://examples.b-cdn.net/temp/couple-image.jpg",  // Slika para
+  "https://examples.b-cdn.net/logo.jpg"                 // Logo
+]
 ```
-Ultra-photorealistic, highly cinematic [STIL] photograph.
 
-CRITICAL: INPUT IMAGE PROCESSING
-- TWO INPUT IMAGES:
-  * IMAGE 1: MALE FACE (reference model - use this face for male person)
-  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
-- ONE LOGO IMAGE (Love Stories Museum logo)
-
-FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE both input images
-- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
-- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
-- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
-- PRESERVE all distinctive facial features from both reference images
-- KEEP both faces 100% ACCURATE from their reference images
-- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
-- CONSISTENT faces across all images and videos - same male person, same female person, same faces
-- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
-- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
-
-LOGO INTEGRATION:
-- LOAD the logo image
-- REMOVE white background (make transparent)
-- PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
-
-[SCENA OPIS - specifično za template]
-[LOKACIJA OPIS]
-[STIL OPIS]
-
-COMPOSITION:
-- Both people should be clearly visible in the scene
-- Natural interaction between the couple
-- Professional photography quality
-- High resolution, sharp details
-- Balanced composition with both faces clearly visible
+### Za SEPARATE (2 odvojene slike):
+```javascript
+image_input: [
+  "https://examples.b-cdn.net/temp/male-face.jpg",     // Muško lice
+  "https://examples.b-cdn.net/temp/female-face.jpg",   // Žensko lice
+  "https://examples.b-cdn.net/logo.jpg"                 // Logo
+]
 ```
 
 ---
 
-## 🎯 Template-Specific Prompts
+## 🎯 Svih 13 Template-a
 
 ### Template 01: Vintage Romance (1920s)
+**Kategorija:** Vintage
 
-```
-Ultra-photorealistic, highly cinematic vintage 1920s photograph.
+| Element | Opis |
+|---------|------|
+| **Scene** | Romantic couple in elegant 1920s style clothing, vintage fashion, art deco aesthetic |
+| **Location** | Vintage setting, 1920s atmosphere, glamorous environment, period-appropriate background |
+| **Style** | Black and white or sepia tone, art deco style, timeless elegance, glamorous, sophisticated |
 
-CRITICAL: INPUT IMAGE PROCESSING
-- TWO INPUT IMAGES:
-  * IMAGE 1: MALE FACE (reference model - use this face for male person)
-  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
-- ONE LOGO IMAGE (Love Stories Museum logo)
+---
 
-FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE both input images
-- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
-- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
-- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
-- PRESERVE all distinctive facial features from both reference images
-- KEEP both faces 100% ACCURATE from their reference images
-- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
-- CONSISTENT faces across all images and videos - same male person, same female person, same faces
-- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
-- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
+### Template 02: Medieval Romance (King & Queen)
+**Kategorija:** Fantasy
 
-LOGO INTEGRATION:
-- LOAD the logo image
-- REMOVE white background (make transparent)
-- PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+| Element | Opis |
+|---------|------|
+| **Scene** | King and queen in Dubrovnik, Game of Thrones style, majestic and regal, epic fantasy |
+| **Location** | Dubrovnik old town, Stradun, medieval architecture in background, Croatian landmarks visible |
+| **Style** | Epic fantasy, cinematic, dramatic lighting, royal atmosphere, medieval aesthetic |
+| **Special** | Male person is KING, female person is QUEEN |
 
-SCENE: Romantic couple in elegant 1920s style clothing, vintage fashion, art deco aesthetic
-LOCATION: Vintage setting, 1920s atmosphere, glamorous environment, period-appropriate background
-STYLE: Black and white or sepia tone, art deco style, timeless elegance, glamorous, sophisticated
-COMPOSITION: Both people in period-appropriate clothing, natural romantic interaction, professional vintage photography quality, high resolution, sharp details, balanced composition with both faces clearly visible
-```
-
-### Template 02: Medieval Romance
-
-```
-Ultra-photorealistic, highly cinematic medieval fantasy photograph.
-
-CRITICAL: INPUT IMAGE PROCESSING
-- TWO INPUT IMAGES:
-  * IMAGE 1: MALE FACE (reference model - will be KING, use this face)
-  * IMAGE 2: FEMALE FACE (reference model - will be QUEEN, use this face)
-- ONE LOGO IMAGE (Love Stories Museum logo)
-
-FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE both input images
-- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics (KING)
-- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics (QUEEN)
-- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
-- PRESERVE all distinctive facial features from both reference images
-- KEEP both faces 100% ACCURATE from their reference images
-- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
-- CONSISTENT faces across all images and videos - same male person (KING), same female person (QUEEN), same faces
-- The male person from IMAGE 1 must appear as KING in ALL generated images with the SAME face
-- The female person from IMAGE 2 must appear as QUEEN in ALL generated images with the SAME face
-
-LOGO INTEGRATION:
-- LOAD the logo image
-- REMOVE white background (make transparent)
-- PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
-
-SCENE: King and queen in Dubrovnik, Game of Thrones style, majestic and regal, epic fantasy
-LOCATION: Dubrovnik old town, Stradun, medieval architecture in background, Croatian landmarks visible
-STYLE: Epic fantasy, cinematic, dramatic lighting, royal atmosphere, medieval aesthetic
-COMPOSITION: Both people in royal medieval attire, majestic poses, Dubrovnik landmarks visible, professional photography quality, high resolution, sharp details, balanced composition with both faces clearly visible
-```
+---
 
 ### Template 03: Beach Sunset
+**Kategorija:** Nature
 
-```
-Ultra-photorealistic, highly cinematic beach sunset photograph.
+| Element | Opis |
+|---------|------|
+| **Scene** | Romantic couple on beach during sunset, warm golden hour lighting, ocean waves |
+| **Location** | Beautiful beach, ocean waves, sunset sky, romantic beach setting |
+| **Style** | Warm colors, golden hour, romantic atmosphere, natural lighting, cinematic |
 
-CRITICAL: INPUT IMAGE PROCESSING
-- TWO INPUT IMAGES:
-  * IMAGE 1: MALE FACE (reference model - use this face for male person)
-  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
-- ONE LOGO IMAGE (Love Stories Museum logo)
+---
 
-FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE both input images
-- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
-- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
-- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
-- PRESERVE all distinctive facial features from both reference images
-- KEEP both faces 100% ACCURATE from their reference images
-- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
-- CONSISTENT faces across all images and videos - same male person, same female person, same faces
-- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
-- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
+### Template 04: City Lights
+**Kategorija:** Modern
 
-LOGO INTEGRATION:
-- LOAD the logo image
-- REMOVE white background (make transparent)
-- PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+| Element | Opis |
+|---------|------|
+| **Scene** | Couple in city at night with beautiful bokeh lights, glamorous and sophisticated urban atmosphere |
+| **Location** | Modern city at night, skyscrapers, neon lights, urban environment with beautiful bokeh effect |
+| **Style** | Night photography, bokeh lights, glamorous, sophisticated, urban chic, cinematic |
 
-SCENE: Romantic couple on beach during sunset, warm golden hour lighting, ocean waves
-LOCATION: Beautiful beach, ocean waves, sunset sky, romantic beach setting
-STYLE: Warm colors, golden hour, romantic atmosphere, natural lighting, cinematic
-COMPOSITION: Both people on beach, romantic interaction, sunset in background, professional photography quality, high resolution, sharp details, balanced composition with both faces clearly visible
-```
+---
+
+### Template 05: Garden Wedding
+**Kategorija:** Wedding
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Romantic wedding ceremony in beautiful garden setting, flowers everywhere, natural light |
+| **Location** | Lush garden with flowers, wedding arch, romantic outdoor setting |
+| **Style** | Soft natural lighting, romantic, elegant, wedding photography style, dreamy atmosphere |
+
+---
+
+### Template 06: Casino Glamour
+**Kategorija:** Glamour
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Elegant couple at poker table in luxurious casino, sophisticated and glamorous atmosphere |
+| **Location** | Luxurious casino interior, poker table, chips, cards, chandeliers, velvet and gold |
+| **Style** | Glamorous, sophisticated, James Bond style, dramatic lighting, high-end luxury |
+
+---
+
+### Template 07: Chibi 3D
+**Kategorija:** Cute
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Cute 3D chibi characters, kawaii style, sweet and romantic, colorful and playful |
+| **Location** | Colorful fantasy background, cute environment, hearts and sparkles |
+| **Style** | 3D render, chibi proportions, kawaii aesthetic, bright colors, cute and adorable |
+| **Special** | Big heads, small bodies, cute expressions |
+
+---
+
+### Template 08: Trading Card Style
+**Kategorija:** Fantasy
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Epic trading card design with couple as fantasy heroes, dynamic composition, dramatic |
+| **Location** | Fantasy background with magical elements, epic scenery, dramatic sky |
+| **Style** | Trading card game art style, dynamic poses, fantasy elements, dramatic lighting, detailed illustration |
+| **Special** | Card border visible, epic and heroic poses |
+
+---
+
+### Template 09: Dubrovnik Sunrise
+**Kategorija:** Travel
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Romantic couple in Dubrovnik at sunrise, St. Vlaho church in background, warm morning light |
+| **Location** | Dubrovnik Old Town, St. Vlaho Church, Stradun, ancient stone buildings, Adriatic Sea visible |
+| **Style** | Travel photography, warm sunrise colors, golden hour, cinematic, professional quality |
+
+---
+
+### Template 10: Volcano Adventure
+**Kategorija:** Adventure
+
+| Element | Opis |
+|---------|------|
+| **Scene** | 3D big head caricature style, adventure theme with volcano in background, fun and playful |
+| **Location** | Volcanic landscape, adventure setting, dramatic volcano with lava, exciting environment |
+| **Style** | 3D caricature with exaggerated big heads, fun and playful, adventure movie style, colorful |
+
+---
+
+### Template 11: Instagram Frame
+**Kategorija:** Social
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Social media style photo with Instagram frame aesthetic, finger heart gesture, modern and trendy |
+| **Location** | Trendy backdrop, colorful background, social media aesthetic |
+| **Style** | Instagram photo style, modern, trendy, colorful, influencer aesthetic, bright and vibrant |
+| **Special** | Finger heart gesture, Instagram-worthy poses |
+
+---
+
+### Template 12: Forever Together Box
+**Kategorija:** Collectible
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Couple as 3D collectible figures inside a display box, premium quality figurines |
+| **Location** | Inside a collectible display box with "Forever Together" or "Love Stories" branding |
+| **Style** | 3D figurine style, collectible toy aesthetic, premium quality, detailed miniature figures |
+
+---
+
+### Template 13: Cinematic Travel
+**Kategorija:** Travel
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Professional travel photography of couple in Dubrovnik, cinematic composition, wanderlust |
+| **Location** | Dubrovnik scenic viewpoint, ancient walls, Adriatic Sea, Croatian coast |
+| **Style** | Professional travel photography, cinematic, National Geographic style, high quality, dramatic |
 
 ---
 
 ## 🔧 API Poziv Format
 
-### Za nano-banana-pro s 2 input slike:
+### Replicate API Call:
 
 ```javascript
 const response = await fetch('https://api.replicate.com/v1/models/google/nano-banana-pro/predictions', {
   method: 'POST',
   headers: {
-    'Authorization': `Token ${REPLICATE_API_TOKEN}`,
+    'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
     input: {
-      prompt: "Tvoj prompt ovdje...",
-      image: maleFaceImage,      // Prva slika - muško lice (IMAGE 1)
-      image2: femaleFaceImage,   // Druga slika - žensko lice (IMAGE 2)
-      logo: logoImage,           // Logo slika
-      logo_position: "bottom-right",
-      logo_size: 0.12,
-      logo_opacity: 0.75,
-      num_outputs: 1,
-      guidance_scale: 7.5,
-      num_inference_steps: 50
+      prompt: promptText,
+      image_input: [
+        coupleImageUrl,  // ili [maleImageUrl, femaleImageUrl]
+        logoUrl
+      ],
+      aspect_ratio: 'match_input_image',  // ili '4:3', '9:16', itd.
+      output_format: 'jpg',
+      resolution: '2K',
+      safety_filter_level: 'block_only_high'
     }
   })
 });
@@ -194,44 +210,48 @@ const response = await fetch('https://api.replicate.com/v1/models/google/nano-ba
 
 ---
 
-## 📝 Važne Napomene
+## 📝 Logo Integracija
 
-### Face Consistency:
+### Logo na Bunny CDN:
+```
+URL: https://examples.b-cdn.net/logo.jpg
+```
 
-1. **Koristi iste reference slike** za sve generacije
-   - Muško lice: uvijek ista slika (IMAGE 1)
-   - Žensko lice: uvijek ista slika (IMAGE 2)
-
-2. **Jasno naglasi u promptu:**
-   - "The male person from IMAGE 1 must appear in ALL generated images with the SAME face"
-   - "The female person from IMAGE 2 must appear in ALL generated images with the SAME face"
-
-3. **Testiraj s 1-2 templatea** prije batch generiranja
-   - Provjeri da su lica konzistentna
-   - Provjeri da se ne mijenjaju kroz različite generacije
-
-### Logo:
-
-- Logo mora biti **transparentan PNG**
-- Provjeri da je white background uklonjen
-- Testiraj logo integraciju prije batch generiranja
+### Prompt instrukcije za logo:
+```
+LOGO INTEGRATION:
+- Use the LOGO IMAGE from image_input array
+- REMOVE white background from logo (make it transparent)
+- PLACE logo in BOTTOM RIGHT CORNER of generated image
+- SIZE: 10-15% of image width
+- OPACITY: 70-80% (semi-transparent, visible but not distracting)
+- Logo should blend naturally into the scene
+```
 
 ---
 
 ## ✅ Checklist za Svaki Template
 
-- [ ] Prompt uključuje "TWO INPUT IMAGES" instrukcije
-- [ ] Spomenuta su oba input image-a (IMAGE 1 = male, IMAGE 2 = female)
-- [ ] Face consistency je naglašena kroz prompt
-- [ ] Logo integracija je opisana
-- [ ] Scene, location i style su specifični za template
-- [ ] Composition instrukcije su jasne
-- [ ] "SAME face" instrukcije su uključene
+- [x] Scene opis specifičan za template
+- [x] Location opis specifičan za template
+- [x] Style opis specifičan za template
+- [x] Face recognition instrukcije uključene
+- [x] Logo integration instrukcije uključene
+- [x] Podrška za COUPLE image (1 slika)
+- [x] Podrška za SEPARATE images (2 slike)
+- [x] Composition instrukcije uključene
 
 ---
 
-## 🔗 Korisni Linkovi
+## 🔗 Povezani Fajlovi
 
-- nano-banana-pro: https://replicate.com/google/nano-banana-pro
-- Replicate API Docs: https://replicate.com/docs
+- `netlify/functions/prompts.js` - Hardcoded promptovi za Netlify Functions
+- `netlify/functions/generate-image.js` - Generiranje slika
+- `docs/couples-templates-database.json` - Template metadata
 
+---
+
+## 📅 Zadnje Ažuriranje
+
+**Datum:** 2025-11-26
+**Verzija:** 2.0 (Svih 13 template-a)
