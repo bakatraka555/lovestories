@@ -7,25 +7,25 @@ const prompts = {
   'template-01': `Ultra-photorealistic, highly cinematic vintage 1920s photograph.
 
 CRITICAL: INPUT IMAGE PROCESSING
-- TWO INPUT IMAGES:
-  * IMAGE 1: MALE FACE (reference model - use this face for male person)
-  * IMAGE 2: FEMALE FACE (reference model - use this face for female person)
-- ONE LOGO IMAGE (Love Stories Museum logo)
+- The image_input array contains input images
+- If ONE image: COUPLE IMAGE (contains both MALE and FEMALE person together)
+- If TWO images: IMAGE 1 = MALE FACE, IMAGE 2 = FEMALE FACE
+- Logo image is also in image_input array
 
 FACE RECOGNITION & CONSISTENCY:
-- LOAD and ANALYZE both input images
-- IDENTIFY the male person from IMAGE 1 - recognize ALL facial features, bone structure, distinctive characteristics
-- IDENTIFY the female person from IMAGE 2 - recognize ALL facial features, bone structure, distinctive characteristics
+- LOAD and ANALYZE the input image(s) from image_input array
+- IDENTIFY the MALE person - recognize ALL facial features, bone structure, distinctive characteristics
+- IDENTIFY the FEMALE person - recognize ALL facial features, bone structure, distinctive characteristics
 - MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
 - PRESERVE all distinctive facial features from both reference images
 - KEEP both faces 100% ACCURATE from their reference images
 - DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
 - CONSISTENT faces across all images and videos - same male person, same female person, same faces
-- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
-- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
+- The male person must appear in ALL generated images with the SAME face
+- The female person must appear in ALL generated images with the SAME face
 
 LOGO INTEGRATION:
-- LOAD the logo image
+- Use the logo image from image_input array
 - REMOVE white background (make transparent)
 - PLACE in BOTTOM RIGHT CORNER
 - SIZE: 10-15% of image width
