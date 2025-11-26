@@ -162,8 +162,8 @@ exports.handler = async (event, context) => {
 
         // Koristi CDN URL (Pull Zone) - Storage Zone nije javno dostupan bez autentifikacije
         // Format: https://{cdn-domain}/{filename}
-        // Ako CDN domain nije konfiguriran, koristi Storage Zone FTP hostname format
-        const cdnDomain = process.env.BUNNY_CDN_DOMAIN || `${BUNNY_STORAGE_ZONE}.bunnycdn.com`;
+        // Default CDN domain: examples.b-cdn.net (ako nije postavljen BUNNY_CDN_DOMAIN env var)
+        const cdnDomain = process.env.BUNNY_CDN_DOMAIN || 'examples.b-cdn.net';
         const publicUrl = `https://${cdnDomain}/${filename}`;
         console.log('Upload successful, Public URL:', publicUrl);
         return publicUrl;
