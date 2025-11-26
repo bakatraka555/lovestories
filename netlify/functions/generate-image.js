@@ -218,8 +218,8 @@ exports.handler = async (event, context) => {
     const inputData = {
       prompt: prompt,
       image_input: imageInput,  // Array: [couple_image, logo] ili [male_image, female_image, logo]
-      aspect_ratio: '4:3',  // Kao u tvom uspješnom primjeru (može biti i '9:16' za vertikalni)
-      output_format: 'png',
+      aspect_ratio: 'match_input_image',  // Default prema Replicate UI (može biti i '4:3', '9:16', itd.)
+      output_format: 'jpg',  // Default prema Replicate UI (može biti i 'png')
       resolution: '2K',
       safety_filter_level: 'block_only_high'
     };
