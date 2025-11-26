@@ -238,7 +238,7 @@ exports.handler = async (event, context) => {
     const replicateResponse = await fetch('https://api.replicate.com/v1/models/google/nano-banana-pro/predictions', {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${REPLICATE_API_TOKEN}`,
+        'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,  // Replicate API koristi Bearer (kao u dokumentaciji)
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -323,7 +323,7 @@ exports.handler = async (event, context) => {
       
       const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${result.id}`, {
         headers: {
-          'Authorization': `Token ${REPLICATE_API_TOKEN}`
+          'Authorization': `Bearer ${REPLICATE_API_TOKEN}`  // Replicate API koristi Bearer
         }
       });
       
