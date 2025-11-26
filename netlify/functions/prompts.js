@@ -48,6 +48,13 @@ const templateScenes = {
     style: 'Soft natural lighting, romantic, elegant, wedding photography style, dreamy atmosphere',
     specialInstructions: 'Both people in wedding attire, surrounded by flowers, romantic and elegant'
   },
+  'template-06': {
+    name: 'Love Walks Through Time',
+    scene: 'Romantic couple walking together in the rain under one umbrella, man in classic black suit holding umbrella, woman in elegant blue skirt holding his arm, soft smiles and gentle eye contact',
+    location: 'Ancient cobblestone street with vintage European architecture, warm glowing street lamps, wet reflections on pavement, light mist in distance, glistening puddles, old stone buildings',
+    style: 'Cinematic romantic editorial, moody golden-hour lamplight mixed with cool rain tones, rich contrast between dark suit and blue skirt against warm amber streetlights, rain-speckled atmosphere with soft bokeh lights and glossy reflections on wet cobblestones',
+    specialInstructions: 'Walking close together under one umbrella, man slightly ahead holding umbrella, woman beside him holding his arm looking affectionately toward him, clothes slightly damp from rain for realism, raindrops caught in light, timeless romantic nostalgic mood'
+  },
   'template-07': {
     name: 'Chibi 3D',
     scene: 'Cute 3D chibi characters, kawaii style, sweet and romantic, colorful and playful',

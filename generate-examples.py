@@ -70,6 +70,10 @@ PROMPTS = {
         "image": "Ultra-photorealistic, highly cinematic garden wedding photograph. Romantic wedding in garden setting, flowers, natural light, elegant and romantic atmosphere.",
         "video": "Cinematic garden wedding scene. Romantic wedding ceremony in beautiful garden, flowers, natural setting, elegant atmosphere."
     },
+    "template-06": {
+        "image": "Ultra-photorealistic, highly cinematic romantic rain photograph. Couple walking together under one umbrella on ancient cobblestone street, man in black suit, woman in blue skirt, warm glowing street lamps, wet reflections, light mist, glistening puddles, vintage European architecture, moody golden-hour lamplight, rain-speckled atmosphere with soft bokeh lights.",
+        "video": "Cinematic romantic rain scene. Couple walking under umbrella on wet cobblestone street, warm street lamps, rain reflections, vintage atmosphere, timeless romantic mood."
+    },
     "template-07": {
         "image": "Ultra-photorealistic, highly cinematic 3D chibi style photograph. Cute 3D chibi characters, kawaii style, sweet and romantic, colorful.",
         "video": "Cinematic 3D chibi scene. Cute 3D chibi characters, kawaii style, sweet and romantic, colorful animation."

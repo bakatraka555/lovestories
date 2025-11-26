@@ -1,7 +1,7 @@
 {
-  "version": "1.1",
+  "version": "1.2",
   "lastUpdated": "2025-11-26",
-  "totalTemplates": 12,
+  "totalTemplates": 13,
   "templates": [
     {
       "id": "template-01",
@@ -151,6 +151,35 @@
             "duration": 5,
             "order": 1,
             "description": "Romantično vjenčanje"
+          }
+        ]
+      }
+    },
+    {
+      "id": "template-06",
+      "number": 6,
+      "name": "Love Walks Through Time",
+      "description": "Romantična šetnja kišom starim ulicama",
+      "category": "cinematic",
+      "keywords": ["rain", "umbrella", "vintage", "street", "romantic", "cinematic"],
+      "examples": {
+        "image": [
+          {
+            "id": "love-walks-image-1",
+            "url": "https://bunny.net/examples/template-06/love-walks-1.jpg",
+            "thumbnail": "https://bunny.net/examples/template-06/thumbs/love-walks-1-thumb.jpg",
+            "order": 1,
+            "description": "Par šeta kišom starim ulicama"
+          }
+        ],
+        "video": [
+          {
+            "id": "love-walks-video-1",
+            "url": "https://bunny.net/examples/template-06/love-walks-1.mp4",
+            "thumbnail": "https://bunny.net/examples/template-06/thumbs/love-walks-1-video-thumb.jpg",
+            "duration": 5,
+            "order": 1,
+            "description": "Romantična kišna šetnja"
           }
         ]
       }

@@ -90,6 +90,18 @@ image_input: [
 
 ---
 
+### Template 06: Love Walks Through Time
+**Kategorija:** Cinematic
+
+| Element | Opis |
+|---------|------|
+| **Scene** | Romantic couple walking together in the rain under one umbrella, man in classic black suit, woman in elegant blue skirt, soft smiles and gentle eye contact |
+| **Location** | Ancient cobblestone street with vintage European architecture, warm glowing street lamps, wet reflections on pavement, glistening puddles, old stone buildings |
+| **Style** | Cinematic romantic editorial, moody golden-hour lamplight mixed with cool rain tones, rain-speckled atmosphere with soft bokeh lights and glossy reflections on wet cobblestones |
+| **Special** | Man holding umbrella, woman holding his arm, clothes slightly damp for realism, timeless romantic nostalgic mood |
+
+---
+
 ### Template 07: Chibi 3D
 **Kategorija:** Cute
 
