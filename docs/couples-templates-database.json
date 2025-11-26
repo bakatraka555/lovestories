@@ -1,5 +1,5 @@
 {
-  "version": "1.2",
+  "version": "1.3",
   "lastUpdated": "2025-11-26",
   "totalTemplates": 13,
   "templates": [
@@ -7,7 +7,7 @@
       "id": "template-01",
       "number": 1,
       "name": "Vintage Romance (1920s)",
-      "description": "Romantični par u vintage stilu 1920-ih godina",
+      "description": "Romantic couple in vintage 1920s style",
       "category": "vintage",
       "keywords": ["vintage", "1920s", "retro", "romantic"],
       "examples": {
@@ -17,14 +17,14 @@
             "url": "https://bunny.net/examples/template-01/vintage-1920s-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-1-thumb.jpg",
             "order": 1,
-            "description": "Par u vintage odjeći, 1920s stil"
+            "description": "Couple in vintage clothing, 1920s style"
           },
           {
             "id": "vintage-1920s-image-2",
             "url": "https://bunny.net/examples/template-01/vintage-1920s-2.jpg",
             "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-2-thumb.jpg",
             "order": 2,
-            "description": "Vintage par - varijanta 2"
+            "description": "Vintage couple - variant 2"
           }
         ],
         "video": [
@@ -34,7 +34,7 @@
             "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Vintage par u pokretu"
+            "description": "Vintage couple in motion"
           }
         ]
       }
@@ -43,7 +43,7 @@
       "id": "template-02",
       "number": 2,
       "name": "Medieval Romance",
-      "description": "Kralj i kraljica u Dubrovniku, Game of Thrones stil",
+      "description": "King and queen in Dubrovnik, Game of Thrones style",
       "category": "fantasy",
       "keywords": ["medieval", "king", "queen", "dubrovnik", "got"],
       "examples": {
@@ -53,7 +53,7 @@
             "url": "https://bunny.net/examples/template-02/medieval-romance-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-02/thumbs/medieval-romance-1-thumb.jpg",
             "order": 1,
-            "description": "Kralj i kraljica na Stradunu"
+            "description": "King and queen on Stradun"
           }
         ],
         "video": [
@@ -63,7 +63,7 @@
             "thumbnail": "https://bunny.net/examples/template-02/thumbs/medieval-romance-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Kraljevski par u Dubrovniku"
+            "description": "Royal couple in Dubrovnik"
           }
         ]
       }
@@ -72,7 +72,7 @@
       "id": "template-03",
       "number": 3,
       "name": "Beach Sunset",
-      "description": "Romantičan zalazak sunca na plaži",
+      "description": "Romantic sunset on the beach",
       "category": "nature",
       "keywords": ["beach", "sunset", "romantic", "ocean"],
       "examples": {
@@ -82,7 +82,7 @@
             "url": "https://bunny.net/examples/template-03/beach-sunset-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-03/thumbs/beach-sunset-1-thumb.jpg",
             "order": 1,
-            "description": "Par na plaži za zalaska sunca"
+            "description": "Couple on beach at sunset"
           }
         ],
         "video": [
@@ -92,7 +92,7 @@
             "thumbnail": "https://bunny.net/examples/template-03/thumbs/beach-sunset-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Romantičan zalazak sunca"
+            "description": "Romantic sunset"
           }
         ]
       }
@@ -101,7 +101,7 @@
       "id": "template-04",
       "number": 4,
       "name": "City Lights",
-      "description": "Noćni grad s bokeh efektom, glamurozno",
+      "description": "Night city with bokeh effect, glamorous",
       "category": "modern",
       "keywords": ["city", "night", "lights", "glamour", "bokeh"],
       "examples": {
@@ -111,7 +111,7 @@
             "url": "https://bunny.net/examples/template-04/city-lights-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-04/thumbs/city-lights-1-thumb.jpg",
             "order": 1,
-            "description": "Par u noćnom gradu s bokeh svjetlima"
+            "description": "Couple in night city with bokeh lights"
           }
         ],
         "video": [
@@ -121,7 +121,7 @@
             "thumbnail": "https://bunny.net/examples/template-04/thumbs/city-lights-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Glamurozna noćna scena"
+            "description": "Glamorous night scene"
           }
         ]
       }
@@ -130,7 +130,7 @@
       "id": "template-05",
       "number": 5,
       "name": "Garden Wedding",
-      "description": "Vjenčanje u romantičnom vrtu",
+      "description": "Wedding in a romantic garden",
       "category": "wedding",
       "keywords": ["wedding", "garden", "romantic", "flowers"],
       "examples": {
@@ -140,7 +140,7 @@
             "url": "https://bunny.net/examples/template-05/garden-wedding-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-05/thumbs/garden-wedding-1-thumb.jpg",
             "order": 1,
-            "description": "Vjenčanje u vrtu"
+            "description": "Wedding in garden"
           }
         ],
         "video": [
@@ -150,7 +150,7 @@
             "thumbnail": "https://bunny.net/examples/template-05/thumbs/garden-wedding-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Romantično vjenčanje"
+            "description": "Romantic wedding"
           }
         ]
       }
@@ -159,7 +159,7 @@
       "id": "template-06",
       "number": 6,
       "name": "Love Walks Through Time",
-      "description": "Romantična šetnja kišom starim ulicama",
+      "description": "Romantic walk in the rain through ancient streets",
       "category": "cinematic",
       "keywords": ["rain", "umbrella", "vintage", "street", "romantic", "cinematic"],
       "examples": {
@@ -169,7 +169,7 @@
             "url": "https://bunny.net/examples/template-06/love-walks-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-06/thumbs/love-walks-1-thumb.jpg",
             "order": 1,
-            "description": "Par šeta kišom starim ulicama"
+            "description": "Couple walking in rain through ancient streets"
           }
         ],
         "video": [
@@ -179,7 +179,7 @@
             "thumbnail": "https://bunny.net/examples/template-06/thumbs/love-walks-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Romantična kišna šetnja"
+            "description": "Romantic rain walk"
           }
         ]
       }
@@ -188,7 +188,7 @@
       "id": "template-07",
       "number": 7,
       "name": "Chibi 3D",
-      "description": "3D chibi karakteri, slatko i romantično",
+      "description": "3D chibi characters, cute and romantic",
       "category": "cute",
       "keywords": ["chibi", "3d", "cute", "kawaii"],
       "examples": {
@@ -198,7 +198,7 @@
             "url": "https://bunny.net/examples/template-07/chibi-3d-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-07/thumbs/chibi-3d-1-thumb.jpg",
             "order": 1,
-            "description": "3D chibi par"
+            "description": "3D chibi couple"
           }
         ],
         "video": [
@@ -208,7 +208,7 @@
             "thumbnail": "https://bunny.net/examples/template-07/thumbs/chibi-3d-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Slatki chibi par"
+            "description": "Cute chibi couple"
           }
         ]
       }
@@ -217,7 +217,7 @@
       "id": "template-08",
       "number": 8,
       "name": "Trading Card Style",
-      "description": "Epic trading card dizajn, dinamično",
+      "description": "Epic trading card design, dynamic",
       "category": "fantasy",
       "keywords": ["trading", "card", "epic", "dynamic"],
       "examples": {
@@ -227,7 +227,7 @@
             "url": "https://bunny.net/examples/template-08/trading-card-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-08/thumbs/trading-card-1-thumb.jpg",
             "order": 1,
-            "description": "Trading card stil par"
+            "description": "Trading card style couple"
           }
         ],
         "video": [
@@ -246,7 +246,7 @@
       "id": "template-09",
       "number": 9,
       "name": "Dubrovnik Sunrise",
-      "description": "Zora u Dubrovniku, crkva sv. Vlaho",
+      "description": "Sunrise in Dubrovnik, St. Vlaho church",
       "category": "travel",
       "keywords": ["dubrovnik", "sunrise", "travel", "church"],
       "examples": {
@@ -256,7 +256,7 @@
             "url": "https://bunny.net/examples/template-09/dubrovnik-sunrise-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-09/thumbs/dubrovnik-sunrise-1-thumb.jpg",
             "order": 1,
-            "description": "Par u Dubrovniku za zore"
+            "description": "Couple in Dubrovnik at sunrise"
           }
         ],
         "video": [
@@ -266,7 +266,7 @@
             "thumbnail": "https://bunny.net/examples/template-09/thumbs/dubrovnik-sunrise-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Romantična zora u Dubrovniku"
+            "description": "Romantic sunrise in Dubrovnik"
           }
         ]
       }
@@ -275,7 +275,7 @@
       "id": "template-10",
       "number": 10,
       "name": "Volcano Adventure",
-      "description": "3D big head caricature, avantura",
+      "description": "3D big head caricature, adventure",
       "category": "adventure",
       "keywords": ["volcano", "3d", "caricature", "adventure"],
       "examples": {
@@ -285,7 +285,7 @@
             "url": "https://bunny.net/examples/template-10/volcano-adventure-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-10/thumbs/volcano-adventure-1-thumb.jpg",
             "order": 1,
-            "description": "3D caricature par"
+            "description": "3D caricature couple"
           }
         ],
         "video": [
@@ -295,7 +295,7 @@
             "thumbnail": "https://bunny.net/examples/template-10/thumbs/volcano-adventure-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Avanturistički par"
+            "description": "Adventurous couple"
           }
         ]
       }
@@ -304,7 +304,7 @@
       "id": "template-11",
       "number": 11,
       "name": "Instagram Frame",
-      "description": "Social media stil, finger heart",
+      "description": "Social media style, finger heart",
       "category": "social",
       "keywords": ["instagram", "social", "frame", "cute"],
       "examples": {
@@ -314,7 +314,7 @@
             "url": "https://bunny.net/examples/template-11/instagram-frame-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-11/thumbs/instagram-frame-1-thumb.jpg",
             "order": 1,
-            "description": "Par u Instagram frame-u"
+            "description": "Couple in Instagram frame"
           }
         ],
         "video": [
@@ -324,7 +324,7 @@
             "thumbnail": "https://bunny.net/examples/template-11/thumbs/instagram-frame-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Social media par"
+            "description": "Social media couple"
           }
         ]
       }
@@ -333,7 +333,7 @@
       "id": "template-12",
       "number": 12,
       "name": "Forever Together Box",
-      "description": "3D collectible figure u kutiji",
+      "description": "3D collectible figure in a box",
       "category": "collectible",
       "keywords": ["3d", "collectible", "box", "figure"],
       "examples": {
@@ -343,7 +343,7 @@
             "url": "https://bunny.net/examples/template-12/forever-together-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-12/thumbs/forever-together-1-thumb.jpg",
             "order": 1,
-            "description": "3D figure u kutiji"
+            "description": "3D figure in box"
           }
         ],
         "video": [
@@ -353,7 +353,7 @@
             "thumbnail": "https://bunny.net/examples/template-12/thumbs/forever-together-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Kolekcionarski par"
+            "description": "Collectible couple"
           }
         ]
       }
@@ -362,7 +362,7 @@
       "id": "template-13",
       "number": 13,
       "name": "Cinematic Travel",
-      "description": "Putnička fotografija, profesionalno",
+      "description": "Professional travel photography",
       "category": "travel",
       "keywords": ["travel", "cinematic", "professional", "dubrovnik"],
       "examples": {
@@ -372,7 +372,7 @@
             "url": "https://bunny.net/examples/template-13/cinematic-travel-1.jpg",
             "thumbnail": "https://bunny.net/examples/template-13/thumbs/cinematic-travel-1-thumb.jpg",
             "order": 1,
-            "description": "Cinematic putnička fotografija"
+            "description": "Cinematic travel photography"
           }
         ],
         "video": [
@@ -382,11 +382,10 @@
             "thumbnail": "https://bunny.net/examples/template-13/thumbs/cinematic-travel-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
-            "description": "Profesionalna putnička scena"
+            "description": "Professional travel scene"
           }
         ]
       }
     }
   ]
 }
-

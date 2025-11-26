@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naruči Transformaciju - Love Stories Museum</title>
+    <title>Order Your Transformation - Love Stories Museum</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         * {
@@ -312,38 +312,38 @@
 </head>
 <body>
     <div class="container">
-        <h1>💑 Naruči Svoju Transformaciju</h1>
-        <p class="subtitle">Uploadaj svoje slike i dobit ćeš AI transformaciju</p>
+        <h1>💑 Order Your Transformation</h1>
+        <p class="subtitle">Upload your photos and get an AI transformation</p>
 
         <div class="template-info" id="templateInfo">
-            <h2>Učitavanje template-a...</h2>
-            <p>Molimo pričekajte</p>
+            <h2>Loading template...</h2>
+            <p>Please wait</p>
         </div>
 
         <div class="upload-section">
-            <h3>📸 Odaberi Slike</h3>
+            <h3>📸 Select Photos</h3>
             <div class="info-box">
-                💡 Možeš uploadati <strong>1 sliku s parom</strong> ili <strong>2 odvojene slike</strong> (jedna po osobi)<br>
-                📱 Na mobitelu možeš odabrati sliku iz <strong>galerije</strong> ili <strong>snimiti novu s kamerom</strong>
+                💡 You can upload <strong>1 photo with both of you</strong> or <strong>2 separate photos</strong> (one per person)<br>
+                📱 On mobile you can choose a photo from <strong>gallery</strong> or <strong>take a new one with camera</strong>
             </div>
             
             <div class="upload-options">
                 <div class="upload-option">
                     <input type="file" id="coupleImage" accept="image/*" style="display: none;" />
                     <div class="upload-icon">👫</div>
-                    <div class="upload-text">Par na jednoj slici</div>
+                    <div class="upload-text">Couple in one photo</div>
                     <div class="upload-buttons">
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('coupleImage', false)">📁 Galerija</button>
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('coupleImage', true)">📷 Kamera</button>
+                        <button type="button" class="upload-btn" onclick="triggerFileInput('coupleImage', false)">📁 Gallery</button>
+                        <button type="button" class="upload-btn" onclick="triggerFileInput('coupleImage', true)">📷 Camera</button>
                     </div>
                 </div>
                 <div class="upload-option">
                     <input type="file" id="person1Image" accept="image/*" style="display: none;" />
                     <div class="upload-icon">👤</div>
-                    <div class="upload-text">Osoba 1</div>
+                    <div class="upload-text">Person 1</div>
                     <div class="upload-buttons">
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('person1Image', false)">📁 Galerija</button>
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('person1Image', true)">📷 Kamera</button>
+                        <button type="button" class="upload-btn" onclick="triggerFileInput('person1Image', false)">📁 Gallery</button>
+                        <button type="button" class="upload-btn" onclick="triggerFileInput('person1Image', true)">📷 Camera</button>
                     </div>
                 </div>
             </div>
@@ -351,17 +351,17 @@
                 <div class="upload-option" style="grid-column: 1 / -1;">
                     <input type="file" id="person2Image" accept="image/*" style="display: none;" />
                     <div class="upload-icon">👤</div>
-                    <div class="upload-text">Osoba 2 (opciono)</div>
+                    <div class="upload-text">Person 2 (optional)</div>
                     <div class="upload-buttons">
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('person2Image', false)">📁 Galerija</button>
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('person2Image', true)">📷 Kamera</button>
+                        <button type="button" class="upload-btn" onclick="triggerFileInput('person2Image', false)">📁 Gallery</button>
+                        <button type="button" class="upload-btn" onclick="triggerFileInput('person2Image', true)">📷 Camera</button>
                     </div>
-                    <div class="upload-hint" style="margin-top: 10px; font-size: 12px; color: #666;">Samo ako koristiš odvojene slike</div>
+                    <div class="upload-hint" style="margin-top: 10px; font-size: 12px; color: #666;">Only if using separate photos</div>
                 </div>
             </div>
 
             <div class="preview-section" id="previewSection" style="display: none;">
-                <h3>👀 Pregled</h3>
+                <h3>👀 Preview</h3>
                 <div class="preview-images" id="previewImages"></div>
             </div>
         </div>
@@ -369,17 +369,17 @@
         <div id="errorMessage" class="error" style="display: none;"></div>
 
         <button class="generate-button" id="generateButton" disabled>
-            ✨ Generiraj Transformaciju
+            ✨ Generate Transformation
         </button>
 
         <div class="loading" id="loadingSection" style="display: none;">
             <div class="loading-spinner"></div>
-            <p id="loadingMessage">AI generira tvoju transformaciju...</p>
-            <p style="font-size: 14px; color: #666; margin-top: 10px;">Ovo može potrajati 1-2 minute</p>
+            <p id="loadingMessage">AI is generating your transformation...</p>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">This may take 1-2 minutes</p>
         </div>
 
         <div class="results-section" id="resultsSection">
-            <h3>🎉 Tvoja Transformacija je Spremna!</h3>
+            <h3>🎉 Your Transformation is Ready!</h3>
             <div id="resultsContainer"></div>
         </div>
     </div>
@@ -410,15 +410,15 @@
                     `;
                 } else {
                     document.getElementById('templateInfo').innerHTML = `
-                        <h2>Template nije pronađen</h2>
-                        <p>Molimo vratite se i odaberite template ponovno</p>
+                        <h2>Template not found</h2>
+                        <p>Please go back and select a template again</p>
                     `;
                 }
             } catch (error) {
                 console.error('Error loading template:', error);
                 document.getElementById('templateInfo').innerHTML = `
-                    <h2>Greška pri učitavanju</h2>
-                    <p>Molimo osvježite stranicu</p>
+                    <h2>Error loading</h2>
+                    <p>Please refresh the page</p>
                 `;
             }
         }
@@ -515,7 +515,7 @@
             const previewImages = document.getElementById('previewImages');
             previewImages.innerHTML = images.map((img, index) => `
                 <div class="preview-item">
-                    <img src="${img.src}" alt="Osoba ${index + 1}">
+                    <img src="${img.src}" alt="Person ${index + 1}">
                     <button class="remove" onclick="removeImage('${img.type}')">×</button>
                 </div>
             `).join('');
@@ -551,13 +551,13 @@
         // Generate transformation
         document.getElementById('generateButton').addEventListener('click', async function() {
             if (!currentTemplate) {
-                showError('Template nije učitan. Molimo osvježite stranicu.');
+                showError('Template not loaded. Please refresh the page.');
                 return;
             }
 
             const hasImages = uploadedImages.couple || uploadedImages.person1;
             if (!hasImages) {
-                showError('Molimo odaberite barem jednu sliku.');
+                showError('Please select at least one photo.');
                 return;
             }
 
@@ -653,24 +653,24 @@
                     
                     try {
                         statusResult = JSON.parse(statusText);
-                    } catch (e) {
-                        console.error('Failed to parse status response:', e);
-                        console.error('Status response text:', statusText);
-                        throw new Error('Failed to parse status response');
+                } catch (e) {
+                    console.error('Failed to parse status response:', e);
+                    console.error('Status response text:', statusText);
+                    throw new Error('Failed to parse status response');
+                }
+
+                if (!statusResponse.ok) {
+                    throw new Error(statusResult.error || 'Status check failed');
+                }
+
+                console.log(`Prediction status: ${statusResult.status} (attempt ${attempt})`);
+
+                if (statusResult.status === 'succeeded') {
+                    console.log('Generation successful! Image URL:', statusResult.imageUrl);
+                    if (loadingMessage) {
+                        loadingMessage.textContent = 'Generation complete! Uploading to Bunny.net...';
                     }
-
-                    if (!statusResponse.ok) {
-                        throw new Error(statusResult.error || 'Status check failed');
-                    }
-
-                    console.log(`Prediction status: ${statusResult.status} (attempt ${attempt})`);
-
-                    if (statusResult.status === 'succeeded') {
-                        console.log('Generation successful! Image URL:', statusResult.imageUrl);
-                        if (loadingMessage) {
-                            loadingMessage.textContent = 'Generiranje završeno! Uploadujem na Bunny.net...';
-                        }
-                        break;
+                    break;
                     } else if (statusResult.status === 'failed') {
                         throw new Error(statusResult.error || 'Generation failed');
                     } else if (statusResult.status === 'canceled') {
@@ -760,10 +760,10 @@
             if (imageUrl) {
                 const imageDiv = document.createElement('div');
                 imageDiv.className = 'result-item';
-                imageDiv.innerHTML = `
-                    <h4>📸 Transformirana Slika</h4>
-                    <img src="${imageUrl}" alt="Rezultat">
-                    <a href="${imageUrl}" download="lovestories-image.jpg" class="download-button">⬇️ Download Sliku</a>
+                    imageDiv.innerHTML = `
+                    <h4>📸 Transformed Image</h4>
+                    <img src="${imageUrl}" alt="Result">
+                    <a href="${imageUrl}" download="lovestories-image.jpg" class="download-button">⬇️ Download Image</a>
                 `;
                 resultsContainer.appendChild(imageDiv);
                 
@@ -775,7 +775,7 @@
                 const videoDiv = document.createElement('div');
                 videoDiv.className = 'result-item';
                 videoDiv.innerHTML = `
-                    <h4>🎬 Transformirani Video</h4>
+                    <h4>🎬 Transformed Video</h4>
                     <video src="${videoUrl}" controls></video>
                     <a href="${videoUrl}" download="lovestories-video.mp4" class="download-button">⬇️ Download Video</a>
                 `;
@@ -795,16 +795,16 @@
             qrDiv.style.background = '#f8f9fa';
             qrDiv.style.borderRadius = '12px';
             qrDiv.style.marginTop = '20px';
-            qrDiv.innerHTML = '<h4>📱 Skeniraj QR kod za pristup na mobitelu</h4><div id="qrCodeContainer" style="display: inline-block; padding: 20px; background: white; border-radius: 8px; margin-top: 10px;"></div>';
+            qrDiv.innerHTML = '<h4>📱 Scan QR code to access on your phone</h4><div id="qrCodeContainer" style="display: inline-block; padding: 20px; background: white; border-radius: 8px; margin-top: 10px;"></div>';
             container.appendChild(qrDiv);
             
             const qrContainer = qrDiv.querySelector('#qrCodeContainer');
-            qrContainer.innerHTML = '<div style="text-align: center; padding: 20px;">Učitavanje QR koda...</div>';
+            qrContainer.innerHTML = '<div style="text-align: center; padding: 20px;">Loading QR code...</div>';
             
             // Check if QRCode library is loaded
             if (typeof QRCode === 'undefined') {
                 console.error('QRCode library not loaded');
-                qrContainer.innerHTML = '<p style="color: red;">QR biblioteka nije učitana</p>';
+                qrContainer.innerHTML = '<p style="color: red;">QR library not loaded</p>';
                 return;
             }
             
@@ -826,7 +826,7 @@
                 console.log('QR code generated successfully');
             } catch (error) {
                 console.error('QR code error:', error);
-                qrContainer.innerHTML = '<p style="color: red;">Greška pri generiranju QR koda</p>';
+                qrContainer.innerHTML = '<p style="color: red;">Error generating QR code</p>';
             }
         }
 

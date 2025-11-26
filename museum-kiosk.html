@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -299,44 +299,44 @@
     <div class="kiosk-container">
         <!-- LEFT: Template Selector -->
         <div class="template-selector">
-            <h2>💑 Odaberi Template</h2>
+            <h2>💑 Choose Template</h2>
             <div id="templateList">
-                <div class="loading">Učitavanje template-a...</div>
+                <div class="loading">Loading templates...</div>
             </div>
         </div>
 
         <!-- RIGHT: Preview & Order -->
         <div class="preview-area">
             <div class="preview-header">
-                <h1>👀 Pregledaj Primjere</h1>
-                <p>Klikni na template lijevo da vidiš primjere slika i videa</p>
+                <h1>👀 Browse Examples</h1>
+                <p>Click on a template on the left to see image and video examples</p>
             </div>
             <div class="preview-content">
                 <div class="preview-box">
-                    <h4>📸 Primjeri Slika</h4>
+                    <h4>📸 Image Examples</h4>
                     <div id="imagePreview" class="empty-state">
-                        <div>Odaberi template da vidiš primjere</div>
+                        <div>Select a template to see examples</div>
                     </div>
                     <div class="example-gallery" id="imageGallery"></div>
                 </div>
                 <div class="preview-box">
-                    <h4>🎬 Primjeri Videa</h4>
+                    <h4>🎬 Video Examples</h4>
                     <div id="videoPreview" class="empty-state">
-                        <div>Odaberi template da vidiš primjere</div>
+                        <div>Select a template to see examples</div>
                     </div>
                     <div class="example-gallery" id="videoGallery"></div>
                 </div>
             </div>
             <div class="order-section">
-                <h2>📸 Naruči Svoju Transformaciju</h2>
+                <h2>📸 Order Your Transformation</h2>
                 <div class="selected-template-info">
-                    <strong>Odabrani template:</strong> <span id="selectedTemplateName">-</span>
+                    <strong>Selected template:</strong> <span id="selectedTemplateName">-</span>
                 </div>
                 <button class="order-button" onclick="startOrder()" id="orderButton" disabled>
-                    📸 Počni Narudžbu
+                    📸 Start Order
                 </button>
                 <div class="qr-instruction">
-                    <p>Skeniraj QR kod za narudžbu na svom mobitelu</p>
+                    <p>Scan QR code to order on your phone</p>
                     <div id="qrCode"></div>
                 </div>
             </div>
@@ -353,7 +353,7 @@
             try {
                 // Check if running from file:// protocol (CORS issue)
                 if (window.location.protocol === 'file:') {
-                    throw new Error('Molimo pokrenite stranicu kroz lokalni web server (npr. Python: python -m http.server ili Node: npx http-server)');
+                    throw new Error('Please run the page through a local web server (e.g. Python: python -m http.server or Node: npx http-server)');
                 }
                 
                 const response = await fetch('docs/couples-templates-database.json');
@@ -372,10 +372,10 @@
                 initializeTemplates();
             } catch (error) {
                 console.error('Error loading templates:', error);
-                const errorMsg = error.message || 'Nepoznata greška';
+                const errorMsg = error.message || 'Unknown error';
                 document.getElementById('templateList').innerHTML = 
                     '<div class="loading" style="color: red; padding: 20px; text-align: center;">' +
-                    '<strong>Greška pri učitavanju template-a</strong><br>' +
+                    '<strong>Error loading templates</strong><br>' +
                     '<small style="font-size: 12px; margin-top: 10px; display: block;">' + errorMsg + '</small>' +
                     '</div>';
             }
@@ -486,7 +486,7 @@
                 return;
             }
             
-            qrCodeDiv.innerHTML = '<div style="text-align: center; padding: 20px;">Učitavanje QR koda...</div>';
+            qrCodeDiv.innerHTML = '<div style="text-align: center; padding: 20px;">Loading QR code...</div>';
 
             // Generate order URL (replace with actual order page)
             const orderUrl = `https://lovestories-dubrovnik.netlify.app/order?template=${template.id}`;
@@ -494,7 +494,7 @@
             // Check if QRCode library is loaded
             if (typeof QRCode === 'undefined') {
                 console.error('QRCode library not loaded');
-                qrCodeDiv.innerHTML = '<p style="color: red;">QR biblioteka nije učitana</p>';
+                qrCodeDiv.innerHTML = '<p style="color: red;">QR library not loaded</p>';
                 return;
             }
             
@@ -521,7 +521,7 @@
                 console.log('QR code generated successfully');
             } catch (error) {
                 console.error('QR code error:', error);
-                qrCodeDiv.innerHTML = '<p style="color: red;">Greška pri generiranju QR koda</p>';
+                qrCodeDiv.innerHTML = '<p style="color: red;">Error generating QR code</p>';
             }
         }
 
