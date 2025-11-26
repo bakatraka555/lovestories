@@ -642,10 +642,10 @@
 
                     console.log(`Checking prediction status (attempt ${attempt}/${maxAttempts})...`);
                     
-                    // Ažuriraj loading poruku
+                    // Update loading message
                     const loadingMessage = document.getElementById('loadingMessage');
                     if (loadingMessage) {
-                        loadingMessage.textContent = `AI generira tvoju transformaciju... (${attempt}/${maxAttempts})`;
+                        loadingMessage.textContent = `AI is generating your transformation... (${attempt}/${maxAttempts})`;
                     }
                     
                     const statusResponse = await fetch(`/.netlify/functions/check-prediction-status?predictionId=${predictionId}`);
@@ -727,7 +727,7 @@
                 
             } catch (error) {
                 console.error('Generation error:', error);
-                showError('Greška pri generiranju: ' + error.message);
+                showError('Error generating: ' + error.message);
                 document.getElementById('loadingSection').style.display = 'none';
                 document.getElementById('generateButton').disabled = false;
             }
