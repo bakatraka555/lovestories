@@ -133,11 +133,15 @@ function getPrompt(templateId, isCouple) {
       prompt += '\n- EXTRACT both faces from the single couple image and use them as reference models';
     }
     
-    // Dodaj logo URL
+    // Logo je već u image_input arrayu, ne treba ga spominjati u promptu
+    // Samo osiguraj da prompt ne spominje logo URL direktno
     prompt = prompt.replace(
       /ONE LOGO IMAGE \(Love Stories Museum logo\)/,
-      'ONE LOGO IMAGE: https://examples.b-cdn.net/logo.jpg'
+      'ONE LOGO IMAGE (Love Stories Museum logo - provided in image_input array)'
     );
+    
+    // Ukloni bilo kakve URL reference na logo iz prompta
+    prompt = prompt.replace(/https:\/\/examples\.b-cdn\.net\/logo\.jpg/g, 'the logo image from image_input array');
     
     return prompt;
   }
