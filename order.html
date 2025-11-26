@@ -551,23 +551,14 @@
                 let generateResult;
                 try {
                     generateResult = await generateResponse.json();
-                    
-                    if (!generateResponse.ok) {
-                        throw new Error(generateResult.error || generateResult.details || 'Generation failed');
-                    }
                 } catch (e) {
-                    // Ako je greška u parsiranju ili response nije ok, baci grešku
-                    if (e.message && e.message.includes('Generation failed')) {
-                        throw e; // Već ima poruku
-                    }
-                    // Ako je greška u parsiranju JSON-a, pokušaj pročitati kao text
-                    try {
-                        const errorText = await generateResponse.text();
-                        throw new Error(errorText || 'Failed to parse response');
-                    } catch (textError) {
-                        // Ako ni text() ne radi, body je već potrošen
-                        throw new Error(e.message || 'Failed to parse response');
-                    }
+                    // Ako json() ne uspije, body je već potrošen - ne pokušavaj čitati text()
+                    console.error('Failed to parse JSON response:', e);
+                    throw new Error('Failed to parse response: ' + (e.message || 'Invalid JSON'));
+                }
+
+                if (!generateResponse.ok) {
+                    throw new Error(generateResult.error || generateResult.details || 'Generation failed');
                 }
 
                 console.log('Generation result:', generateResult);
@@ -595,8 +586,9 @@
                 try {
                     uploadResult = await uploadResponse.json();
                 } catch (e) {
-                    const errorText = await uploadResponse.text();
-                    throw new Error(errorText || 'Failed to parse upload response');
+                    // Ako json() ne uspije, body je već potrošen - ne pokušavaj čitati text()
+                    console.error('Failed to parse upload JSON response:', e);
+                    throw new Error('Failed to parse upload response: ' + (e.message || 'Invalid JSON'));
                 }
 
                 if (!uploadResponse.ok) {
