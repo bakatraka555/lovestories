@@ -306,93 +306,16 @@ exports.handler = async (event, context) => {
     
     console.log('Prediction created, ID:', prediction.id, 'Status:', prediction.status);
     
-    // Polling za rezultat (kao u dokumentaciji i tvom uspješnom primjeru)
-    let result = prediction;
-    let maxWaitTime = 300; // Max 5 minuta
-    let waitCount = 0;
-    
-    while ((result.status === 'starting' || result.status === 'processing') && waitCount < maxWaitTime) {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Čekaj 2 sekunde
-      waitCount++;
-      
-      console.log(`Checking prediction status (attempt ${waitCount}/${maxWaitTime})...`);
-      
-      const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${result.id}`, {
-        headers: {
-          'Authorization': `Bearer ${REPLICATE_API_TOKEN}`  // Replicate API koristi Bearer
-        }
-      });
-      
-      // Ne redeclariraj result - koristi postojeću varijablu!
-      try {
-        result = await statusResponse.json();
-      } catch (e) {
-        // Ako json() ne uspije, body je već potrošen
-        console.error('Failed to parse status response:', e);
-        throw new Error(`Failed to parse status response: ${e.message || 'Invalid JSON'}`);
-      }
-      
-      if (!statusResponse.ok) {
-        console.error('Status check failed:', statusResponse.status, result);
-        throw new Error(`Status check failed: ${statusResponse.status} - ${JSON.stringify(result)}`);
-      }
-      
-      console.log(`Prediction status: ${result.status} (attempt ${waitCount})`);
-    }
-    
-    if (waitCount >= maxWaitTime) {
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'Generation timeout', predictionId: result.id })
-      };
-    }
-
-    if (result.status === 'failed') {
-      console.error('Generation failed:', result.error);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ error: 'Generation failed', details: result.error })
-      };
-    }
-
-    if (result.status !== 'succeeded') {
-      console.error('Unexpected status:', result.status);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Generation not completed', 
-          status: result.status
-        })
-      };
-    }
-
-    // Output je string URL (kao u tvom uspješnom primjeru)
-    const imageUrl = result.output;
-    
-    if (!imageUrl) {
-      console.error('No image URL in output:', result);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ 
-          error: 'No image URL in response',
-          details: 'Output is empty'
-        })
-      };
-    }
-    
-    console.log('Generation successful, image URL:', imageUrl);
-
+    // Vrati prediction ID odmah - frontend će sam poll-ati status
+    // Ovo sprječava Netlify Function timeout (10-26 sekundi limit)
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
-        imageUrl: imageUrl,
-        predictionId: prediction.id
+        predictionId: prediction.id,
+        status: prediction.status,
+        statusUrl: prediction.urls?.get || `https://api.replicate.com/v1/predictions/${prediction.id}`
       })
     };
 

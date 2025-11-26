@@ -569,22 +569,71 @@
                 }
 
                 console.log('Generation result:', generateResult);
-                console.log('Generation result.success:', generateResult.success);
-                console.log('Generation result.imageUrl:', generateResult.imageUrl);
 
-                if (!generateResult.success || !generateResult.imageUrl) {
-                    console.error('Missing success or imageUrl in result:', {
+                if (!generateResult.success || !generateResult.predictionId) {
+                    console.error('Missing success or predictionId in result:', {
                         success: generateResult.success,
-                        imageUrl: generateResult.imageUrl,
+                        predictionId: generateResult.predictionId,
                         fullResult: generateResult
                     });
-                    throw new Error('No image URL returned');
+                    throw new Error('No prediction ID returned');
+                }
+
+                const predictionId = generateResult.predictionId;
+                console.log('Prediction ID:', predictionId);
+                console.log('Polling for prediction status...');
+
+                // Poll status dok nije "succeeded" ili "failed"
+                let statusResult;
+                let maxAttempts = 150; // Max 5 minuta (150 * 2 sekunde)
+                let attempt = 0;
+
+                while (attempt < maxAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, 2000)); // Čekaj 2 sekunde
+                    attempt++;
+
+                    console.log(`Checking prediction status (attempt ${attempt}/${maxAttempts})...`);
+                    
+                    const statusResponse = await fetch(`/.netlify/functions/check-prediction-status?predictionId=${predictionId}`);
+                    const statusText = await statusResponse.text();
+                    
+                    try {
+                        statusResult = JSON.parse(statusText);
+                    } catch (e) {
+                        console.error('Failed to parse status response:', e);
+                        console.error('Status response text:', statusText);
+                        throw new Error('Failed to parse status response');
+                    }
+
+                    if (!statusResponse.ok) {
+                        throw new Error(statusResult.error || 'Status check failed');
+                    }
+
+                    console.log(`Prediction status: ${statusResult.status} (attempt ${attempt})`);
+
+                    if (statusResult.status === 'succeeded') {
+                        console.log('Generation successful! Image URL:', statusResult.imageUrl);
+                        break;
+                    } else if (statusResult.status === 'failed') {
+                        throw new Error(statusResult.error || 'Generation failed');
+                    } else if (statusResult.status === 'canceled') {
+                        throw new Error('Generation was canceled');
+                    }
+                    // Ako je "starting" ili "processing", nastavi poll-ati
+                }
+
+                if (attempt >= maxAttempts) {
+                    throw new Error('Generation timeout - prediction took too long');
+                }
+
+                if (!statusResult.imageUrl) {
+                    throw new Error('No image URL in result');
                 }
 
                 // Upload na Bunny.net
                 console.log('Uploading to Bunny.net...');
                 console.log('Calling upload-to-bunny with:', {
-                    imageUrl: generateResult.imageUrl,
+                    imageUrl: statusResult.imageUrl,
                     templateId: currentTemplate.id,
                     userId: generateUserId()
                 });
@@ -594,7 +643,7 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        imageUrl: generateResult.imageUrl,
+                        imageUrl: statusResult.imageUrl,
                         templateId: currentTemplate.id,
                         userId: generateUserId() // Generiraj unique user ID
                     })
