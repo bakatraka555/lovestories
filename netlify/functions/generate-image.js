@@ -295,71 +295,58 @@ exports.handler = async (event, context) => {
       };
     }
     
-    if (!prediction || !prediction.id) {
-      console.error('Invalid prediction response:', prediction);
+    // S `Prefer: wait` header, Replicate će vratiti gotov rezultat direktno
+    // Nema potrebe za polling!
+    console.log('Prediction response:', {
+      id: prediction.id,
+      status: prediction.status,
+      output: prediction.output
+    });
+    
+    if (prediction.status === 'failed') {
+      console.error('Generation failed:', prediction.error);
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
-          error: 'Invalid prediction response from Replicate',
-          details: 'Missing prediction ID'
+          error: 'Generation failed', 
+          details: prediction.error || 'Unknown error'
         })
       };
     }
     
-    console.log('Starting to poll for prediction result, prediction ID:', prediction.id);
-    
-    // Čekaj da se generacija završi
-    let result = prediction;
-    let maxWaitTime = 300; // Max 5 minuta
-    let waitCount = 0;
-    
-    console.log('Initial prediction status:', result.status);
-    
-    while ((result.status === 'starting' || result.status === 'processing') && waitCount < maxWaitTime) {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Čekaj 2 sekunde između provjera
-      waitCount++;
-      
-      console.log(`Checking prediction status (attempt ${waitCount}/${maxWaitTime})...`);
-      
-      const statusResponse = await fetch(`https://api.replicate.com/v1/predictions/${result.id}`, {
-        headers: {
-          'Authorization': `Token ${REPLICATE_API_TOKEN}`
-        }
-      });
-      
-      if (!statusResponse.ok) {
-        const errorText = await statusResponse.text();
-        console.error('Status check failed:', statusResponse.status, errorText);
-        throw new Error(`Status check failed: ${statusResponse.status} - ${errorText}`);
-      }
-      
-      try {
-        result = await statusResponse.json();
-        console.log(`Prediction status: ${result.status} (attempt ${waitCount})`);
-      } catch (e) {
-        console.error('Failed to parse status response:', e);
-        throw new Error('Invalid status response from Replicate');
-      }
-    }
-    
-    if (waitCount >= maxWaitTime) {
+    if (prediction.status !== 'succeeded') {
+      // Ako status nije succeeded, možda je još u procesu (iako bi trebao biti gotov s Prefer: wait)
+      console.warn('Unexpected status:', prediction.status);
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Generation timeout', predictionId: result.id })
+        body: JSON.stringify({ 
+          error: 'Generation not completed', 
+          status: prediction.status,
+          details: 'Expected succeeded status but got ' + prediction.status
+        })
       };
     }
 
-    if (result.status === 'failed') {
+    // Output može biti string (jedna slika) ili array (više slika)
+    const imageUrl = Array.isArray(prediction.output) 
+      ? prediction.output[0] 
+      : prediction.output;
+    
+    if (!imageUrl) {
+      console.error('No image URL in output:', prediction);
       return {
         statusCode: 500,
         headers,
-        body: JSON.stringify({ error: 'Generation failed', details: result.error })
+        body: JSON.stringify({ 
+          error: 'No image URL in response',
+          details: 'Output is empty or invalid'
+        })
       };
     }
-
-    const imageUrl = result.output && result.output[0] ? result.output[0] : result.output;
+    
+    console.log('Generation successful, image URL:', imageUrl);
 
     return {
       statusCode: 200,
@@ -367,7 +354,7 @@ exports.handler = async (event, context) => {
       body: JSON.stringify({
         success: true,
         imageUrl: imageUrl,
-        predictionId: result.id
+        predictionId: prediction.id
       })
     };
 
