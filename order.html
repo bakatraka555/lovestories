@@ -580,12 +580,19 @@
                     })
                 });
 
-                if (!uploadResponse.ok) {
-                    const error = await uploadResponse.json();
-                    throw new Error(error.error || 'Upload failed');
+                // Parse response body samo jednom
+                let uploadResult;
+                try {
+                    uploadResult = await uploadResponse.json();
+                } catch (e) {
+                    const errorText = await uploadResponse.text();
+                    throw new Error(errorText || 'Failed to parse upload response');
                 }
 
-                const uploadResult = await uploadResponse.json();
+                if (!uploadResponse.ok) {
+                    throw new Error(uploadResult.error || uploadResult.details || 'Upload failed');
+                }
+
                 console.log('Upload result:', uploadResult);
 
                 // Prikaži rezultate

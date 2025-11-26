@@ -103,8 +103,11 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // CDN URL
-    const cdnUrl = `https://lovestories-cdn.b-cdn.net/${filename}`;
+    // CDN URL (koristi pravi CDN domain)
+    const cdnDomain = process.env.BUNNY_CDN_DOMAIN || 'examples.b-cdn.net';
+    const cdnUrl = `https://${cdnDomain}/${filename}`;
+    
+    console.log('Upload successful, CDN URL:', cdnUrl);
 
     return {
       statusCode: 200,
