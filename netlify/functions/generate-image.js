@@ -160,11 +160,13 @@ exports.handler = async (event, context) => {
           throw new Error(`Bunny.net upload failed (${uploadResponse.status}): ${responseText}`);
         }
 
-        // Koristi direktan Storage URL umjesto CDN URL-a (CDN domain možda nije konfiguriran)
-        // Format: https://storage.bunnycdn.com/{storageZone}/{filename}
-        const storageUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${filename}`;
-        console.log('Upload successful, Storage URL:', storageUrl);
-        return storageUrl;
+        // Koristi CDN URL (Pull Zone) - Storage Zone nije javno dostupan bez autentifikacije
+        // Format: https://{cdn-domain}/{filename}
+        // Ako CDN domain nije konfiguriran, koristi Storage Zone FTP hostname format
+        const cdnDomain = process.env.BUNNY_CDN_DOMAIN || `${BUNNY_STORAGE_ZONE}.bunnycdn.com`;
+        const publicUrl = `https://${cdnDomain}/${filename}`;
+        console.log('Upload successful, Public URL:', publicUrl);
+        return publicUrl;
       } catch (error) {
         console.error('Error in uploadToBunny:', error);
         throw error;
