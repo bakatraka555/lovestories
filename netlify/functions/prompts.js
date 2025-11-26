@@ -48,13 +48,6 @@ const templateScenes = {
     style: 'Soft natural lighting, romantic, elegant, wedding photography style, dreamy atmosphere',
     specialInstructions: 'Both people in wedding attire, surrounded by flowers, romantic and elegant'
   },
-  'template-06': {
-    name: 'Casino Glamour',
-    scene: 'Elegant couple at poker table in luxurious casino, sophisticated and glamorous atmosphere',
-    location: 'Luxurious casino interior, poker table, chips, cards, chandeliers, velvet and gold',
-    style: 'Glamorous, sophisticated, James Bond style, dramatic lighting, high-end luxury',
-    specialInstructions: 'Both people in formal evening wear, at poker table, confident and sophisticated poses'
-  },
   'template-07': {
     name: 'Chibi 3D',
     scene: 'Cute 3D chibi characters, kawaii style, sweet and romantic, colorful and playful',

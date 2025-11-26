@@ -90,17 +90,6 @@ image_input: [
 
 ---
 
-### Template 06: Casino Glamour
-**Kategorija:** Glamour
-
-| Element | Opis |
-|---------|------|
-| **Scene** | Elegant couple at poker table in luxurious casino, sophisticated and glamorous atmosphere |
-| **Location** | Luxurious casino interior, poker table, chips, cards, chandeliers, velvet and gold |
-| **Style** | Glamorous, sophisticated, James Bond style, dramatic lighting, high-end luxury |
-
----
-
 ### Template 07: Chibi 3D
 **Kategorija:** Cute
 

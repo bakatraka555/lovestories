@@ -217,13 +217,13 @@ exports.handler = async (event, context) => {
     }
     imageInput.push(logoUrl); // Logo je uvijek zadnji
 
-    // Pozovi Replicate API s URL-ovima (kao u tvom uspješnom primjeru)
+    // Pozovi Replicate API s URL-ovima
     const inputData = {
       prompt: prompt,
       image_input: imageInput,  // Array: [couple_image, logo] ili [male_image, female_image, logo]
-      aspect_ratio: 'match_input_image',  // Default prema Replicate UI (može biti i '4:3', '9:16', itd.)
-      output_format: 'jpg',  // Default prema Replicate UI (može biti i 'png')
-      resolution: '2K',
+      aspect_ratio: '4:3',        // Najbolji za Instagram + Print
+      output_format: 'jpg',       // Brži, manji file
+      resolution: '2K',           // Visoka kvaliteta
       safety_filter_level: 'block_only_high'
     };
 

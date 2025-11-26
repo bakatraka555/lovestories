@@ -70,10 +70,6 @@ PROMPTS = {
         "image": "Ultra-photorealistic, highly cinematic garden wedding photograph. Romantic wedding in garden setting, flowers, natural light, elegant and romantic atmosphere.",
         "video": "Cinematic garden wedding scene. Romantic wedding ceremony in beautiful garden, flowers, natural setting, elegant atmosphere."
     },
-    "template-06": {
-        "image": "Ultra-photorealistic, highly cinematic casino glamour photograph. Elegant couple at poker table, sophisticated, glamorous, casino atmosphere.",
-        "video": "Cinematic casino scene. Elegant couple at poker table, sophisticated, glamorous atmosphere, casino setting."
-    },
     "template-07": {
         "image": "Ultra-photorealistic, highly cinematic 3D chibi style photograph. Cute 3D chibi characters, kawaii style, sweet and romantic, colorful.",
         "video": "Cinematic 3D chibi scene. Cute 3D chibi characters, kawaii style, sweet and romantic, colorful animation."
