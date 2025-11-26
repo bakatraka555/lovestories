@@ -237,7 +237,7 @@ exports.handler = async (event, context) => {
     const replicateResponse = await fetch('https://api.replicate.com/v1/models/google/nano-banana-pro/predictions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,  // Bearer umjesto Token
+        'Authorization': `Token ${REPLICATE_API_TOKEN}`,  // Replicate koristi Token, ne Bearer
         'Content-Type': 'application/json',
         'Prefer': 'wait'  // Čekaj da se generacija završi prije nego vratiš response
       },
