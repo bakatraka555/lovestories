@@ -50,10 +50,10 @@ const templateScenes = {
   },
   'template-06': {
     name: 'Love Walks Through Time',
-    scene: 'Romantic couple walking together in the rain under one umbrella, man in classic black suit holding umbrella, woman in elegant blue skirt holding his arm, soft smiles and gentle eye contact',
-    location: 'Ancient cobblestone street with vintage European architecture, warm glowing street lamps, wet reflections on pavement, light mist in distance, glistening puddles, old stone buildings',
-    style: 'Cinematic romantic editorial, moody golden-hour lamplight mixed with cool rain tones, rich contrast between dark suit and blue skirt against warm amber streetlights, rain-speckled atmosphere with soft bokeh lights and glossy reflections on wet cobblestones',
-    specialInstructions: 'Walking close together under one umbrella, man slightly ahead holding umbrella, woman beside him holding his arm looking affectionately toward him, clothes slightly damp from rain for realism, raindrops caught in light, timeless romantic nostalgic mood'
+    scene: 'CLOSE-UP romantic portrait of couple standing very close together under one umbrella in the rain, faces close to each other, looking into each others eyes with deep romantic connection, man in classic black suit, woman in elegant blue dress, rain falling around them',
+    location: 'Blurred ancient cobblestone street background with warm glowing street lamps creating bokeh, rain visibly falling, wet atmosphere, shallow depth of field focusing on the couple',
+    style: 'Intimate cinematic portrait, romantic movie poster style, dramatic rain falling around them, warm amber lamplight on faces contrasting with cool blue rain, high contrast, emotional and passionate mood, professional portrait photography',
+    specialInstructions: 'CLOSE FRAMING on upper bodies and faces, couple facing each other and looking into each others eyes, foreheads almost touching, rain drops on hair and clothes, umbrella partially visible above them, deeply romantic gaze between them, love and passion visible in their expressions, rain creating dramatic atmosphere around them'
   },
   'template-07': {
     name: 'Chibi 3D',

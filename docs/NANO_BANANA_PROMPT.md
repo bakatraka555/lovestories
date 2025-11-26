@@ -95,10 +95,10 @@ image_input: [
 
 | Element | Opis |
 |---------|------|
-| **Scene** | Romantic couple walking together in the rain under one umbrella, man in classic black suit, woman in elegant blue skirt, soft smiles and gentle eye contact |
-| **Location** | Ancient cobblestone street with vintage European architecture, warm glowing street lamps, wet reflections on pavement, glistening puddles, old stone buildings |
-| **Style** | Cinematic romantic editorial, moody golden-hour lamplight mixed with cool rain tones, rain-speckled atmosphere with soft bokeh lights and glossy reflections on wet cobblestones |
-| **Special** | Man holding umbrella, woman holding his arm, clothes slightly damp for realism, timeless romantic nostalgic mood |
+| **Scene** | CLOSE-UP romantic portrait of couple under umbrella in rain, faces close, looking into each others eyes, deep romantic connection, man in black suit, woman in blue dress |
+| **Location** | Blurred ancient cobblestone street background with warm bokeh street lamps, rain visibly falling, shallow depth of field focusing on couple |
+| **Style** | Intimate cinematic portrait, romantic movie poster style, dramatic rain, warm amber lamplight on faces contrasting with cool blue rain, emotional and passionate |
+| **Special** | CLOSE FRAMING on faces and upper bodies, foreheads almost touching, rain drops on hair/clothes, deeply romantic gaze, umbrella partially visible above |
 
 ---
 

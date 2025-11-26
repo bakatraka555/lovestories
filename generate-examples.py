@@ -71,8 +71,8 @@ PROMPTS = {
         "video": "Cinematic garden wedding scene. Romantic wedding ceremony in beautiful garden, flowers, natural setting, elegant atmosphere."
     },
     "template-06": {
-        "image": "Ultra-photorealistic, highly cinematic romantic rain photograph. Couple walking together under one umbrella on ancient cobblestone street, man in black suit, woman in blue skirt, warm glowing street lamps, wet reflections, light mist, glistening puddles, vintage European architecture, moody golden-hour lamplight, rain-speckled atmosphere with soft bokeh lights.",
-        "video": "Cinematic romantic rain scene. Couple walking under umbrella on wet cobblestone street, warm street lamps, rain reflections, vintage atmosphere, timeless romantic mood."
+        "image": "Ultra-photorealistic, highly cinematic CLOSE-UP romantic portrait. Couple standing very close together under umbrella in rain, faces close to each other, looking into each others eyes with deep romantic connection. Man in black suit, woman in blue dress. Rain falling dramatically around them. Blurred cobblestone street background with warm bokeh street lamps. Intimate cinematic portrait, foreheads almost touching, rain drops on hair and clothes, deeply romantic gaze.",
+        "video": "Cinematic romantic rain scene. Close-up of couple under umbrella, faces close, looking into each others eyes, rain falling around them, warm bokeh lights, intimate passionate mood."
     },
     "template-07": {
         "image": "Ultra-photorealistic, highly cinematic 3D chibi style photograph. Cute 3D chibi characters, kawaii style, sweet and romantic, colorful.",
