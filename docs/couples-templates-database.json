@@ -14,15 +14,15 @@
         "image": [
           {
             "id": "vintage-1920s-image-1",
-            "url": "https://bunny.net/examples/template-01/vintage-1920s-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-01/vintage-1920s-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-01/thumbs/vintage-1920s-1-thumb.jpg",
             "order": 1,
             "description": "Couple in vintage clothing, 1920s style"
           },
           {
             "id": "vintage-1920s-image-2",
-            "url": "https://bunny.net/examples/template-01/vintage-1920s-2.jpg",
-            "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-2-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-01/vintage-1920s-2.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-01/thumbs/vintage-1920s-2-thumb.jpg",
             "order": 2,
             "description": "Vintage couple - variant 2"
           }
@@ -30,8 +30,8 @@
         "video": [
           {
             "id": "vintage-1920s-video-1",
-            "url": "https://bunny.net/examples/template-01/vintage-1920s-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-01/thumbs/vintage-1920s-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-01/vintage-1920s-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-01/thumbs/vintage-1920s-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Vintage couple in motion"
@@ -50,8 +50,8 @@
         "image": [
           {
             "id": "medieval-romance-image-1",
-            "url": "https://bunny.net/examples/template-02/medieval-romance-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-02/thumbs/medieval-romance-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-02/medieval-romance-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-02/thumbs/medieval-romance-1-thumb.jpg",
             "order": 1,
             "description": "King and queen on Stradun"
           }
@@ -59,8 +59,8 @@
         "video": [
           {
             "id": "medieval-romance-video-1",
-            "url": "https://bunny.net/examples/template-02/medieval-romance-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-02/thumbs/medieval-romance-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-02/medieval-romance-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-02/thumbs/medieval-romance-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Royal couple in Dubrovnik"
@@ -79,8 +79,8 @@
         "image": [
           {
             "id": "beach-sunset-image-1",
-            "url": "https://bunny.net/examples/template-03/beach-sunset-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-03/thumbs/beach-sunset-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-03/beach-sunset-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-03/thumbs/beach-sunset-1-thumb.jpg",
             "order": 1,
             "description": "Couple on beach at sunset"
           }
@@ -88,8 +88,8 @@
         "video": [
           {
             "id": "beach-sunset-video-1",
-            "url": "https://bunny.net/examples/template-03/beach-sunset-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-03/thumbs/beach-sunset-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-03/beach-sunset-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-03/thumbs/beach-sunset-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Romantic sunset"
@@ -108,8 +108,8 @@
         "image": [
           {
             "id": "city-lights-image-1",
-            "url": "https://bunny.net/examples/template-04/city-lights-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-04/thumbs/city-lights-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-04/city-lights-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-04/thumbs/city-lights-1-thumb.jpg",
             "order": 1,
             "description": "Couple in night city with bokeh lights"
           }
@@ -117,8 +117,8 @@
         "video": [
           {
             "id": "city-lights-video-1",
-            "url": "https://bunny.net/examples/template-04/city-lights-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-04/thumbs/city-lights-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-04/city-lights-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-04/thumbs/city-lights-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Glamorous night scene"
@@ -137,8 +137,8 @@
         "image": [
           {
             "id": "garden-wedding-image-1",
-            "url": "https://bunny.net/examples/template-05/garden-wedding-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-05/thumbs/garden-wedding-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-05/garden-wedding-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-05/thumbs/garden-wedding-1-thumb.jpg",
             "order": 1,
             "description": "Wedding in garden"
           }
@@ -146,8 +146,8 @@
         "video": [
           {
             "id": "garden-wedding-video-1",
-            "url": "https://bunny.net/examples/template-05/garden-wedding-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-05/thumbs/garden-wedding-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-05/garden-wedding-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-05/thumbs/garden-wedding-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Romantic wedding"
@@ -166,8 +166,8 @@
         "image": [
           {
             "id": "love-walks-image-1",
-            "url": "https://bunny.net/examples/template-06/love-walks-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-06/thumbs/love-walks-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-06/love-walks-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-06/thumbs/love-walks-1-thumb.jpg",
             "order": 1,
             "description": "Couple walking in rain through ancient streets"
           }
@@ -175,8 +175,8 @@
         "video": [
           {
             "id": "love-walks-video-1",
-            "url": "https://bunny.net/examples/template-06/love-walks-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-06/thumbs/love-walks-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-06/love-walks-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-06/thumbs/love-walks-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Romantic rain walk"
@@ -195,8 +195,8 @@
         "image": [
           {
             "id": "chibi-3d-image-1",
-            "url": "https://bunny.net/examples/template-07/chibi-3d-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-07/thumbs/chibi-3d-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-07/chibi-3d-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-07/thumbs/chibi-3d-1-thumb.jpg",
             "order": 1,
             "description": "3D chibi couple"
           }
@@ -204,8 +204,8 @@
         "video": [
           {
             "id": "chibi-3d-video-1",
-            "url": "https://bunny.net/examples/template-07/chibi-3d-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-07/thumbs/chibi-3d-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-07/chibi-3d-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-07/thumbs/chibi-3d-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Cute chibi couple"
@@ -224,8 +224,8 @@
         "image": [
           {
             "id": "trading-card-image-1",
-            "url": "https://bunny.net/examples/template-08/trading-card-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-08/thumbs/trading-card-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-08/trading-card-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-08/thumbs/trading-card-1-thumb.jpg",
             "order": 1,
             "description": "Trading card style couple"
           }
@@ -233,8 +233,8 @@
         "video": [
           {
             "id": "trading-card-video-1",
-            "url": "https://bunny.net/examples/template-08/trading-card-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-08/thumbs/trading-card-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-08/trading-card-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-08/thumbs/trading-card-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Epic trading card video"
@@ -253,8 +253,8 @@
         "image": [
           {
             "id": "dubrovnik-sunrise-image-1",
-            "url": "https://bunny.net/examples/template-09/dubrovnik-sunrise-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-09/thumbs/dubrovnik-sunrise-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-09/dubrovnik-sunrise-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-09/thumbs/dubrovnik-sunrise-1-thumb.jpg",
             "order": 1,
             "description": "Couple in Dubrovnik at sunrise"
           }
@@ -262,8 +262,8 @@
         "video": [
           {
             "id": "dubrovnik-sunrise-video-1",
-            "url": "https://bunny.net/examples/template-09/dubrovnik-sunrise-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-09/thumbs/dubrovnik-sunrise-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-09/dubrovnik-sunrise-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-09/thumbs/dubrovnik-sunrise-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Romantic sunrise in Dubrovnik"
@@ -282,8 +282,8 @@
         "image": [
           {
             "id": "volcano-adventure-image-1",
-            "url": "https://bunny.net/examples/template-10/volcano-adventure-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-10/thumbs/volcano-adventure-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-10/volcano-adventure-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-10/thumbs/volcano-adventure-1-thumb.jpg",
             "order": 1,
             "description": "3D caricature couple"
           }
@@ -291,8 +291,8 @@
         "video": [
           {
             "id": "volcano-adventure-video-1",
-            "url": "https://bunny.net/examples/template-10/volcano-adventure-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-10/thumbs/volcano-adventure-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-10/volcano-adventure-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-10/thumbs/volcano-adventure-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Adventurous couple"
@@ -311,8 +311,8 @@
         "image": [
           {
             "id": "instagram-frame-image-1",
-            "url": "https://bunny.net/examples/template-11/instagram-frame-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-11/thumbs/instagram-frame-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-11/instagram-frame-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-11/thumbs/instagram-frame-1-thumb.jpg",
             "order": 1,
             "description": "Couple in Instagram frame"
           }
@@ -320,8 +320,8 @@
         "video": [
           {
             "id": "instagram-frame-video-1",
-            "url": "https://bunny.net/examples/template-11/instagram-frame-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-11/thumbs/instagram-frame-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-11/instagram-frame-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-11/thumbs/instagram-frame-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Social media couple"
@@ -340,8 +340,8 @@
         "image": [
           {
             "id": "forever-together-image-1",
-            "url": "https://bunny.net/examples/template-12/forever-together-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-12/thumbs/forever-together-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-12/forever-together-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-12/thumbs/forever-together-1-thumb.jpg",
             "order": 1,
             "description": "3D figure in box"
           }
@@ -349,8 +349,8 @@
         "video": [
           {
             "id": "forever-together-video-1",
-            "url": "https://bunny.net/examples/template-12/forever-together-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-12/thumbs/forever-together-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-12/forever-together-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-12/thumbs/forever-together-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Collectible couple"
@@ -369,8 +369,8 @@
         "image": [
           {
             "id": "cinematic-travel-image-1",
-            "url": "https://bunny.net/examples/template-13/cinematic-travel-1.jpg",
-            "thumbnail": "https://bunny.net/examples/template-13/thumbs/cinematic-travel-1-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-13/cinematic-travel-1.jpg",
+            "thumbnail": "https://examples.b-cdn.net/template-13/thumbs/cinematic-travel-1-thumb.jpg",
             "order": 1,
             "description": "Cinematic travel photography"
           }
@@ -378,8 +378,8 @@
         "video": [
           {
             "id": "cinematic-travel-video-1",
-            "url": "https://bunny.net/examples/template-13/cinematic-travel-1.mp4",
-            "thumbnail": "https://bunny.net/examples/template-13/thumbs/cinematic-travel-1-video-thumb.jpg",
+            "url": "https://examples.b-cdn.net/template-13/cinematic-travel-1.mp4",
+            "thumbnail": "https://examples.b-cdn.net/template-13/thumbs/cinematic-travel-1-video-thumb.jpg",
             "duration": 5,
             "order": 1,
             "description": "Professional travel scene"
