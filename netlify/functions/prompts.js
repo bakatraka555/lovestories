@@ -116,13 +116,41 @@ function getPrompt(templateId, isCouple) {
   if (prompts[templateId]) {
     let prompt = prompts[templateId];
     
-    // Ako je couple, prilagodi prompt (kao u tvom uspješnom primjeru)
+    // Ako je couple, prilagodi prompt (kao u tvom uspješnom primjeru - bez spominjanja image_input array)
     if (isCouple) {
       // Pojednostavi prompt za couple image (kao u tvom uspješnom primjeru)
-      prompt = `Ultra-photorealistic, highly cinematic vintage 1920s photograph. CRITICAL: INPUT IMAGE PROCESSING - ONE INPUT IMAGE: COUPLE IMAGE (contains both MALE and FEMALE person together) (reference model - use this face for female person) - ONE LOGO IMAGE (Love Stories Museum logo) FACE RECOGNITION & CONSISTENCY: - LOAD and ANALYZE both input images - IDENTIFY the MALE person from the couple image - recognize ALL facial features, bone structure, distinctive characteristics - IDENTIFY the FEMALE person from the couple image - recognize ALL facial features, bone structure, distinctive characteristics - MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations - PRESERVE all distinctive facial features from both reference images - KEEP both faces 100% ACCURATE from their reference images - DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features - CONSISTENT faces across all images and videos - same male person, same female person, same faces - The male person from IMAGE 1 must appear in ALL generated images with the SAME face - The female person from IMAGE 2 must appear in ALL generated images with the SAME face LOGO INTEGRATION: - LOAD the logo image - REMOVE white background (make transparent) - PLACE in BOTTOM RIGHT CORNER - SIZE: 10-15% of image width - OPACITY: 70-80% SCENE: Romantic couple in elegant 1920s style clothing, vintage fashion, art deco aesthetic LOCATION: Vintage setting, 1920s atmosphere, glamorous environment, period-appropriate background STYLE: Black and white or sepia tone, art deco style, timeless elegance, glamorous, sophisticated COMPOSITION: Both people in period-appropriate clothing, natural romantic interaction, professional vintage photography quality, high resolution, sharp details, balanced composition with both faces clearly visible - EXTRACT both faces from the single couple image and use them as reference models`;
+      prompt = `Ultra-photorealistic, highly cinematic vintage 1920s photograph.
+
+CRITICAL: INPUT IMAGE PROCESSING
+- ONE INPUT IMAGE: COUPLE IMAGE (contains both MALE and FEMALE person together) (reference model - use this face for female person)
+- ONE LOGO IMAGE (Love Stories Museum logo)
+
+FACE RECOGNITION & CONSISTENCY:
+- LOAD and ANALYZE both input images
+- IDENTIFY the MALE person from the couple image - recognize ALL facial features, bone structure, distinctive characteristics
+- IDENTIFY the FEMALE person from the couple image - recognize ALL facial features, bone structure, distinctive characteristics
+- MAINTAIN MAXIMUM RECOGNIZABILITY for both faces across ALL generations
+- PRESERVE all distinctive facial features from both reference images
+- KEEP both faces 100% ACCURATE from their reference images
+- DO NOT alter facial structure, bone structure, eye shape, nose shape, mouth shape, or any distinctive features
+- CONSISTENT faces across all images and videos - same male person, same female person, same faces
+- The male person from IMAGE 1 must appear in ALL generated images with the SAME face
+- The female person from IMAGE 2 must appear in ALL generated images with the SAME face
+
+LOGO INTEGRATION:
+- LOAD the logo image
+- REMOVE white background (make transparent)
+- PLACE in BOTTOM RIGHT CORNER
+- SIZE: 10-15% of image width
+- OPACITY: 70-80%
+
+SCENE: Romantic couple in elegant 1920s style clothing, vintage fashion, art deco aesthetic
+LOCATION: Vintage setting, 1920s atmosphere, glamorous environment, period-appropriate background
+STYLE: Black and white or sepia tone, art deco style, timeless elegance, glamorous, sophisticated
+COMPOSITION: Both people in period-appropriate clothing, natural romantic interaction, professional vintage photography quality, high resolution, sharp details, balanced composition with both faces clearly visible - EXTRACT both faces from the single couple image and use them as reference models`;
     } else {
       // Za odvojene slike, samo ukloni logo URL reference
-      prompt = prompt.replace(/https:\/\/examples\.b-cdn\.net\/logo\.jpg/g, 'the logo image from image_input array');
+      prompt = prompt.replace(/https:\/\/examples\.b-cdn\.net\/logo\.jpg/g, 'the logo image');
     }
     
     return prompt;
