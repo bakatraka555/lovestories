@@ -323,7 +323,7 @@ exports.handler = async (event, context) => {
         }
       });
       
-      let result;
+      // Ne redeclariraj result - koristi postojeću varijablu!
       try {
         result = await statusResponse.json();
       } catch (e) {
