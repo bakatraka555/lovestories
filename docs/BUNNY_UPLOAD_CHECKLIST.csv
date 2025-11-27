@@ -1,0 +1,57 @@
+Template,Folder,Tip,Putanja,Ime Fajla,Format,Opis
+Root,root,Logo,logo.jpg,logo.jpg,JPEG/PNG,Love Stories Museum logo (transparent)
+Template 01,template-01,Image,template-01/vintage-1920s-1.jpg,vintage-1920s-1.jpg,JPEG,Glavna slika 1
+Template 01,template-01,Image,template-01/vintage-1920s-2.jpg,vintage-1920s-2.jpg,JPEG,Glavna slika 2
+Template 01,template-01,Video,template-01/vintage-1920s-1.mp4,vintage-1920s-1.mp4,MP4,Video
+Template 01,template-01,Thumb,template-01/thumbs/vintage-1920s-1-thumb.jpg,vintage-1920s-1-thumb.jpg,JPEG,Thumbnail slike 1
+Template 01,template-01,Thumb,template-01/thumbs/vintage-1920s-2-thumb.jpg,vintage-1920s-2-thumb.jpg,JPEG,Thumbnail slike 2
+Template 01,template-01,Thumb,template-01/thumbs/vintage-1920s-1-video-thumb.jpg,vintage-1920s-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 02,template-02,Image,template-02/medieval-romance-1.jpg,medieval-romance-1.jpg,JPEG,Glavna slika
+Template 02,template-02,Video,template-02/medieval-romance-1.mp4,medieval-romance-1.mp4,MP4,Video
+Template 02,template-02,Thumb,template-02/thumbs/medieval-romance-1-thumb.jpg,medieval-romance-1-thumb.jpg,JPEG,Thumbnail slike
+Template 02,template-02,Thumb,template-02/thumbs/medieval-romance-1-video-thumb.jpg,medieval-romance-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 03,template-03,Image,template-03/beach-sunset-1.jpg,beach-sunset-1.jpg,JPEG,Glavna slika
+Template 03,template-03,Video,template-03/beach-sunset-1.mp4,beach-sunset-1.mp4,MP4,Video
+Template 03,template-03,Thumb,template-03/thumbs/beach-sunset-1-thumb.jpg,beach-sunset-1-thumb.jpg,JPEG,Thumbnail slike
+Template 03,template-03,Thumb,template-03/thumbs/beach-sunset-1-video-thumb.jpg,beach-sunset-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 04,template-04,Image,template-04/city-lights-1.jpg,city-lights-1.jpg,JPEG,Glavna slika
+Template 04,template-04,Video,template-04/city-lights-1.mp4,city-lights-1.mp4,MP4,Video
+Template 04,template-04,Thumb,template-04/thumbs/city-lights-1-thumb.jpg,city-lights-1-thumb.jpg,JPEG,Thumbnail slike
+Template 04,template-04,Thumb,template-04/thumbs/city-lights-1-video-thumb.jpg,city-lights-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 05,template-05,Image,template-05/garden-wedding-1.jpg,garden-wedding-1.jpg,JPEG,Glavna slika
+Template 05,template-05,Video,template-05/garden-wedding-1.mp4,garden-wedding-1.mp4,MP4,Video
+Template 05,template-05,Thumb,template-05/thumbs/garden-wedding-1-thumb.jpg,garden-wedding-1-thumb.jpg,JPEG,Thumbnail slike
+Template 05,template-05,Thumb,template-05/thumbs/garden-wedding-1-video-thumb.jpg,garden-wedding-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 06,template-06,Image,template-06/love-walks-1.jpg,love-walks-1.jpg,JPEG,Glavna slika
+Template 06,template-06,Video,template-06/love-walks-1.mp4,love-walks-1.mp4,MP4,Video
+Template 06,template-06,Thumb,template-06/thumbs/love-walks-1-thumb.jpg,love-walks-1-thumb.jpg,JPEG,Thumbnail slike
+Template 06,template-06,Thumb,template-06/thumbs/love-walks-1-video-thumb.jpg,love-walks-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 07,template-07,Image,template-07/chibi-3d-1.jpg,chibi-3d-1.jpg,JPEG,Glavna slika
+Template 07,template-07,Video,template-07/chibi-3d-1.mp4,chibi-3d-1.mp4,MP4,Video
+Template 07,template-07,Thumb,template-07/thumbs/chibi-3d-1-thumb.jpg,chibi-3d-1-thumb.jpg,JPEG,Thumbnail slike
+Template 07,template-07,Thumb,template-07/thumbs/chibi-3d-1-video-thumb.jpg,chibi-3d-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 08,template-08,Image,template-08/trading-card-1.jpg,trading-card-1.jpg,JPEG,Glavna slika
+Template 08,template-08,Video,template-08/trading-card-1.mp4,trading-card-1.mp4,MP4,Video
+Template 08,template-08,Thumb,template-08/thumbs/trading-card-1-thumb.jpg,trading-card-1-thumb.jpg,JPEG,Thumbnail slike
+Template 08,template-08,Thumb,template-08/thumbs/trading-card-1-video-thumb.jpg,trading-card-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 09,template-09,Image,template-09/dubrovnik-sunrise-1.jpg,dubrovnik-sunrise-1.jpg,JPEG,Glavna slika
+Template 09,template-09,Video,template-09/dubrovnik-sunrise-1.mp4,dubrovnik-sunrise-1.mp4,MP4,Video
+Template 09,template-09,Thumb,template-09/thumbs/dubrovnik-sunrise-1-thumb.jpg,dubrovnik-sunrise-1-thumb.jpg,JPEG,Thumbnail slike
+Template 09,template-09,Thumb,template-09/thumbs/dubrovnik-sunrise-1-video-thumb.jpg,dubrovnik-sunrise-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 10,template-10,Image,template-10/volcano-adventure-1.jpg,volcano-adventure-1.jpg,JPEG,Glavna slika
+Template 10,template-10,Video,template-10/volcano-adventure-1.mp4,volcano-adventure-1.mp4,MP4,Video
+Template 10,template-10,Thumb,template-10/thumbs/volcano-adventure-1-thumb.jpg,volcano-adventure-1-thumb.jpg,JPEG,Thumbnail slike
+Template 10,template-10,Thumb,template-10/thumbs/volcano-adventure-1-video-thumb.jpg,volcano-adventure-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 11,template-11,Image,template-11/instagram-frame-1.jpg,instagram-frame-1.jpg,JPEG,Glavna slika
+Template 11,template-11,Video,template-11/instagram-frame-1.mp4,instagram-frame-1.mp4,MP4,Video
+Template 11,template-11,Thumb,template-11/thumbs/instagram-frame-1-thumb.jpg,instagram-frame-1-thumb.jpg,JPEG,Thumbnail slike
+Template 11,template-11,Thumb,template-11/thumbs/instagram-frame-1-video-thumb.jpg,instagram-frame-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 12,template-12,Image,template-12/forever-together-1.jpg,forever-together-1.jpg,JPEG,Glavna slika
+Template 12,template-12,Video,template-12/forever-together-1.mp4,forever-together-1.mp4,MP4,Video
+Template 12,template-12,Thumb,template-12/thumbs/forever-together-1-thumb.jpg,forever-together-1-thumb.jpg,JPEG,Thumbnail slike
+Template 12,template-12,Thumb,template-12/thumbs/forever-together-1-video-thumb.jpg,forever-together-1-video-thumb.jpg,JPEG,Thumbnail videa
+Template 13,template-13,Image,template-13/cinematic-travel-1.jpg,cinematic-travel-1.jpg,JPEG,Glavna slika
+Template 13,template-13,Video,template-13/cinematic-travel-1.mp4,cinematic-travel-1.mp4,MP4,Video
+Template 13,template-13,Thumb,template-13/thumbs/cinematic-travel-1-thumb.jpg,cinematic-travel-1-thumb.jpg,JPEG,Thumbnail slike
+Template 13,template-13,Thumb,template-13/thumbs/cinematic-travel-1-video-thumb.jpg,cinematic-travel-1-video-thumb.jpg,JPEG,Thumbnail videa
+

@@ -438,8 +438,21 @@
                 template.examples.image.forEach(image => {
                     const imgItem = document.createElement('div');
                     imgItem.className = 'example-item';
+                    
+                    // Automatski generiraj thumbnail URL koristeći Bunny.net Dynamic Image API
+                    // Ako thumbnail postoji u JSON-u, koristi ga, inače koristi Dynamic Image API
+                    let thumbnailUrl = image.thumbnail;
+                    if (!thumbnailUrl && image.url) {
+                        // Koristi Bunny.net Dynamic Image API za automatsko generiranje thumbnails
+                        // Format: ?width=200&height=200&aspect_ratio=1:1
+                        const separator = image.url.includes('?') ? '&' : '?';
+                        thumbnailUrl = `${image.url}${separator}width=200&height=200&aspect_ratio=1:1`;
+                    }
+                    
+                    // Koristi thumbnail (automatski generiran ili iz JSON-a)
                     imgItem.innerHTML = `
-                        <img src="${image.thumbnail || image.url}" alt="${image.description}" 
+                        <img src="${thumbnailUrl || image.url}" alt="${image.description}" 
+                             onerror="this.src='${image.url}'"
                              onclick="showImage('${image.url}')">
                     `;
                     imageGallery.appendChild(imgItem);

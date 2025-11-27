@@ -8,9 +8,11 @@
  * 
  * Vraća:
  * - cdnUrl: CDN URL uploadane slike
+ * - thumbnailUrl: CDN URL thumbnail slike (automatski generiran)
  */
 
 const fetch = require('node-fetch');
+const sharp = require('sharp');
 
 exports.handler = async (event, context) => {
   console.log('=== upload-to-bunny function called ===');
@@ -119,12 +121,50 @@ exports.handler = async (event, context) => {
     
     console.log('Upload successful, CDN URL:', cdnUrl);
 
+    // Generiraj thumbnail automatski
+    let thumbnailUrl = null;
+    try {
+      console.log('Generating thumbnail...');
+      const thumbnailBuffer = await sharp(imageBuffer)
+        .resize(200, 200, {
+          fit: 'cover',
+          position: 'center'
+        })
+        .jpeg({ quality: 85 })
+        .toBuffer();
+
+      // Generiraj thumbnail filename
+      const thumbFilename = filename.replace(/\/([^/]+)$/, '/thumbs/$1-thumb.jpg');
+      const thumbUploadUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${thumbFilename}`;
+      
+      console.log('Uploading thumbnail to:', thumbUploadUrl);
+      const thumbUploadResponse = await fetch(thumbUploadUrl, {
+        method: 'PUT',
+        headers: {
+          'AccessKey': BUNNY_API_KEY,
+          'Content-Type': 'image/jpeg'
+        },
+        body: thumbnailBuffer
+      });
+
+      if (thumbUploadResponse.ok) {
+        thumbnailUrl = `https://${cdnDomain}/${thumbFilename}`;
+        console.log('Thumbnail uploaded successfully:', thumbnailUrl);
+      } else {
+        console.warn('Thumbnail upload failed (non-critical):', thumbUploadResponse.statusText);
+      }
+    } catch (thumbError) {
+      // Thumbnail generation is non-critical, log but don't fail
+      console.warn('Thumbnail generation failed (non-critical):', thumbError.message);
+    }
+
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({
         success: true,
         cdnUrl: cdnUrl,
+        thumbnailUrl: thumbnailUrl || cdnUrl, // Fallback to main image if thumbnail fails
         filename: filename
       })
     };
