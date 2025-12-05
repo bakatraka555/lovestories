@@ -517,7 +517,7 @@
             
             <div class="upload-options">
                 <div class="upload-option">
-                    <input type="file" id="coupleImage" accept="image/*" style="display: none;" />
+                    <input type="file" id="coupleImage" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif" style="display: none;" />
                     <div class="upload-icon">👫</div>
                     <div class="upload-text">Couple in one photo</div>
                     <div class="upload-buttons">
@@ -526,7 +526,7 @@
                     </div>
                 </div>
                 <div class="upload-option">
-                    <input type="file" id="person1Image" accept="image/*" style="display: none;" />
+                    <input type="file" id="person1Image" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif" style="display: none;" />
                     <div class="upload-icon">👤</div>
                     <div class="upload-text">Person 1</div>
                     <div class="upload-buttons">
@@ -537,7 +537,7 @@
             </div>
             <div class="upload-options">
                 <div class="upload-option" style="grid-column: 1 / -1;">
-                    <input type="file" id="person2Image" accept="image/*" style="display: none;" />
+                    <input type="file" id="person2Image" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif" style="display: none;" />
                     <div class="upload-icon">👤</div>
                     <div class="upload-text">Person 2 (optional)</div>
                     <div class="upload-buttons">
@@ -650,18 +650,49 @@
         // Function to trigger file input with or without capture
         function triggerFileInput(inputId, useCamera) {
             const input = document.getElementById(inputId);
+            
+            // Reset input prije svakog poziva (osigurava čist state)
+            input.value = '';
+            
             if (useCamera) {
+                // Za kameru - postavi capture atribut
                 input.setAttribute('capture', 'environment');
+                input.setAttribute('accept', 'image/*');
             } else {
+                // Za galeriju - UKLONI capture atribut potpuno
                 input.removeAttribute('capture');
+                // Eksplicitno postavi accept bez capture-a
+                input.setAttribute('accept', 'image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif');
             }
-            input.click();
+            
+            // Mali delay da se atributi pravilno postave (posebno važno za Android)
+            setTimeout(() => {
+                try {
+                    input.click();
+                } catch (error) {
+                    console.error('Error triggering file input:', error);
+                    // Fallback - pokušaj direktno
+                    input.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                }
+            }, 10);
         }
 
         // File upload handlers with validation and HEIC conversion
         document.getElementById('coupleImage').addEventListener('change', async function(e) {
+            // Provjeri da li je korisnik odustao (cancel)
+            if (!e.target.files || e.target.files.length === 0) {
+                console.log('User cancelled file selection');
+                return;
+            }
+            
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
+                console.log('File selected from coupleImage:', {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    hasCapture: e.target.hasAttribute('capture')
+                });
                 try {
                     // Provjeri je li HEIC
                     const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
@@ -700,8 +731,20 @@
         });
 
         document.getElementById('person1Image').addEventListener('change', async function(e) {
+            // Provjeri da li je korisnik odustao (cancel)
+            if (!e.target.files || e.target.files.length === 0) {
+                console.log('User cancelled file selection');
+                return;
+            }
+            
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
+                console.log('File selected from person1Image:', {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    hasCapture: e.target.hasAttribute('capture')
+                });
                 try {
                     // Provjeri je li HEIC
                     const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
@@ -738,8 +781,20 @@
         });
 
         document.getElementById('person2Image').addEventListener('change', async function(e) {
+            // Provjeri da li je korisnik odustao (cancel)
+            if (!e.target.files || e.target.files.length === 0) {
+                console.log('User cancelled file selection');
+                return;
+            }
+            
             if (e.target.files.length > 0) {
                 const file = e.target.files[0];
+                console.log('File selected from person2Image:', {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    hasCapture: e.target.hasAttribute('capture')
+                });
                 try {
                     // Provjeri je li HEIC
                     const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
