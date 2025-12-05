@@ -720,6 +720,8 @@
                         showValidationMessage(`✅ Image validated! (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
                     }
                     
+                    // Provjeri button status ODMAH nakon postavljanja slike
+                    checkGenerateButton();
                     updatePreview();
                 } catch (error) {
                     const errorMsg = error?.message || error?.toString() || 'Invalid image file';
@@ -770,6 +772,8 @@
                         showValidationMessage(`✅ Image validated! (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
                     }
                     
+                    // Provjeri button status ODMAH nakon postavljanja slike
+                    checkGenerateButton();
                     updatePreview();
                 } catch (error) {
                     const errorMsg = error?.message || error?.toString() || 'Invalid image file';
@@ -818,6 +822,8 @@
                         showValidationMessage(`✅ Image validated! (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
                     }
                     
+                    // Provjeri button status ODMAH nakon postavljanja slike
+                    checkGenerateButton();
                     updatePreview();
                 } catch (error) {
                     const errorMsg = error?.message || error?.toString() || 'Invalid image file';
@@ -911,7 +917,29 @@
 
         function checkGenerateButton() {
             const hasImages = uploadedImages.couple || uploadedImages.person1;
-            document.getElementById('generateButton').disabled = !hasImages || !currentTemplate;
+            const button = document.getElementById('generateButton');
+            const shouldEnable = hasImages && currentTemplate;
+            
+            console.log('checkGenerateButton:', {
+                hasImages: hasImages,
+                hasCouple: !!uploadedImages.couple,
+                hasPerson1: !!uploadedImages.person1,
+                hasPerson2: !!uploadedImages.person2,
+                currentTemplate: !!currentTemplate,
+                shouldEnable: shouldEnable,
+                currentDisabled: button.disabled
+            });
+            
+            button.disabled = !shouldEnable;
+            
+            // Dodatna provjera - ako je button još uvijek disabled, pokušaj ponovno
+            if (!shouldEnable && button.disabled === false) {
+                console.warn('Button state mismatch - forcing disabled');
+                button.disabled = true;
+            } else if (shouldEnable && button.disabled === true) {
+                console.warn('Button should be enabled but is disabled - forcing enabled');
+                button.disabled = false;
+            }
         }
 
         // Generate transformation
