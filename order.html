@@ -992,7 +992,17 @@
                 
                 let upload1Response;
                 try {
-                    upload1Response = await fetch('/.netlify/functions/upload-user-image', {
+                    // Timeout wrapper za fetch (60 sekundi za Android)
+                    const fetchWithTimeout = (url, options, timeout = 60000) => {
+                        return Promise.race([
+                            fetch(url, options),
+                            new Promise((_, reject) =>
+                                setTimeout(() => reject(new Error('Request timeout - upload took too long')), timeout)
+                            )
+                        ]);
+                    };
+                    
+                    upload1Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1001,26 +1011,50 @@
                             imageBase64: image1Base64,
                             filename: image1Filename
                         })
-                    });
+                    }, 60000); // 60 sekundi timeout
                     
                     // Provjeri da li je response valjan Response objekt
-                    if (!upload1Response || typeof upload1Response.text !== 'function') {
-                        console.error('Invalid response object:', upload1Response);
+                    if (!upload1Response) {
+                        console.error('Response is null or undefined');
+                        throw new Error('Network error - no response from server. Please check your internet connection and try again.');
+                    }
+                    
+                    // Provjeri da li je Response objekt (ne ProgressEvent)
+                    if (upload1Response.constructor && upload1Response.constructor.name === 'ProgressEvent') {
+                        console.error('Received ProgressEvent instead of Response:', upload1Response);
+                        throw new Error('Network error - connection failed. Please check your internet connection and try again.');
+                    }
+                    
+                    if (typeof upload1Response.text !== 'function') {
+                        console.error('Invalid response object - not a Response:', {
+                            type: typeof upload1Response,
+                            constructor: upload1Response.constructor?.name,
+                            keys: Object.keys(upload1Response)
+                        });
                         throw new Error('Network error - invalid response from server. Please check your internet connection and try again.');
                     }
                     
                     console.log('Upload1 response status:', upload1Response.status);
                     console.log('Upload1 response ok:', upload1Response.ok);
+                    console.log('Upload1 response type:', upload1Response.constructor?.name);
                 } catch (fetchError) {
                     console.error('Fetch error for upload1:', fetchError);
                     console.error('Error type:', typeof fetchError);
                     console.error('Error name:', fetchError?.name);
                     console.error('Error message:', fetchError?.message);
+                    console.error('Error constructor:', fetchError?.constructor?.name);
+                    
+                    // Provjeri da li je ProgressEvent
+                    if (fetchError.constructor && fetchError.constructor.name === 'ProgressEvent') {
+                        throw new Error('Network error - connection failed. Please check your internet connection and try again.');
+                    }
                     
                     if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
                         throw new Error('Network error - could not connect to server. Please check your internet connection and try again.');
                     } else if (fetchError.name === 'TypeError' && fetchError.message.includes('NetworkError')) {
                         throw new Error('Network error - please check your internet connection and try again.');
+                    } else if (fetchError.message && fetchError.message.includes('timeout')) {
+                        throw new Error('Upload timeout - the image is too large or connection is too slow. Please try again with a smaller image.');
                     } else {
                         throw new Error('Failed to upload image: ' + (fetchError.message || 'Unknown network error'));
                     }
@@ -1070,7 +1104,17 @@
                     
                     let upload2Response;
                     try {
-                        upload2Response = await fetch('/.netlify/functions/upload-user-image', {
+                        // Timeout wrapper za fetch (60 sekundi za Android)
+                        const fetchWithTimeout = (url, options, timeout = 60000) => {
+                            return Promise.race([
+                                fetch(url, options),
+                                new Promise((_, reject) =>
+                                    setTimeout(() => reject(new Error('Request timeout - upload took too long')), timeout)
+                                )
+                            ]);
+                        };
+                        
+                        upload2Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -1079,26 +1123,50 @@
                                 imageBase64: image2Base64,
                                 filename: image2Filename
                             })
-                        });
+                        }, 60000); // 60 sekundi timeout
                         
                         // Provjeri da li je response valjan Response objekt
-                        if (!upload2Response || typeof upload2Response.text !== 'function') {
-                            console.error('Invalid response object:', upload2Response);
+                        if (!upload2Response) {
+                            console.error('Response is null or undefined');
+                            throw new Error('Network error - no response from server. Please check your internet connection and try again.');
+                        }
+                        
+                        // Provjeri da li je Response objekt (ne ProgressEvent)
+                        if (upload2Response.constructor && upload2Response.constructor.name === 'ProgressEvent') {
+                            console.error('Received ProgressEvent instead of Response:', upload2Response);
+                            throw new Error('Network error - connection failed. Please check your internet connection and try again.');
+                        }
+                        
+                        if (typeof upload2Response.text !== 'function') {
+                            console.error('Invalid response object - not a Response:', {
+                                type: typeof upload2Response,
+                                constructor: upload2Response.constructor?.name,
+                                keys: Object.keys(upload2Response)
+                            });
                             throw new Error('Network error - invalid response from server. Please check your internet connection and try again.');
                         }
                         
                         console.log('Upload2 response status:', upload2Response.status);
                         console.log('Upload2 response ok:', upload2Response.ok);
+                        console.log('Upload2 response type:', upload2Response.constructor?.name);
                     } catch (fetchError) {
                         console.error('Fetch error for upload2:', fetchError);
                         console.error('Error type:', typeof fetchError);
                         console.error('Error name:', fetchError?.name);
                         console.error('Error message:', fetchError?.message);
+                        console.error('Error constructor:', fetchError?.constructor?.name);
+                        
+                        // Provjeri da li je ProgressEvent
+                        if (fetchError.constructor && fetchError.constructor.name === 'ProgressEvent') {
+                            throw new Error('Network error - connection failed. Please check your internet connection and try again.');
+                        }
                         
                         if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
                             throw new Error('Network error - could not connect to server. Please check your internet connection and try again.');
                         } else if (fetchError.name === 'TypeError' && fetchError.message.includes('NetworkError')) {
                             throw new Error('Network error - please check your internet connection and try again.');
+                        } else if (fetchError.message && fetchError.message.includes('timeout')) {
+                            throw new Error('Upload timeout - the image is too large or connection is too slow. Please try again with a smaller image.');
                         } else {
                             throw new Error('Failed to upload image2: ' + (fetchError.message || 'Unknown network error'));
                         }
