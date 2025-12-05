@@ -1,14 +1,21 @@
 /**
  * Netlify Function za generiranje slike preko Replicate API
  * 
- * Prima:
+ * Prima (NOVI FORMAT - preporučeno):
+ * - templateId: ID templatea
+ * - image1Url: URL slike na Bunny.net (ili base64 za backward compatibility)
+ * - image2Url: URL slike na Bunny.net (opciono, ako nije couple)
+ * - isCouple: boolean - da li je 1 slika s parom ili 2 odvojene
+ * 
+ * Prima (STARI FORMAT - backward compatibility):
  * - templateId: ID templatea
  * - image1: Base64 encoded muško lice (ili couple image)
  * - image2: Base64 encoded žensko lice (opciono, ako nije couple)
  * - isCouple: boolean - da li je 1 slika s parom ili 2 odvojene
  * 
  * Vraća:
- * - imageUrl: URL generirane slike
+ * - predictionId: ID prediction-a za polling
+ * - status: status prediction-a
  */
 
 const fetch = require('node-fetch');
@@ -61,21 +68,31 @@ exports.handler = async (event, context) => {
     const body = JSON.parse(event.body);
     console.log('Request body parsed. Keys:', Object.keys(body));
     console.log('Has templateId:', !!body.templateId);
-    console.log('Has image1:', !!body.image1);
-    console.log('Has image2:', !!body.image2);
+    console.log('Has image1Url:', !!body.image1Url);
+    console.log('Has image1 (legacy):', !!body.image1);
+    console.log('Has image2Url:', !!body.image2Url);
+    console.log('Has image2 (legacy):', !!body.image2);
     console.log('isCouple:', body.isCouple);
     
-    const { templateId, image1, image2, isCouple } = body;
+    const { templateId, image1Url, image2Url, image1, image2, isCouple } = body;
 
-    if (!templateId || !image1) {
+    // Provjeri da li imamo novi format (URL-ovi) ili stari format (base64)
+    const hasNewFormat = image1Url && image1Url.startsWith('http');
+    const hasOldFormat = image1 && (typeof image1 === 'string' && image1.length > 100);
+
+    if (!templateId || (!hasNewFormat && !hasOldFormat)) {
       console.log('Missing required parameters');
       return {
         statusCode: 400,
         headers,
-        body: JSON.stringify({ error: 'Missing required parameters: templateId, image1' })
+        body: JSON.stringify({ 
+          error: 'Missing required parameters',
+          details: 'Need either image1Url (new format) or image1 (base64, legacy format)'
+        })
       };
     }
     
+    console.log('Format detected:', hasNewFormat ? 'NEW (URLs)' : 'LEGACY (base64)');
     console.log('All parameters present, proceeding...');
 
     const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
@@ -173,47 +190,61 @@ exports.handler = async (event, context) => {
       }
     };
 
-    // 1. Upload slike na Bunny.net prvo
-    let image1Url, image2Url;
+    // 1. Dobij URL-ove slika - novi format ili stari (upload na Bunny.net)
+    let finalImage1Url, finalImage2Url;
     
-    try {
-      const image1Base64 = image1.includes(',') ? image1.split(',')[1] : image1;
-      const timestamp = Date.now();
-      const userId = `user-${timestamp}-${Math.random().toString(36).substr(2, 9)}`;
+    if (hasNewFormat) {
+      // NOVI FORMAT: URL-ovi već postoje, koristi direktno
+      console.log('Using new format - URLs already provided');
+      finalImage1Url = image1Url;
+      finalImage2Url = image2Url || null;
       
-      console.log('Uploading image1 to Bunny.net...');
-      const image1Filename = `temp/${userId}-image1.jpg`;
-      image1Url = await uploadToBunny(image1Base64, image1Filename);
-      console.log('Image1 uploaded to Bunny.net:', image1Url);
-
-      if (!isCouple && image2) {
-        const image2Base64 = image2.includes(',') ? image2.split(',')[1] : image2;
-        console.log('Uploading image2 to Bunny.net...');
-        const image2Filename = `temp/${userId}-image2.jpg`;
-        image2Url = await uploadToBunny(image2Base64, image2Filename);
-        console.log('Image2 uploaded to Bunny.net:', image2Url);
-      } else {
-        image2Url = null;
+      console.log('Image1 URL:', finalImage1Url.substring(0, 80) + '...');
+      if (finalImage2Url) {
+        console.log('Image2 URL:', finalImage2Url.substring(0, 80) + '...');
       }
-    } catch (uploadError) {
-      console.error('Error uploading images to Bunny.net:', uploadError);
-      return {
-        statusCode: 500,
-        headers,
-        body: JSON.stringify({ 
-          error: 'Failed to upload images to Bunny.net', 
-          details: uploadError.message 
-        })
-      };
+    } else {
+      // STARI FORMAT: Upload base64 slika na Bunny.net
+      console.log('Using legacy format - uploading base64 images to Bunny.net');
+      try {
+        const image1Base64 = image1.includes(',') ? image1.split(',')[1] : image1;
+        const timestamp = Date.now();
+        const userId = `user-${timestamp}-${Math.random().toString(36).substr(2, 9)}`;
+        
+        console.log('Uploading image1 to Bunny.net...');
+        const image1Filename = `temp/${userId}-image1.jpg`;
+        finalImage1Url = await uploadToBunny(image1Base64, image1Filename);
+        console.log('Image1 uploaded to Bunny.net:', finalImage1Url);
+
+        if (!isCouple && image2) {
+          const image2Base64 = image2.includes(',') ? image2.split(',')[1] : image2;
+          console.log('Uploading image2 to Bunny.net...');
+          const image2Filename = `temp/${userId}-image2.jpg`;
+          finalImage2Url = await uploadToBunny(image2Base64, image2Filename);
+          console.log('Image2 uploaded to Bunny.net:', finalImage2Url);
+        } else {
+          finalImage2Url = null;
+        }
+      } catch (uploadError) {
+        console.error('Error uploading images to Bunny.net:', uploadError);
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'Failed to upload images to Bunny.net', 
+            details: uploadError.message 
+          })
+        };
+      }
     }
 
     // Logo URL (već je na Bunny.net)
-    const logoUrl = 'https://examples.b-cdn.net/temp/logo.jpg';
+    const logoUrl = 'https://examples.b-cdn.net/logo.jpg';
 
     // Pripremi image_input array (kao u tvom uspješnom primjeru)
-    const imageInput = [image1Url];
-    if (!isCouple && image2Url) {
-      imageInput.push(image2Url);
+    const imageInput = [finalImage1Url];
+    if (!isCouple && finalImage2Url) {
+      imageInput.push(finalImage2Url);
     }
     imageInput.push(logoUrl); // Logo je uvijek zadnji
 
@@ -230,11 +261,12 @@ exports.handler = async (event, context) => {
     console.log('Calling Replicate API with:', {
       templateId,
       isCouple,
-      hasImage2: !!image2Url,
-      image1Url: image1Url.substring(0, 50) + '...',
-      image2Url: image2Url ? image2Url.substring(0, 50) + '...' : null,
+      hasImage2: !!finalImage2Url,
+      image1Url: finalImage1Url.substring(0, 50) + '...',
+      image2Url: finalImage2Url ? finalImage2Url.substring(0, 50) + '...' : null,
       logoUrl: logoUrl,
-      promptLength: prompt.length
+      promptLength: prompt.length,
+      format: hasNewFormat ? 'NEW' : 'LEGACY'
     });
 
     // Replicate API poziv (bez Prefer: wait - koristimo polling kao u dokumentaciji)
@@ -320,11 +352,30 @@ exports.handler = async (event, context) => {
     };
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Error in generate-image:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Osiguraj da uvijek vraćamo valjan JSON response
+    let errorMessage = 'Internal server error';
+    let errorDetails = error.message || 'Unknown error';
+    
+    // Specifične error poruke
+    if (error.message && error.message.includes('timeout')) {
+      errorMessage = 'Request timeout - operation took too long';
+      errorDetails = 'The request exceeded the maximum time limit. Please try again with smaller images.';
+    } else if (error.message && error.message.includes('ECONNREFUSED')) {
+      errorMessage = 'Connection error';
+      errorDetails = 'Could not connect to external service. Please try again.';
+    }
+    
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: 'Internal server error', details: error.message })
+      body: JSON.stringify({ 
+        error: errorMessage,
+        details: errorDetails,
+        timestamp: new Date().toISOString()
+      })
     };
   }
 };

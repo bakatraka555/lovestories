@@ -139,10 +139,10 @@ FACE RECOGNITION:
 
 LOGO INTEGRATION:
 - LOAD the logo image
-- REMOVE white background (make transparent)
+- make it transparent
 - PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+- SIZE: 8% of image width
+- OPACITY: transparent
 
 [SCENA OPIS]
 [LOKACIJA OPIS]
@@ -217,8 +217,8 @@ LOGO INTEGRATION:
 
 ### Logo:
 - **Pozicija:** Bottom right corner
-- **Veličina:** 10-15% širine slike
-- **Opacity:** 70-80%
+- **Veličina:** 8% širine slike
+- **Opacity:** transparent
 - **Format:** PNG s transparentnom pozadinom
 
 ### Boje:

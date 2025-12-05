@@ -347,6 +347,14 @@
         // Template Database
         let templatesDB = {};
         let currentTemplate = null;
+        
+        // Cache-busting helper - koristi verziju iz JSON-a ili timestamp
+        function addCacheBuster(url) {
+            if (!url) return url;
+            const separator = url.includes('?') ? '&' : '?';
+            const version = templatesDB.version || templatesDB.lastUpdated || Date.now();
+            return `${url}${separator}v=${version}`;
+        }
 
         // Load templates from JSON
         async function loadTemplates() {
@@ -439,21 +447,28 @@
                     const imgItem = document.createElement('div');
                     imgItem.className = 'example-item';
                     
-                    // Automatski generiraj thumbnail URL koristeći Bunny.net Dynamic Image API
-                    // Ako thumbnail postoji u JSON-u, koristi ga, inače koristi Dynamic Image API
+                    // Automatski generiraj thumbnail URL (besplatno rješenje - Netlify Function generira thumbnails)
+                    // Ako thumbnail postoji u JSON-u, koristi ga, inače generiraj URL prema konvenciji
                     let thumbnailUrl = image.thumbnail;
                     if (!thumbnailUrl && image.url) {
-                        // Koristi Bunny.net Dynamic Image API za automatsko generiranje thumbnails
-                        // Format: ?width=200&height=200&aspect_ratio=1:1
-                        const separator = image.url.includes('?') ? '&' : '?';
-                        thumbnailUrl = `${image.url}${separator}width=200&height=200&aspect_ratio=1:1`;
+                        // Generiraj thumbnail URL prema konvenciji: template-01/image.jpg -> template-01/thumbs/image-thumb.jpg
+                        const urlPath = new URL(image.url).pathname;
+                        const pathParts = urlPath.split('/');
+                        const filename = pathParts.pop();
+                        const nameWithoutExt = filename.replace(/\.(jpg|jpeg|png)$/i, '');
+                        const ext = filename.match(/\.(jpg|jpeg|png)$/i)?.[1] || 'jpg';
+                        pathParts.push('thumbs', `${nameWithoutExt}-thumb.${ext}`);
+                        thumbnailUrl = new URL(pathParts.join('/'), image.url).href;
                     }
                     
-                    // Koristi thumbnail (automatski generiran ili iz JSON-a)
+                    // Koristi thumbnail (automatski generiran ili iz JSON-a) s cache-busting parametrom
+                    const imageUrlWithCache = addCacheBuster(image.url);
+                    const thumbnailUrlWithCache = thumbnailUrl ? addCacheBuster(thumbnailUrl) : null;
+                    
                     imgItem.innerHTML = `
-                        <img src="${thumbnailUrl || image.url}" alt="${image.description}" 
-                             onerror="this.src='${image.url}'"
-                             onclick="showImage('${image.url}')">
+                        <img src="${thumbnailUrlWithCache || imageUrlWithCache}" alt="${image.description}" 
+                             onerror="this.src='${imageUrlWithCache}'"
+                             onclick="showImage('${imageUrlWithCache}')">
                     `;
                     imageGallery.appendChild(imgItem);
                 });
@@ -467,10 +482,12 @@
                 template.examples.video.forEach(video => {
                     const videoItem = document.createElement('div');
                     videoItem.className = 'example-item';
+                    const videoUrlWithCache = addCacheBuster(video.url);
+                    const videoThumbnailWithCache = video.thumbnail ? addCacheBuster(video.thumbnail) : '';
                     videoItem.innerHTML = `
-                        <video src="${video.url}" 
-                               poster="${video.thumbnail || ''}" 
-                               onclick="showVideo('${video.url}')"
+                        <video src="${videoUrlWithCache}" 
+                               poster="${videoThumbnailWithCache}" 
+                               onclick="showVideo('${videoUrlWithCache}')"
                                controls>
                         </video>
                     `;

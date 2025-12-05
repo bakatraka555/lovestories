@@ -137,10 +137,10 @@ FACE RECOGNITION & CONSISTENCY:
 
 LOGO INTEGRATION:
 - LOAD the logo image
-- REMOVE white background (make transparent)
+- make it transparent
 - PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+- SIZE: 8% of image width
+- OPACITY: transparent
 
 {prompt}
 

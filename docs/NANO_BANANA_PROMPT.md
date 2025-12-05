@@ -85,8 +85,9 @@ image_input: [
 | Element | Opis |
 |---------|------|
 | **Scene** | Romantic wedding ceremony in beautiful garden setting, flowers everywhere, natural light |
-| **Location** | Lush garden with flowers, wedding arch, romantic outdoor setting |
+| **Location** | Lush garden with flowers, wedding arch, romantic outdoor setting (soft bokeh background) |
 | **Style** | Soft natural lighting, romantic, elegant, wedding photography style, dreamy atmosphere |
+| **Special** | CLOSE-UP SHOT: Focus on upper body - heads, shoulders, and waist (from head to waist). Sharp focus on both faces and upper bodies, background slightly blurred (bokeh effect). Natural interaction between the couple - intimate and romantic. Camera angle: Eye-level or slightly above, emphasizing the couple's connection |
 
 ---
 
@@ -115,14 +116,14 @@ image_input: [
 ---
 
 ### Template 08: Trading Card Style
-**Kategorija:** Fantasy
+**Kategorija:** Fantasy Romantic
 
 | Element | Opis |
 |---------|------|
-| **Scene** | Epic trading card design with couple as fantasy heroes, dynamic composition, dramatic |
-| **Location** | Fantasy background with magical elements, epic scenery, dramatic sky |
-| **Style** | Trading card game art style, dynamic poses, fantasy elements, dramatic lighting, detailed illustration |
-| **Special** | Card border visible, epic and heroic poses |
+| **Scene** | Epic romantic trading card design with couple as fantasy lovers, dynamic composition, dramatic and magical |
+| **Location** | Fantasy background with magical elements, epic scenery, dramatic sky, romantic atmosphere with floating hearts and sparkles, enchanted garden or mystical realm |
+| **Style** | Premium trading card game art style, dynamic poses, fantasy romantic elements, dramatic lighting with glow effects, detailed illustration, cinematic quality, magical atmosphere |
+| **Special** | ELEGANT TRADING CARD FRAME: Ornate decorative border with intricate patterns, golden or silver metallic frame, elegant corners with ornamental details, premium card design. VISUAL EFFECTS: Soft magical glow around the couple, floating sparkles and hearts in the background, depth and shadows for 3D effect, light rays and magical particles, romantic atmosphere |
 
 ---
 
@@ -132,7 +133,7 @@ image_input: [
 | Element | Opis |
 |---------|------|
 | **Scene** | Romantic couple in Dubrovnik at sunrise, St. Vlaho church in background, warm morning light |
-| **Location** | Dubrovnik Old Town, St. Vlaho Church, Stradun, ancient stone buildings, Adriatic Sea visible |
+| **Location** | Dubrovnik Old Town, St. Vlaho Church, Stradun, ancient stone buildings, pigeons on fly |
 | **Style** | Travel photography, warm sunrise colors, golden hour, cinematic, professional quality |
 
 ---
@@ -153,10 +154,10 @@ image_input: [
 
 | Element | Opis |
 |---------|------|
-| **Scene** | Social media style photo with Instagram frame aesthetic, finger heart gesture, modern and trendy |
-| **Location** | Trendy backdrop, colorful background, social media aesthetic |
+| **Scene** | Social media style photo with Instagram frame aesthetic, hands 🫶 gesture, modern and trendy |
+| **Location** | Old town of Dubrovnik street, Trendy backdrop, colorful background, social media aesthetic |
 | **Style** | Instagram photo style, modern, trendy, colorful, influencer aesthetic, bright and vibrant |
-| **Special** | Finger heart gesture, Instagram-worthy poses |
+| **Special** | Hands 🫶 gesture, Instagram-worthy poses |
 
 ---
 
@@ -222,10 +223,10 @@ URL: https://examples.b-cdn.net/logo.jpg
 ```
 LOGO INTEGRATION:
 - Use the LOGO IMAGE from image_input array
-- REMOVE white background from logo (make it transparent)
+- make it transparent
 - PLACE logo in BOTTOM RIGHT CORNER of generated image
-- SIZE: 10-15% of image width
-- OPACITY: 70-80% (semi-transparent, visible but not distracting)
+- SIZE: 8% of image width
+- OPACITY: transparent
 - Logo should blend naturally into the scene
 ```
 

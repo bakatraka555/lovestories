@@ -44,9 +44,9 @@ const templateScenes = {
   'template-05': {
     name: 'Garden Wedding',
     scene: 'Romantic wedding ceremony in beautiful garden setting, flowers everywhere, natural light',
-    location: 'Lush garden with flowers, wedding arch, romantic outdoor setting',
+    location: 'Lush garden with flowers, wedding arch, romantic outdoor setting (soft bokeh background)',
     style: 'Soft natural lighting, romantic, elegant, wedding photography style, dreamy atmosphere',
-    specialInstructions: 'Both people in wedding attire, surrounded by flowers, romantic and elegant'
+    specialInstructions: 'CLOSE-UP SHOT: Focus on upper body - heads, shoulders, and waist (from head to waist). Both people in wedding attire, surrounded by flowers in soft focus background, romantic and elegant. FOCUS: Sharp focus on both faces and upper bodies, background slightly blurred (bokeh effect). Natural interaction between the couple - intimate and romantic. Camera angle: Eye-level or slightly above, emphasizing the couple\'s connection'
   },
   'template-06': {
     name: 'Love Walks Through Time',
@@ -64,15 +64,15 @@ const templateScenes = {
   },
   'template-08': {
     name: 'Trading Card Style',
-    scene: 'Epic trading card design with couple as fantasy heroes, dynamic composition, dramatic',
-    location: 'Fantasy background with magical elements, epic scenery, dramatic sky',
-    style: 'Trading card game art style, dynamic poses, fantasy elements, dramatic lighting, detailed illustration',
-    specialInstructions: 'Both people as fantasy characters on a trading card, card border visible, epic and heroic poses'
+    scene: 'Epic romantic trading card design with couple as fantasy lovers, dynamic composition, dramatic and magical',
+    location: 'Fantasy background with magical elements, epic scenery, dramatic sky, romantic atmosphere with floating hearts and sparkles, enchanted garden or mystical realm',
+    style: 'Premium trading card game art style, dynamic poses, fantasy romantic elements, dramatic lighting with glow effects, detailed illustration, cinematic quality, magical atmosphere',
+    specialInstructions: 'ELEGANT TRADING CARD FRAME: Ornate decorative border with intricate patterns, golden or silver metallic frame, elegant corners with ornamental details, premium card design. VISUAL EFFECTS: Soft magical glow around the couple, floating sparkles and hearts in the background, depth and shadows for 3D effect, light rays and magical particles, romantic atmosphere. Both people in fantasy romantic attire, epic and heroic poses but with romantic connection. Card should look like a premium collectible trading card with elegant frame and magical effects'
   },
   'template-09': {
     name: 'Dubrovnik Sunrise',
     scene: 'Romantic couple in Dubrovnik at sunrise, St. Vlaho church in background, warm morning light',
-    location: 'Dubrovnik Old Town, St. Vlaho Church, Stradun, ancient stone buildings, Adriatic Sea visible',
+    location: 'Dubrovnik Old Town, St. Vlaho Church, Stradun, ancient stone buildings, pigeons on fly',
     style: 'Travel photography, warm sunrise colors, golden hour, cinematic, professional quality',
     specialInstructions: 'Both people enjoying Dubrovnik sunrise, Croatian landmarks visible, romantic travel moment'
   },
@@ -85,10 +85,10 @@ const templateScenes = {
   },
   'template-11': {
     name: 'Instagram Frame',
-    scene: 'Social media style photo with Instagram frame aesthetic, finger heart gesture, modern and trendy',
-    location: 'Trendy backdrop, colorful background, social media aesthetic',
+    scene: 'Social media style photo with Instagram frame aesthetic, hands 🫶 gesture, modern and trendy',
+    location: 'Old town of Dubrovnik street, Trendy backdrop, colorful background, social media aesthetic',
     style: 'Instagram photo style, modern, trendy, colorful, influencer aesthetic, bright and vibrant',
-    specialInstructions: 'Both people making finger heart gesture, Instagram-worthy poses, modern and cute'
+    specialInstructions: 'Both people making hands 🫶 gesture, Instagram-worthy poses, modern and cute'
   },
   'template-12': {
     name: 'Forever Together Box',
@@ -155,10 +155,10 @@ function generatePrompt(templateId, isCouple) {
   // Logo integration section
   const logoIntegration = `LOGO INTEGRATION:
 - Use the LOGO IMAGE from image_input array
-- REMOVE white background from logo (make it transparent)
+- make it transparent
 - PLACE logo in BOTTOM RIGHT CORNER of generated image
-- SIZE: 10-15% of image width
-- OPACITY: 70-80% (semi-transparent, visible but not distracting)
+- SIZE: 8% of image width
+- OPACITY: transparent
 - Logo should blend naturally into the scene`;
 
   // Scene specific section

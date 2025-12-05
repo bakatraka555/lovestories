@@ -25,10 +25,10 @@ CRITICAL: FACE CONSISTENCY
 ```
 LOGO INTEGRATION:
 - ONE LOGO IMAGE (Love Stories Museum logo)
-- REMOVE white background (make transparent)
+- make it transparent
 - PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+- SIZE: 8% of image width
+- OPACITY: transparent
 ```
 
 ### 3. Template-Specific Scene
@@ -66,10 +66,10 @@ FACE RECOGNITION & CONSISTENCY:
 
 LOGO INTEGRATION:
 - LOAD the logo image
-- REMOVE white background (make transparent)
+- make it transparent
 - PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+- SIZE: 8% of image width
+- OPACITY: transparent
 
 [SCENA OPIS]
 [LOKACIJA OPIS]
@@ -109,10 +109,10 @@ FACE RECOGNITION & CONSISTENCY:
 
 LOGO INTEGRATION:
 - LOAD the logo image
-- REMOVE white background (make transparent)
+- make it transparent
 - PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+- SIZE: 8% of image width
+- OPACITY: transparent
 
 SCENE: Romantic couple in elegant 1920s style clothing, vintage fashion, art deco aesthetic
 LOCATION: Vintage setting, 1920s atmosphere, glamorous environment
@@ -143,10 +143,10 @@ FACE RECOGNITION & CONSISTENCY:
 
 LOGO INTEGRATION:
 - LOAD the logo image
-- REMOVE white background (make transparent)
+- make it transparent
 - PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+- SIZE: 8% of image width
+- OPACITY: transparent
 
 SCENE: King and queen in Dubrovnik, Game of Thrones style, majestic and regal
 LOCATION: Dubrovnik old town, Stradun, medieval architecture in background
@@ -177,10 +177,10 @@ FACE RECOGNITION & CONSISTENCY:
 
 LOGO INTEGRATION:
 - LOAD the logo image
-- REMOVE white background (make transparent)
+- make it transparent
 - PLACE in BOTTOM RIGHT CORNER
-- SIZE: 10-15% of image width
-- OPACITY: 70-80%
+- SIZE: 8% of image width
+- OPACITY: transparent
 
 SCENE: Romantic couple on beach during sunset, warm golden hour lighting
 LOCATION: Beautiful beach, ocean waves, sunset sky

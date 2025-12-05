@@ -1,6 +1,8 @@
 # 🖼️ Bunny.net Dynamic Image API
 
-## 📋 Automatsko Generiranje Thumbnails (Bez Netlify)
+⚠️ **NAPOMENA:** Bunny Optimizer je **PLAĆEN** servis. Preporučujemo korištenje **besplatnog rješenja** s Netlify Function + Sharp bibliotekom. Vidi: `docs/THUMBNAILS_FREE_SOLUTION.md`
+
+## 📋 Automatsko Generiranje Thumbnails (Bez Netlify) - PLAĆENO
 
 Bunny.net nudi **Dynamic Image API** koji omogućuje automatsko generiranje thumbnails direktno preko URL parametara - **bez potrebe za Netlify Functions ili ručnim uploadom thumbnails!**
 
