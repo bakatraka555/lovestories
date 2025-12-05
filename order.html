@@ -632,11 +632,14 @@
                         <h2>${currentTemplate.number}. ${currentTemplate.name}</h2>
                         <p>${currentTemplate.description}</p>
                     `;
+                    // Provjeri button status nakon učitavanja template-a
+                    checkGenerateButton();
                 } else {
                     document.getElementById('templateInfo').innerHTML = `
                         <h2>Template not found</h2>
                         <p>Please go back and select a template again</p>
                     `;
+                    checkGenerateButton();
                 }
             } catch (error) {
                 console.error('Error loading template:', error);
