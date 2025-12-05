@@ -901,27 +901,67 @@
                 const image1Filename = `${userId}-image1.jpg`;
                 
                 console.log('Uploading image1 to Bunny.net...');
-                const upload1Response = await fetch('/.netlify/functions/upload-user-image', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        imageBase64: image1Base64,
-                        filename: image1Filename
-                    })
-                });
+                console.log('Image1 base64 length:', image1Base64 ? image1Base64.length : 0);
+                console.log('Image1 filename:', image1Filename);
+                
+                let upload1Response;
+                try {
+                    upload1Response = await fetch('/.netlify/functions/upload-user-image', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            imageBase64: image1Base64,
+                            filename: image1Filename
+                        })
+                    });
+                    
+                    // Provjeri da li je response valjan Response objekt
+                    if (!upload1Response || typeof upload1Response.text !== 'function') {
+                        console.error('Invalid response object:', upload1Response);
+                        throw new Error('Network error - invalid response from server. Please check your internet connection and try again.');
+                    }
+                    
+                    console.log('Upload1 response status:', upload1Response.status);
+                    console.log('Upload1 response ok:', upload1Response.ok);
+                } catch (fetchError) {
+                    console.error('Fetch error for upload1:', fetchError);
+                    console.error('Error type:', typeof fetchError);
+                    console.error('Error name:', fetchError?.name);
+                    console.error('Error message:', fetchError?.message);
+                    
+                    if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+                        throw new Error('Network error - could not connect to server. Please check your internet connection and try again.');
+                    } else if (fetchError.name === 'TypeError' && fetchError.message.includes('NetworkError')) {
+                        throw new Error('Network error - please check your internet connection and try again.');
+                    } else {
+                        throw new Error('Failed to upload image: ' + (fetchError.message || 'Unknown network error'));
+                    }
+                }
                 
                 let upload1Result;
                 try {
                     const upload1Text = await upload1Response.text();
+                    console.log('Upload1 response text length:', upload1Text ? upload1Text.length : 0);
+                    console.log('Upload1 response text (first 200 chars):', upload1Text ? upload1Text.substring(0, 200) : 'EMPTY');
+                    
                     if (!upload1Text || upload1Text.trim().length === 0) {
                         throw new Error('Empty response from upload service. Please try again.');
                     }
+                    
                     upload1Result = JSON.parse(upload1Text);
+                    console.log('Upload1 result parsed:', upload1Result);
                 } catch (parseError) {
                     console.error('Failed to parse upload1 response:', parseError);
-                    throw new Error('Failed to upload image1: Invalid response from server. Please try again.');
+                    console.error('Response status:', upload1Response.status);
+                    console.error('Response statusText:', upload1Response.statusText);
+                    
+                    if (parseError instanceof SyntaxError) {
+                        throw new Error('Invalid response from server. Please try again or contact support if the problem persists.');
+                    } else {
+                        throw new Error('Failed to upload image1: ' + (parseError.message || 'Invalid response from server'));
+                    }
                 }
                 
                 if (!upload1Response.ok || !upload1Result.success) {
@@ -939,27 +979,67 @@
                     const image2Filename = `${userId}-image2.jpg`;
                     
                     console.log('Uploading image2 to Bunny.net...');
-                    const upload2Response = await fetch('/.netlify/functions/upload-user-image', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            imageBase64: image2Base64,
-                            filename: image2Filename
-                        })
-                    });
+                    console.log('Image2 base64 length:', image2Base64 ? image2Base64.length : 0);
+                    console.log('Image2 filename:', image2Filename);
+                    
+                    let upload2Response;
+                    try {
+                        upload2Response = await fetch('/.netlify/functions/upload-user-image', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                imageBase64: image2Base64,
+                                filename: image2Filename
+                            })
+                        });
+                        
+                        // Provjeri da li je response valjan Response objekt
+                        if (!upload2Response || typeof upload2Response.text !== 'function') {
+                            console.error('Invalid response object:', upload2Response);
+                            throw new Error('Network error - invalid response from server. Please check your internet connection and try again.');
+                        }
+                        
+                        console.log('Upload2 response status:', upload2Response.status);
+                        console.log('Upload2 response ok:', upload2Response.ok);
+                    } catch (fetchError) {
+                        console.error('Fetch error for upload2:', fetchError);
+                        console.error('Error type:', typeof fetchError);
+                        console.error('Error name:', fetchError?.name);
+                        console.error('Error message:', fetchError?.message);
+                        
+                        if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
+                            throw new Error('Network error - could not connect to server. Please check your internet connection and try again.');
+                        } else if (fetchError.name === 'TypeError' && fetchError.message.includes('NetworkError')) {
+                            throw new Error('Network error - please check your internet connection and try again.');
+                        } else {
+                            throw new Error('Failed to upload image2: ' + (fetchError.message || 'Unknown network error'));
+                        }
+                    }
                     
                     let upload2Result;
                     try {
                         const upload2Text = await upload2Response.text();
+                        console.log('Upload2 response text length:', upload2Text ? upload2Text.length : 0);
+                        console.log('Upload2 response text (first 200 chars):', upload2Text ? upload2Text.substring(0, 200) : 'EMPTY');
+                        
                         if (!upload2Text || upload2Text.trim().length === 0) {
                             throw new Error('Empty response from upload service. Please try again.');
                         }
+                        
                         upload2Result = JSON.parse(upload2Text);
+                        console.log('Upload2 result parsed:', upload2Result);
                     } catch (parseError) {
                         console.error('Failed to parse upload2 response:', parseError);
-                        throw new Error('Failed to upload image2: Invalid response from server. Please try again.');
+                        console.error('Response status:', upload2Response.status);
+                        console.error('Response statusText:', upload2Response.statusText);
+                        
+                        if (parseError instanceof SyntaxError) {
+                            throw new Error('Invalid response from server. Please try again or contact support if the problem persists.');
+                        } else {
+                            throw new Error('Failed to upload image2: ' + (parseError.message || 'Invalid response from server'));
+                        }
                     }
                     
                     if (!upload2Response.ok || !upload2Result.success) {

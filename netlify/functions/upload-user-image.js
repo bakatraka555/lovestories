@@ -16,12 +16,16 @@ exports.handler = async (event, context) => {
   console.log('=== upload-user-image function called ===');
   console.log('HTTP Method:', event.httpMethod);
   console.log('Path:', event.path);
+  console.log('Has body:', !!event.body);
+  console.log('Body length:', event.body ? event.body.length : 0);
+  console.log('Headers:', event.headers);
   
-  // CORS headers
+  // CORS headers - poboljšano za Android
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
+    'Access-Control-Max-Age': '86400',
     'Content-Type': 'application/json'
   };
 
