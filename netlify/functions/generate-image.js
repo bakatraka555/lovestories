@@ -283,11 +283,58 @@ exports.handler = async (event, context) => {
 
     // Provjeri response
     console.log('Replicate response status:', replicateResponse.status);
+    console.log('Replicate response headers:', Object.fromEntries(replicateResponse.headers.entries()));
+    
+    // Prvo pročitaj kao text da možemo provjeriti da li je prazan
+    let replicateResponseText;
+    try {
+      replicateResponseText = await replicateResponse.text();
+      console.log('Replicate response text length:', replicateResponseText ? replicateResponseText.length : 0);
+      
+      // Provjeri da li je response prazan
+      if (!replicateResponseText || replicateResponseText.trim().length === 0) {
+        console.error('Empty response from Replicate API');
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'Empty response from Replicate API',
+            details: 'Replicate API returned an empty response. This might be a timeout or server error.',
+            status: replicateResponse.status
+          })
+        };
+      }
+    } catch (textError) {
+      console.error('Failed to read Replicate response text:', textError);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Failed to read Replicate API response',
+          details: textError.message || 'Could not read response from Replicate API'
+        })
+      };
+    }
     
     // Parse JSON response (201 Created je uspješan odgovor)
     let prediction;
     try {
-      prediction = await replicateResponse.json();
+      // Provjeri da li je valjan JSON
+      const trimmedText = replicateResponseText.trim();
+      if (!trimmedText.startsWith('{') && !trimmedText.startsWith('[')) {
+        console.error('Replicate response is not JSON:', trimmedText.substring(0, 200));
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: 'Invalid response format from Replicate API',
+            details: 'Response is not valid JSON. Received: ' + trimmedText.substring(0, 200),
+            status: replicateResponse.status
+          })
+        };
+      }
+      
+      prediction = JSON.parse(trimmedText);
       
       if (!replicateResponse.ok) {
         console.error('Replicate API error:', prediction);
@@ -296,7 +343,7 @@ exports.handler = async (event, context) => {
           headers,
           body: JSON.stringify({ 
             error: 'Replicate API error', 
-            details: prediction,
+            details: prediction.error || prediction.detail || JSON.stringify(prediction),
             status: replicateResponse.status
           })
         };
@@ -308,17 +355,18 @@ exports.handler = async (event, context) => {
         urls: prediction.urls,
         output: prediction.output
       });
-    } catch (e) {
-      // Ako json() ne uspije, body je već potrošen - ne pokušavaj čitati text()
-      console.error('Failed to parse Replicate response:', e);
-      console.error('Error details:', e.message, e.stack);
+    } catch (parseError) {
+      console.error('Failed to parse Replicate response:', parseError);
+      console.error('Response text (first 500 chars):', replicateResponseText ? replicateResponseText.substring(0, 500) : 'EMPTY');
+      console.error('Error details:', parseError.message, parseError.stack);
       
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           error: 'Invalid response from Replicate API',
-          details: e.message || 'Failed to parse JSON response'
+          details: parseError.message || 'Failed to parse JSON response',
+          responsePreview: replicateResponseText ? replicateResponseText.substring(0, 200) : 'empty'
         })
       };
     }

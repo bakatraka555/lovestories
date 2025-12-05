@@ -1015,24 +1015,29 @@
                     }
                 }
 
+                // Provjeri status kod prije svega
+                if (generateResponse.status === 0 || !generateResponse.status) {
+                    throw new Error('Network error - no response from server. Please check your internet connection.');
+                }
+                
+                // Provjeri Content-Type header
+                const contentType = generateResponse.headers.get('content-type') || '';
+                const isJson = contentType.includes('application/json');
+                
+                console.log('Response status:', generateResponse.status);
+                console.log('Response statusText:', generateResponse.statusText);
+                console.log('Content-Type:', contentType);
+                console.log('Is JSON:', isJson);
+                
                 // Prvo pročitaj kao text da vidimo što se vraća
                 let responseText;
                 try {
                     responseText = await generateResponse.text();
+                    console.log('Response text length:', responseText ? responseText.length : 0);
+                    console.log('Response text (first 500 chars):', responseText ? responseText.substring(0, 500) : 'EMPTY');
                 } catch (textError) {
                     console.error('Failed to read response text:', textError);
                     throw new Error('Failed to read response from server. Please try again.');
-                }
-                
-                console.log('Response status:', generateResponse.status);
-                console.log('Response statusText:', generateResponse.statusText);
-                console.log('Response headers:', Object.fromEntries(generateResponse.headers.entries()));
-                console.log('Response text length:', responseText ? responseText.length : 0);
-                console.log('Response text (first 500 chars):', responseText ? responseText.substring(0, 500) : 'EMPTY');
-                
-                // Provjeri status kod prije svega
-                if (generateResponse.status === 0 || !generateResponse.status) {
-                    throw new Error('Network error - no response from server. Please check your internet connection.');
                 }
                 
                 // Provjeri da li je response prazan
@@ -1046,6 +1051,8 @@
                         throw new Error('Service unavailable - the server is temporarily overloaded. Please try again in a few moments.');
                     } else if (generateResponse.status === 502) {
                         throw new Error('Bad gateway - there was an error communicating with the server. Please try again.');
+                    } else if (generateResponse.status === 500) {
+                        throw new Error('Server error - internal server error occurred. Please try again in a few moments.');
                     } else {
                         throw new Error('Empty response from server (Status: ' + generateResponse.status + '). This might be a timeout or server error. Please try again.');
                     }
@@ -1055,33 +1062,43 @@
                 let generateResult;
                 try {
                     // Provjeri da li je response valjan JSON prije parsiranja
-                    if (!responseText.trim().startsWith('{') && !responseText.trim().startsWith('[')) {
-                        throw new Error('Response is not valid JSON. It might be an error page or timeout.');
+                    const trimmedText = responseText.trim();
+                    if (trimmedText.length === 0) {
+                        throw new Error('Response is empty');
                     }
                     
-                    generateResult = JSON.parse(responseText);
-                } catch (e) {
+                    if (!trimmedText.startsWith('{') && !trimmedText.startsWith('[')) {
+                        // Ako nije JSON, možda je HTML error page
+                        if (trimmedText.toLowerCase().includes('<html') || trimmedText.toLowerCase().includes('<!doctype')) {
+                            throw new Error('Server returned HTML error page instead of JSON. This usually means the function crashed or timed out.');
+                        }
+                        throw new Error('Response is not valid JSON. Received: ' + trimmedText.substring(0, 100));
+                    }
+                    
+                    generateResult = JSON.parse(trimmedText);
+                } catch (parseError) {
                     // Ako JSON parsing ne uspije, pokaži što se stvarno vratilo
-                    console.error('Failed to parse JSON response:', e);
+                    console.error('Failed to parse JSON response:', parseError);
                     console.error('Response status:', generateResponse.status);
                     console.error('Response statusText:', generateResponse.statusText);
-                    console.error('Response text (full):', responseText);
+                    console.error('Response text (first 1000 chars):', responseText ? responseText.substring(0, 1000) : 'EMPTY');
                     
                     // Ako je status error, pokušaj objasniti
                     if (generateResponse.status >= 500) {
-                        throw new Error('Server error (500). Please try again in a few moments. If the problem persists, contact support.');
+                        throw new Error('Server error (' + generateResponse.status + '). The server encountered an error. Please try again in a few moments. If the problem persists, contact support.');
                     } else if (generateResponse.status === 504 || generateResponse.status === 408) {
                         throw new Error('Request timeout. The generation might take too long. Please try again with smaller images.');
                     } else if (generateResponse.status === 413) {
                         throw new Error('Request too large. Please try with smaller images (max 10MB).');
+                    } else if (parseError.message && parseError.message.includes('Unexpected end')) {
+                        throw new Error('Incomplete response from server. The server response was cut off, likely due to a timeout. Please try again.');
                     } else {
                         // Human-friendly error message
-                        let friendlyMessage = 'Failed to receive valid response from server. ';
-                        if (e.message && e.message.includes('unexpected end')) {
-                            friendlyMessage += 'The response was incomplete or empty. This usually means the server timed out or encountered an error. Please try again.';
-                        } else {
-                            friendlyMessage += 'Please try again or contact support if the problem persists.';
+                        let friendlyMessage = 'Failed to parse server response. ';
+                        if (parseError.message) {
+                            friendlyMessage += parseError.message + '. ';
                         }
+                        friendlyMessage += 'Please try again or contact support if the problem persists.';
                         throw new Error(friendlyMessage);
                     }
                 }
