@@ -269,21 +269,54 @@ exports.handler = async (event, context) => {
       format: hasNewFormat ? 'NEW' : 'LEGACY'
     });
 
-    // Replicate API poziv (bez Prefer: wait - koristimo polling kao u dokumentaciji)
-    const replicateResponse = await fetch('https://api.replicate.com/v1/models/google/nano-banana-pro/predictions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,  // Replicate API koristi Bearer (kao u dokumentaciji)
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        input: inputData
-      })
+    console.log('Input data for Replicate:', {
+      promptLength: inputData.prompt.length,
+      imageInputCount: inputData.image_input.length,
+      aspectRatio: inputData.aspect_ratio,
+      outputFormat: inputData.output_format,
+      resolution: inputData.resolution
     });
 
+    // Replicate API poziv (bez Prefer: wait - koristimo polling kao u dokumentaciji)
+    console.log('Making Replicate API request...');
+    let replicateResponse;
+    try {
+      replicateResponse = await fetch('https://api.replicate.com/v1/models/google/nano-banana-pro/predictions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,  // Replicate API koristi Bearer (kao u dokumentaciji)
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          input: inputData
+        })
+      });
+      console.log('Replicate API request completed, status:', replicateResponse.status);
+    } catch (fetchError) {
+      console.error('Replicate API fetch error:', fetchError);
+      console.error('Error details:', fetchError.message, fetchError.stack);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          error: 'Failed to call Replicate API',
+          details: fetchError.message || 'Network error when calling Replicate API',
+          timestamp: new Date().toISOString()
+        })
+      };
+    }
+
     // Provjeri response
+    console.log('Replicate response received');
     console.log('Replicate response status:', replicateResponse.status);
-    console.log('Replicate response headers:', Object.fromEntries(replicateResponse.headers.entries()));
+    console.log('Replicate response statusText:', replicateResponse.statusText);
+    console.log('Replicate response ok:', replicateResponse.ok);
+    
+    try {
+      console.log('Replicate response headers:', Object.fromEntries(replicateResponse.headers.entries()));
+    } catch (headerError) {
+      console.warn('Could not log headers:', headerError.message);
+    }
     
     // Prvo pročitaj kao text da možemo provjeriti da li je prazan
     let replicateResponseText;
