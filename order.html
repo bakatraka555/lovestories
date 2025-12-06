@@ -1236,14 +1236,28 @@
                 
                 let image1Url;
                 try {
-                    // ANDROID FIX: Kompresiraj sliku prije uploada (smanjuje veličinu za 70-90%)
-                    console.log('📦 Compressing image1 before upload...');
-                    const compressedImage1 = await compressImage(image1File, 2); // Max 2MB
-                    console.log(`Original size: ${(image1File.size / 1024 / 1024).toFixed(2)}MB`);
-                    console.log(`Compressed size: ${(compressedImage1.size / 1024 / 1024).toFixed(2)}MB`);
+                    // Kompresiraj samo ako je slika veća od 5MB (selfi prolazi s 5MB)
+                    const maxSizeWithoutCompression = 5 * 1024 * 1024; // 5MB
+                    let imageToUpload = image1File;
                     
-                    // Konvertuj kompresiranu sliku u base64
-                    const image1Base64 = await fileToBase64(compressedImage1);
+                    if (image1File.size > maxSizeWithoutCompression) {
+                        console.log('📦 Image is larger than 5MB, compressing...');
+                        console.log(`Original size: ${(image1File.size / 1024 / 1024).toFixed(2)}MB`);
+                        try {
+                            imageToUpload = await compressImage(image1File, 4); // Kompresiraj na max 4MB
+                            console.log(`✅ Compression complete! Compressed size: ${(imageToUpload.size / 1024 / 1024).toFixed(2)}MB`);
+                        } catch (compressError) {
+                            console.error('❌ Compression failed, using original:', compressError);
+                            imageToUpload = image1File;
+                        }
+                    } else {
+                        console.log(`✅ Image size OK (${(image1File.size / 1024 / 1024).toFixed(2)}MB), skipping compression`);
+                    }
+                    
+                    // Konvertuj sliku u base64
+                    console.log('🔄 Converting to base64...');
+                    const image1Base64 = await fileToBase64(imageToUpload);
+                    console.log('✅ Base64 conversion complete!');
                     console.log('Image1 base64 length:', image1Base64 ? image1Base64.length : 0);
                     
                     // Timeout wrapper za fetch (60 sekundi za Android)
@@ -1340,13 +1354,25 @@
                     console.log('Image2 filename:', image2Filename);
                     
                     try {
-                        // ANDROID FIX: Kompresiraj sliku prije uploada
-                        console.log('📦 Compressing image2 before upload...');
-                        const compressedImage2 = await compressImage(uploadedImages.person2, 2); // Max 2MB
-                        console.log(`Original size: ${(uploadedImages.person2.size / 1024 / 1024).toFixed(2)}MB`);
-                        console.log(`Compressed size: ${(compressedImage2.size / 1024 / 1024).toFixed(2)}MB`);
+                        // Kompresiraj samo ako je slika veća od 5MB
+                        const maxSizeWithoutCompression = 5 * 1024 * 1024; // 5MB
+                        let image2ToUpload = uploadedImages.person2;
                         
-                        const image2Base64 = await fileToBase64(compressedImage2);
+                        if (uploadedImages.person2.size > maxSizeWithoutCompression) {
+                            console.log('📦 Image2 is larger than 5MB, compressing...');
+                            console.log(`Original size: ${(uploadedImages.person2.size / 1024 / 1024).toFixed(2)}MB`);
+                            try {
+                                image2ToUpload = await compressImage(uploadedImages.person2, 4); // Kompresiraj na max 4MB
+                                console.log(`✅ Compression complete! Compressed size: ${(image2ToUpload.size / 1024 / 1024).toFixed(2)}MB`);
+                            } catch (compressError) {
+                                console.error('❌ Compression failed, using original:', compressError);
+                                image2ToUpload = uploadedImages.person2;
+                            }
+                        } else {
+                            console.log(`✅ Image2 size OK (${(uploadedImages.person2.size / 1024 / 1024).toFixed(2)}MB), skipping compression`);
+                        }
+                        
+                        const image2Base64 = await fileToBase64(image2ToUpload);
                         console.log('Image2 base64 length:', image2Base64 ? image2Base64.length : 0);
                         
                         const fetchWithTimeout = (url, options, timeout = 60000) => {
