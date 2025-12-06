@@ -692,6 +692,48 @@
         const isMobile = /Mobi/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
+        // NETWORK MONITORING FOR ANDROID
+        let networkStatus = {
+            online: navigator.onLine,
+            lastCheck: new Date(),
+            retryCount: 0,
+            lastError: null
+        };
+        
+        function checkNetworkStatus() {
+            const wasOnline = networkStatus.online;
+            networkStatus.online = navigator.onLine;
+            networkStatus.lastCheck = new Date();
+            
+            if (wasOnline !== networkStatus.online) {
+                const status = networkStatus.online ? 'online' : 'offline';
+                debugLog(`🌐 Network status changed: ${status}`, networkStatus.online ? 'success' : 'error');
+                
+                if (!networkStatus.online) {
+                    showValidationMessage('⚠️ You are offline. Please check your internet connection.', 'warning');
+                } else {
+                    showValidationMessage('✅ Back online! You can continue.', 'success');
+                }
+            }
+            
+            return networkStatus.online;
+        }
+        
+        // Monitor network changes
+        window.addEventListener('online', () => {
+            networkStatus.online = true;
+            networkStatus.lastCheck = new Date();
+            debugLog('🌐 Device is back online', 'success');
+            showValidationMessage('✅ Internet connection restored', 'success');
+        });
+        
+        window.addEventListener('offline', () => {
+            networkStatus.online = false;
+            networkStatus.lastCheck = new Date();
+            debugLog('🌐 Device went offline', 'error');
+            showError('⚠️ You lost internet connection. Please reconnect and try again.', false);
+        });
+        
         // Enhanced console.log that also logs to debug panel
         function debugLog(message, type = 'info') {
             const timestamp = new Date().toLocaleTimeString();
@@ -708,6 +750,62 @@
             
             // Also log to our custom debug function
             logToDebugPanel(logEntry, type);
+        }
+        
+        // ANDROID FIX: Network-aware fetch with better error handling
+        async function networkAwareFetch(url, options, maxRetries = 2) {
+            // Check network before attempting
+            if (!checkNetworkStatus()) {
+                throw new Error('No internet connection. Please connect to WiFi or mobile data.');
+            }
+            
+            debugLog(`🌐 Fetching: ${url}`, 'info');
+            
+            for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                try {
+                    debugLog(`Attempt ${attempt}/${maxRetries}`, 'info');
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000);
+                    
+                    const fetchOptions = {
+                        ...options,
+                        signal: controller.signal
+                    };
+                    
+                    const response = await fetch(url, fetchOptions);
+                    clearTimeout(timeoutId);
+                    
+                    // ANDROID FIX: Validate response is not a ProgressEvent
+                    if (response.constructor && response.constructor.name === 'ProgressEvent') {
+                        debugLog(`Attempt ${attempt}: Got ProgressEvent instead of Response`, 'error');
+                        throw new Error('Network error - connection failed');
+                    }
+                    
+                    debugLog(`Attempt ${attempt}: Success (Status: ${response.status})`, 'success');
+                    return response;
+                    
+                } catch (error) {
+                    debugLog(`Attempt ${attempt} failed: ${error.message}`, 'error');
+                    
+                    if (attempt === maxRetries) {
+                        // Last attempt failed
+                        if (error.name === 'AbortError') {
+                            throw new Error('Request timeout - server took too long to respond');
+                        } else if (error.constructor && error.constructor.name === 'ProgressEvent') {
+                            throw new Error('Network connection failed. Please check your internet.');
+                        } else if (error.message && error.message.includes('Failed to fetch')) {
+                            throw new Error('Could not connect to server. Please check your internet connection.');
+                        }
+                        throw error;
+                    }
+                    
+                    // Wait before retry (exponential backoff)
+                    const delay = 1000 * attempt;
+                    debugLog(`Waiting ${delay}ms before retry...`, 'info');
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
         }
         
         function logToDebugPanel(message, type = 'info') {
@@ -1099,6 +1197,12 @@
                 return;
             }
 
+            // Check network connection before starting
+            if (!navigator.onLine) {
+                showError('No internet connection. Please connect to WiFi or mobile data and try again.', false);
+                return;
+            }
+
             // Hide error, show loading
             document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('loadingSection').style.display = 'block';
@@ -1133,17 +1237,33 @@
                 
                 let upload1Response;
                 try {
-                    // Timeout wrapper za fetch (60 sekundi za Android)
-                    const fetchWithTimeout = (url, options, timeout = 60000) => {
-                        return Promise.race([
-                            fetch(url, options),
-                            new Promise((_, reject) =>
-                                setTimeout(() => reject(new Error('Request timeout - upload took too long')), timeout)
-                            )
-                        ]);
+                    // ANDROID FIX: Enhanced timeout with retry for network issues
+                    const fetchWithRetry = async (url, options, maxRetries = 2, timeout = 30000) => {
+                        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                            try {
+                                console.log(`Fetch attempt ${attempt}/${maxRetries}`);
+                                const fetchPromise = fetch(url, options);
+                                
+                                // Timeout wrapper
+                                const timeoutPromise = new Promise((_, reject) =>
+                                    setTimeout(() => reject(new Error(`Request timeout (${timeout}ms)`)), timeout)
+                                );
+                                
+                                return await Promise.race([fetchPromise, timeoutPromise]);
+                            } catch (fetchError) {
+                                console.log(`Attempt ${attempt} failed:`, fetchError.message);
+                                
+                                if (attempt === maxRetries) {
+                                    throw fetchError;
+                                }
+                                
+                                // Wait before retry (exponential backoff)
+                                await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+                            }
+                        }
                     };
                     
-                    upload1Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
+                    upload1Response = await fetchWithRetry('/.netlify/functions/upload-user-image', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1152,52 +1272,35 @@
                             imageBase64: image1Base64,
                             filename: image1Filename
                         })
-                    }, 60000); // 60 sekundi timeout
+                    }, 2, 30000); // 2 retries, 30 second timeout
                     
-                    // Provjeri da li je response valjan Response objekt
+                    // ANDROID FIX: Better validation of response
                     if (!upload1Response) {
                         console.error('Response is null or undefined');
                         throw new Error('Network error - no response from server. Please check your internet connection and try again.');
                     }
                     
-                    // Provjeri da li je Response objekt (ne ProgressEvent)
-                    if (upload1Response.constructor && upload1Response.constructor.name === 'ProgressEvent') {
-                        console.error('Received ProgressEvent instead of Response:', upload1Response);
-                        throw new Error('Network error - connection failed. Please check your internet connection and try again.');
-                    }
-                    
-                    if (typeof upload1Response.text !== 'function') {
-                        console.error('Invalid response object - not a Response:', {
-                            type: typeof upload1Response,
-                            constructor: upload1Response.constructor?.name,
-                            keys: Object.keys(upload1Response)
-                        });
-                        throw new Error('Network error - invalid response from server. Please check your internet connection and try again.');
+                    // Check if it's a valid Response object
+                    if (!upload1Response.ok || !upload1Response.status) {
+                        console.error('Invalid response:', upload1Response);
+                        throw new Error('Invalid server response. Please try again.');
                     }
                     
                     console.log('Upload1 response status:', upload1Response.status);
                     console.log('Upload1 response ok:', upload1Response.ok);
-                    console.log('Upload1 response type:', upload1Response.constructor?.name);
+                    
                 } catch (fetchError) {
                     console.error('Fetch error for upload1:', fetchError);
-                    console.error('Error type:', typeof fetchError);
-                    console.error('Error name:', fetchError?.name);
-                    console.error('Error message:', fetchError?.message);
-                    console.error('Error constructor:', fetchError?.constructor?.name);
                     
-                    // Provjeri da li je ProgressEvent
-                    if (fetchError.constructor && fetchError.constructor.name === 'ProgressEvent') {
-                        throw new Error('Network error - connection failed. Please check your internet connection and try again.');
-                    }
-                    
-                    if (fetchError.name === 'TypeError' && fetchError.message.includes('Failed to fetch')) {
-                        throw new Error('Network error - could not connect to server. Please check your internet connection and try again.');
-                    } else if (fetchError.name === 'TypeError' && fetchError.message.includes('NetworkError')) {
-                        throw new Error('Network error - please check your internet connection and try again.');
-                    } else if (fetchError.message && fetchError.message.includes('timeout')) {
-                        throw new Error('Upload timeout - the image is too large or connection is too slow. Please try again with a smaller image.');
+                    // ANDROID FIX: Better error messages for network issues
+                    if (fetchError.message && fetchError.message.includes('timeout')) {
+                        throw new Error('Upload timeout - the server is taking too long to respond. Please try again.');
+                    } else if (fetchError.message && fetchError.message.includes('Failed to fetch')) {
+                        throw new Error('Network error - could not connect to server. Please check your internet connection.');
+                    } else if (fetchError.constructor && fetchError.constructor.name === 'ProgressEvent') {
+                        throw new Error('Network connection failed. Please check your internet and try again.');
                     } else {
-                        throw new Error('Failed to upload image: ' + (fetchError.message || 'Unknown network error'));
+                        throw new Error('Failed to upload image: ' + (fetchError.message || 'Network error'));
                     }
                 }
                 
@@ -1610,7 +1713,7 @@
                     toString: error?.toString()
                 });
                 
-                // Osiguraj da uvijek imamo valjan error message
+                // ANDROID FIX: Better handling for ProgressEvent errors
                 let errorMessage = 'An error occurred while generating your transformation.';
                 
                 // Detaljno logiranje za debugging (posebno važno za Android)
@@ -1620,7 +1723,14 @@
                 console.error('Error constructor:', error?.constructor?.name);
                 console.error('Error keys:', error ? Object.keys(error) : 'N/A');
                 
-                if (error) {
+                // ANDROID FIX: Specific handling for ProgressEvent
+                if (error?.constructor?.name === 'ProgressEvent') {
+                    errorMessage = 'Network error - connection failed. Please check your internet connection and try again.';
+                    console.error('ProgressEvent detected - network failure');
+                    console.error('ProgressEvent type:', error.type);
+                    console.error('ProgressEvent loaded:', error.loaded);
+                    console.error('ProgressEvent total:', error.total);
+                } else if (error) {
                     // Provjeri različite načine kako error može biti predstavljen
                     if (error.message && typeof error.message === 'string' && error.message.trim().length > 0) {
                         errorMessage = error.message;
@@ -1628,8 +1738,10 @@
                         errorMessage = error;
                     } else if (error.toString && typeof error.toString === 'function') {
                         const errorString = error.toString();
-                        if (errorString !== '[object Object]' && errorString !== '[object Error]') {
+                        if (errorString !== '[object Object]' && errorString !== '[object Error]' && errorString !== '[object ProgressEvent]') {
                             errorMessage = errorString;
+                        } else if (errorString === '[object ProgressEvent]') {
+                            errorMessage = 'Network connection error. Please check your internet and try again.';
                         }
                     } else if (error.name && typeof error.name === 'string') {
                         errorMessage = `Error: ${error.name}`;
@@ -1884,18 +1996,30 @@
                 return;
             }
             
+            // Check network connection before retry
+            if (!navigator.onLine) {
+                showError('No internet connection. Please connect to the internet and try again.', false);
+                return;
+            }
+            
             // Hide error recovery
             document.getElementById('errorRecovery').style.display = 'none';
             document.getElementById('errorMessage').style.display = 'none';
             
-            // Restore images if they exist
-            if (lastGenerationData.uploadedImages) {
-                uploadedImages = lastGenerationData.uploadedImages;
-                updatePreview();
-            }
+            // Show network checking message
+            showValidationMessage('🔍 Checking network connection...', 'warning');
             
-            // Retry generation
-            document.getElementById('generateButton').click();
+            // Small delay to show message
+            setTimeout(() => {
+                // Restore images if they exist
+                if (lastGenerationData.uploadedImages) {
+                    uploadedImages = lastGenerationData.uploadedImages;
+                    updatePreview();
+                }
+                
+                // Retry generation
+                document.getElementById('generateButton').click();
+            }, 1000);
         }
         
         function saveProgress() {
@@ -1942,8 +2066,19 @@
                 errorDiv.style.display = 'block';
             }
             
-            if (errorRecovery && showRetry) {
+            // ANDROID FIX: Always show retry for network errors
+            const isNetworkError = message.includes('Network') || 
+                                  message.includes('connection') || 
+                                  message.includes('internet');
+            
+            if (errorRecovery && (showRetry || isNetworkError)) {
                 errorRecovery.style.display = 'block';
+                
+                // Update retry button text for network errors
+                const retryButton = errorRecovery.querySelector('.retry-button');
+                if (retryButton && isNetworkError) {
+                    retryButton.textContent = '🔄 Retry (Network Issue)';
+                }
             } else if (errorRecovery) {
                 errorRecovery.style.display = 'none';
             }
@@ -2106,9 +2241,18 @@
         if (isAndroid) {
             setTimeout(() => {
                 debugLog('Android device detected - debug panel available', 'success');
+                debugLog(`Network status: ${networkStatus.online ? 'online' : 'offline'}`, 
+                        networkStatus.online ? 'success' : 'error');
                 // Uncomment next line to auto-show debug panel on Android
                 // toggleDebugPanel();
             }, 1000);
+        }
+        
+        // Periodic network check for Android
+        if (isAndroid) {
+            setInterval(() => {
+                checkNetworkStatus();
+            }, 10000); // Check every 10 seconds
         }
     </script>
 </body>
