@@ -1011,10 +1011,9 @@
             });
             
             try {
-                // Provjeri je li HEIC
-                const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
-                               file.name.toLowerCase().endsWith('.heic') || 
-                               file.name.toLowerCase().endsWith('.heif');
+                // Provjeri je li HEIC (sa provjerom da file.type i file.name postoje)
+                const isHeic = (file.type && (file.type === 'image/heic' || file.type === 'image/heif')) || 
+                               (file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')));
                 
                 console.log('Is HEIC file:', isHeic);
                 
@@ -1228,10 +1227,15 @@
                 
                 // Upload kroz Netlify function (Bunny.net ne podržava CORS za direktan upload)
                 const image1File = uploadedImages.couple || uploadedImages.person1;
+                
+                if (!image1File) {
+                    throw new Error('No image selected. Please select an image first.');
+                }
+                
                 const image1Filename = `${userId}-image1.jpg`;
                 
                 console.log('📤 Uploading image1 through Netlify function...');
-                console.log('Image1 file size:', (image1File.size / 1024 / 1024).toFixed(2), 'MB');
+                console.log('Image1 file size:', image1File.size ? (image1File.size / 1024 / 1024).toFixed(2) + ' MB' : 'unknown');
                 console.log('Image1 filename:', image1Filename);
                 
                 let image1Url;
@@ -1280,8 +1284,12 @@
                     }
                     
                     const urlData = await urlResponse.json();
-                    if (!urlData.success) {
-                        throw new Error(urlData.error || 'Failed to get upload URL');
+                    if (!urlData || !urlData.success) {
+                        throw new Error(urlData?.error || 'Failed to get upload URL');
+                    }
+                    
+                    if (!urlData.uploadUrl) {
+                        throw new Error('Upload URL not provided in response');
                     }
                     
                     console.log('✅ Got upload URL:', urlData.uploadUrl.substring(0, 50) + '...');
@@ -1289,6 +1297,10 @@
                     // Korak 2: Pokušaj direktan upload na Bunny.net (CORS omogućen)
                     console.log('📤 Uploading directly to Bunny.net...');
                     try {
+                        if (!urlData.accessKey) {
+                            throw new Error('Access key not provided in response');
+                        }
+                        
                         const bunnyResponse = await fetchWithTimeout(urlData.uploadUrl, {
                             method: 'PUT',
                             headers: {
@@ -1593,7 +1605,7 @@
                     
                     if (!trimmedText.startsWith('{') && !trimmedText.startsWith('[')) {
                         // Ako nije JSON, možda je HTML error page
-                        if (trimmedText.toLowerCase().includes('<html') || trimmedText.toLowerCase().includes('<!doctype')) {
+                        if (trimmedText && (trimmedText.toLowerCase().includes('<html') || trimmedText.toLowerCase().includes('<!doctype'))) {
                             throw new Error('Server returned HTML error page instead of JSON. This usually means the function crashed or timed out.');
                         }
                         throw new Error('Response is not valid JSON. Received: ' + trimmedText.substring(0, 100));
@@ -1614,7 +1626,7 @@
                         throw new Error('Request timeout. The generation might take too long. Please try again with smaller images.');
                     } else if (generateResponse.status === 413) {
                         throw new Error('Request too large. Please try with smaller images (max 10MB).');
-                    } else if (parseError.message && parseError.message.includes('Unexpected end')) {
+                    } else if (parseError?.message && parseError.message.includes('Unexpected end')) {
                         throw new Error('Incomplete response from server. The server response was cut off, likely due to a timeout. Please try again.');
                     } else {
                         // Human-friendly error message
@@ -1825,9 +1837,8 @@
         // HEIC CONVERSION
         // ============================================
         async function convertHeicToJpegInBrowser(file) {
-            const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
-                           file.name.toLowerCase().endsWith('.heic') || 
-                           file.name.toLowerCase().endsWith('.heif');
+            const isHeic = (file.type && (file.type === 'image/heic' || file.type === 'image/heif')) || 
+                           (file.name && (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')));
             
             if (!isHeic) {
                 return file; // Nije HEIC, vrati original
@@ -1853,7 +1864,7 @@
                 
                 // Kreiraj novi File objekt
                 const jpegFile = new File([blob], 
-                    file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+                    (file.name ? file.name.replace(/\.(heic|heif)$/i, '.jpg') : 'converted.jpg'), {
                         type: 'image/jpeg',
                         lastModified: Date.now()
                     });
@@ -1881,14 +1892,14 @@
                 const maxSize = 10 * 1024 * 1024; // 10MB
                 const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
                 
-                // Provjeri ekstenziju za Samsung HEIC
-                const fileName = file.name.toLowerCase();
-                const isHeic = fileName.endsWith('.heic') || fileName.endsWith('.heif');
-                const isAllowedType = allowedTypes.includes(file.type) || isHeic;
+                // Provjeri ekstenziju za Samsung HEIC (sa provjerom da file.name i file.type postoje)
+                const fileName = file.name ? file.name.toLowerCase() : '';
+                const isHeic = fileName && (fileName.endsWith('.heic') || fileName.endsWith('.heif'));
+                const isAllowedType = (file.type && allowedTypes.includes(file.type)) || isHeic;
                 
                 // Check file type
                 if (!isAllowedType) {
-                    reject(new Error(`Invalid file type (${file.type}). Samsung users: Please save as JPEG or disable Motion Photo.`));
+                    reject(new Error(`Invalid file type (${file.type || 'unknown'}). Samsung users: Please save as JPEG or disable Motion Photo.`));
                     return;
                 }
                 
@@ -2189,7 +2200,7 @@
                                 if (blob.size <= maxSizeBytes || quality <= 0.3) {
                                     // Ako je dovoljno mala ili smo na minimumu kvalitete
                                     compressedBlob = blob;
-                                    const compressedFile = new File([blob], file.name, {
+                                    const compressedFile = new File([blob], file.name || 'compressed.jpg', {
                                         type: 'image/jpeg',
                                         lastModified: Date.now()
                                     });
