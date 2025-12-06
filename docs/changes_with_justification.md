@@ -405,7 +405,68 @@ Prema PROJECT_RULES.md Rule #2, potreban je file za dokumentiranje opravdanja sv
 
 ---
 
-### December 6, 2025 - Update PROJECT_RULES.md with Enhanced Directives
+### December 6, 2025 - Complete PROJECT_RULES.md Customization for Love Stories Dubrovnik
+
+#### Change: Fully customized PROJECT_RULES.md for this specific project
+**Justification:**  
+Big Pappa requested to improve and customize PROJECT_RULES.md to be specific to Love Stories Dubrovnik project. The original file was adapted from a Flutter project and contained generic references. This update removes all Flutter/Xamarin/Angular references and adds project-specific details, workflows, best practices, and lessons learned.
+
+**Search Performed:**
+- `read_file`: `PROJECT_RULES.md` (entire file)
+- `codebase_search`: "Flutter", "Xamarin", "Angular", "DI configuration", "constructor calls"
+- `grep_search`: "Flutter", "Xamarin", "Angular", "Mobile.Client", "DI"
+- `read_file`: `order.html`, `museum-kiosk.html`, `netlify/functions/` files
+- **Files Searched:** `PROJECT_RULES.md`, `order.html`, `museum-kiosk.html`, `netlify/functions/`, `docs/`
+
+**Confirmation of No Existing Functionality:**
+- Original PROJECT_RULES.md contained Flutter/Xamarin/Angular references that don't apply to this web project
+- Missing project-specific workflow details
+- Missing solved problems and best practices section
+- Missing environment variables documentation
+- Missing key files reference section
+- AI Tracing Procedure needed web-specific examples
+
+**Implementation:**
+1. **Removed all Flutter/Xamarin/Angular references:**
+   - Removed DI configuration references
+   - Removed constructor call references
+   - Removed mobile app-specific terminology
+
+2. **Added project-specific details:**
+   - Complete application workflow (4 steps)
+   - Key features list (13 templates, mobile-first design, etc.)
+   - Environment variables documentation
+   - Deployment process
+   - Key files reference section
+
+3. **Added lessons learned section:**
+   - Solved problems (ProgressEvent errors, image compression, CORS)
+   - Best practices
+   - Common code patterns
+
+4. **Enhanced AI Tracing Procedure:**
+   - Web-specific examples (HTML, Netlify functions, JSON)
+   - Project-specific file references
+   - Better grep search examples
+
+5. **Updated workflow rules:**
+   - Web project-specific dependency verification
+   - Netlify function-specific examples
+   - Environment variable checks
+
+**Benefits:**
+- ✅ Fully customized for Love Stories Dubrovnik project
+- ✅ No generic Flutter references
+- ✅ Project-specific workflows and examples
+- ✅ Best practices and lessons learned documented
+- ✅ Better onboarding for new developers
+- ✅ Clear reference for all key files and their purposes
+
+**Status:** ✅ **COMPLETE** - PROJECT_RULES.md is now fully customized for this project
+
+---
+
+### December 6, 2025 - Update PROJECT_RULES.md with Enhanced Directives (Earlier)
 
 #### Change: Enhanced PROJECT_RULES.md with new workflow methodology
 **Justification:**  
@@ -465,6 +526,16 @@ Android → Direct Upload to Bunny.net (File object) → CDN URL → Netlify Fun
          ↓ (if CORS fails)
          → Fallback: Base64 → Netlify Function → Bunny.net → Replicate
 ```
+
+**Testing Results:**
+- ✅ **SUCCESSFULLY TESTED** - December 6, 2025
+- ✅ Direct upload to Bunny.net works perfectly on Android
+- ✅ No more ProgressEvent errors
+- ✅ Upload speed significantly improved
+- ✅ Payload reduction: 7.99MB → ~200 bytes (99.997% reduction)
+- ✅ CORS configuration in Bunny.net dashboard works correctly
+
+**Status:** **PRODUCTION READY** ✅
 
 ---
 

@@ -1353,7 +1353,7 @@
                     
                     if (uploadError.message && uploadError.message.includes('timeout')) {
                         throw new Error('Upload timeout - please check your internet connection and try again.');
-                    } else if (uploadError.message && uploadError.message.includes('Failed to fetch') || uploadError.message.includes('CORS')) {
+                    } else if (uploadError.message && (uploadError.message.includes('Failed to fetch') || uploadError.message.includes('CORS'))) {
                         throw new Error('Network error - could not connect to server. Please check your internet connection.');
                     } else if (uploadError.constructor && uploadError.constructor.name === 'ProgressEvent') {
                         throw new Error('Network connection failed. Please check your internet and try again.');
@@ -2113,9 +2113,9 @@
             }
             
             // ANDROID FIX: Always show retry for network errors
-            const isNetworkError = message.includes('Network') || 
+            const isNetworkError = message && (message.includes('Network') || 
                                   message.includes('connection') || 
-                                  message.includes('internet');
+                                  message.includes('internet'));
             
             if (errorRecovery && (showRetry || isNetworkError)) {
                 errorRecovery.style.display = 'block';

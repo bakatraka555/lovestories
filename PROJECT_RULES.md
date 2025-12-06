@@ -140,8 +140,10 @@ Strictly adhere to:
 - Address critical errors ili foundational issues prije optimizations ili minor improvements
 
 #### Verify Dependencies
-- Pay close attention to service registration order, dependency lifetimes, i potential dependency conflicts
-- Često zahtijeva reading DI configuration files *ili relevant constructor calls*
+- Pay close attention to function call order, environment variables, i potential API conflicts
+- Često zahtijeva reading Netlify function handlers, environment variable configuration, ili API endpoint definitions
+- Check `netlify.toml` for function configuration
+- Verify environment variables in Netlify dashboard
 
 ### 4. CODE QUALITY STANDARDS
 
@@ -172,9 +174,18 @@ Strictly adhere to:
 **Goal:** Find the starting line(s) of code for the trace.
 
 **Action:**
-- Based on task, identify most likely starting file (e.g., `museum-kiosk.html` button click, Netlify function handler)
-- Use `read_file` on suspected file to locate specific function/method invocation ili definition (e.g., `fetch('/.netlify/functions/...')`, `exports.handler = async (event, context) => {`)
-- If file unknown but route ili specific call signature known, use `grep_search` (e.g., query="fetch.*generate-image", query="exports.handler")
+- Based on task, identify most likely starting file:
+  - **UI Interactions:** `museum-kiosk.html` (template selection, QR code) ili `order.html` (image upload, generation)
+  - **API Calls:** `netlify/functions/*.js` (serverless function handlers)
+  - **Data Loading:** `docs/couples-templates-database.json` (template definitions)
+- Use `read_file` on suspected file to locate specific function/method invocation ili definition:
+  - Frontend: `fetch('/.netlify/functions/...')`, `addEventListener('click', ...)`, `DOMContentLoaded`
+  - Backend: `exports.handler = async (event, context) => {`
+  - Data: JSON structure in `couples-templates-database.json`
+- If file unknown but route ili specific call signature known, use `grep_search`:
+  - `query="fetch.*generate-image"` - find API calls
+  - `query="exports.handler"` - find Netlify functions
+  - `query="template-0[0-9]"` - find template references
 
 **Output:** State confirmed `target_file` i line number(s) of entry point. Set this as "current location".
 
@@ -229,46 +240,223 @@ Strictly adhere to:
 ## 🛠️ PROJECT-SPECIFIC GUIDELINES
 
 ### Technology Stack
-- **Frontend:** HTML, CSS, JavaScript (vanilla)
-- **Backend:** Netlify Functions (Node.js)
-- **AI Generation:** Replicate API
-- **Storage:** Bunny.net
-- **Hosting:** Netlify
-- **Python:** Batch generation scripts
+- **Frontend:** HTML5, CSS3, Vanilla JavaScript (no frameworks)
+- **Backend:** Netlify Functions (Node.js serverless)
+- **AI Generation:** Replicate API (Stable Diffusion models)
+- **Storage:** Bunny.net CDN (Storage Zone + Pull Zone)
+- **Hosting:** Netlify (static site + serverless functions)
+- **Python:** Batch generation scripts (local development)
 
 ### Key Files Structure
 ```
 lovestories dubrovnik/
-├── museum-kiosk.html              # Main photo booth UI
+├── museum-kiosk.html              # Main photo booth kiosk interface
+├── order.html                     # User order page (template selection + image upload)
 ├── netlify/
 │   └── functions/                 # Serverless functions
-│       ├── generate-image.js      # AI image generation
-│       ├── upload-to-bunny.js     # Storage upload
+│       ├── generate-image.js      # AI image generation (Replicate API)
+│       ├── upload-user-image.js    # User image upload to Bunny.net
+│       ├── upload-to-bunny.js      # Generated image upload to Bunny.net
+│       ├── get-upload-url.js      # Generate upload URL for direct Bunny.net upload
+│       ├── check-prediction-status.js  # Poll Replicate prediction status
+│       ├── prompts.js             # Prompt management from markdown files
 │       └── ...
-├── docs/                          # Documentation
-│   ├── couples-templates-database.json
-│   ├── COST_ANALYSIS.md
-│   ├── DEPLOYMENT.md
-│   └── ...
-├── temp/                          # Template examples
-│   └── template-01/...template-13/
-├── generate-examples.py           # Batch generation
-├── upload-to-bunny.py            # Upload script
-└── ...
+├── docs/                          # Comprehensive documentation
+│   ├── couples-templates-database.json  # 13 template definitions
+│   ├── COST_ANALYSIS.md           # Cost calculations
+│   ├── DEPLOYMENT.md              # Deployment guide
+│   ├── BUNNY_SETUP.md             # Bunny.net configuration
+│   ├── NETLIFY_SETUP.md           # Netlify configuration
+│   ├── changes_with_justification.md  # Change log with justifications
+│   └── ... (34+ documentation files)
+├── temp/                          # Template examples (local testing)
+│   └── template-01/...template-13/  # Example images/videos per template
+├── generate-examples.py           # Batch generate example images
+├── generate-and-upload-single.py # Generate and upload single template
+├── upload-to-bunny.py             # Upload files to Bunny.net
+└── netlify.toml                   # Netlify configuration
 ```
 
-### Typical Workflow
-1. User selects template in `museum-kiosk.html`
-2. Frontend sends request to Netlify function
-3. Netlify function calls Replicate API
-4. Result stored on Bunny.net
-5. URL returned to user
+### Application Workflow
+1. **Kiosk Interface (`museum-kiosk.html`):**
+   - User browses 13 templates from `docs/couples-templates-database.json`
+   - User scans QR code to open order page on mobile device
+   - QR code refreshes every 30 seconds
+
+2. **Order Page (`order.html`):**
+   - User selects template and uploads photo(s) via mobile
+   - **Direct upload to Bunny.net** (File object, not base64) - reduces payload from 7.99MB to ~200 bytes
+   - Fallback to Netlify function if CORS fails
+   - Image compression only for files > 5MB (selfies work fine without compression)
+
+3. **Image Generation (`netlify/functions/generate-image.js`):**
+   - Receives CDN URL from uploaded user image
+   - Calls Replicate API with template-specific prompt
+   - Polls prediction status until complete
+   - Downloads generated image from Replicate
+   - Uploads to Bunny.net Storage Zone
+   - Returns CDN URL to user
+
+4. **Storage (`Bunny.net`):**
+   - Storage Zone: `lovestories-examples`
+   - Pull Zone: `lovestories-cdn.b-cdn.net`
+   - CORS enabled for jpg/jpeg/png files
+   - Direct upload from browser supported
+
+### Key Features
+- **13 Love Story Templates:** Vintage 1920s, Medieval Romance, Beach Sunset, City Lights, Garden Wedding, Casino Glamour, Chibi 3D, Trading Card, Dubrovnik Sunrise, Volcano Adventure, Instagram Frame, Forever Together, Cinematic Travel
+- **Mobile-First Design:** Optimized for Android/iOS photo uploads
+- **Direct Bunny.net Upload:** Reduces Netlify function payload by 99.997%
+- **Automatic Image Compression:** Only for files > 5MB
+- **QR Code Integration:** Easy mobile access from kiosk
+- **Comprehensive Error Handling:** ProgressEvent detection, timeout handling, fallback mechanisms
+
+### Environment Variables (Netlify Dashboard)
+**Required for production:**
+- `REPLICATE_API_TOKEN` - Replicate API token for AI image generation
+- `REPLICATE_MODEL` - Replicate model name (e.g., "google/nano-banana" or "google/nano-banana-pro")
+  - Default: `google/nano-banana-pro` (if not set)
+  - Can be changed without code changes
+- `BUNNY_API_KEY` - Bunny.net Storage Zone API key
+- `BUNNY_STORAGE_ZONE` - Storage zone name (e.g., "lovestories-examples")
+- `BUNNY_CDN_DOMAIN` - CDN domain (e.g., "lovestories-cdn.b-cdn.net")
+
+**Configuration:**
+- Set in Netlify Dashboard → Site settings → Environment variables
+- Apply to: All environments (Production, Deploy previews, Branch deploys)
+- **Never commit API keys to Git!**
+
+### Deployment Process
+1. **Local Development:**
+   - Test locally: `npx netlify functions:serve`
+   - Test upload: Use local environment variables
+
+2. **Git Workflow:**
+   - Commit changes: `git add . && git commit -m "description"`
+   - Push to GitHub: `git push origin main`
+   - Netlify automatically deploys on push to `main` branch
+
+3. **Deploy Verification:**
+   - Check Netlify Dashboard → Deploys tab
+   - Verify environment variables are set
+   - Test on production URL: `https://lovestories-dubrovnik.netlify.app`
+   - Check Netlify Function logs for errors
+
+### Key Files Reference
+
+#### Frontend Files
+- **`museum-kiosk.html`** - Main kiosk interface, displays templates, generates QR codes
+- **`order.html`** - User order page, handles image upload and generation request
+
+#### Netlify Functions
+- **`generate-image.js`** - Main AI generation function, calls Replicate API, uploads to Bunny.net
+- **`upload-user-image.js`** - Uploads user-uploaded images to Bunny.net (fallback method)
+- **`get-upload-url.js`** - Generates upload URL for direct Bunny.net upload from browser
+- **`check-prediction-status.js`** - Polls Replicate API for prediction status
+- **`prompts.js`** - Manages prompt templates from markdown files
+
+#### Configuration Files
+- **`netlify.toml`** - Netlify configuration (redirects, headers, functions directory)
+- **`package.json`** - Node.js dependencies for Netlify functions
+- **`requirements.txt`** - Python dependencies for batch generation scripts
+
+#### Documentation
+- **`docs/changes_with_justification.md`** - Change log with justifications (per Rule #2)
+- **`docs/couples-templates-database.json`** - Template definitions (13 templates)
+- **`docs/README.md`** - Documentation index and navigation
+- **`PROJECT_RULES.md`** - This file (always active rules)
+
+---
+
+## 🎓 LESSONS LEARNED & BEST PRACTICES
+
+### Solved Problems
+
+#### 1. ProgressEvent Errors on Android (December 6, 2025)
+**Problem:** 7.99MB base64 images sent through Netlify functions caused ProgressEvent errors on Android mobile networks.
+
+**Solution:** Direct upload to Bunny.net from browser (File object, not base64)
+- **Payload reduction:** 7.99MB → ~200 bytes (99.997% reduction)
+- **Implementation:** `get-upload-url.js` generates upload URL, browser uploads directly to `storage.bunnycdn.com`
+- **Fallback:** If CORS fails, automatically falls back to Netlify function
+- **Status:** ✅ **PRODUCTION READY** - Successfully tested on Android
+
+#### 2. Image Compression Strategy
+**Finding:** Selfies (~5MB) upload fine without compression, but larger images need compression.
+
+**Solution:** Compression only for images > 5MB
+- Images < 5MB: Upload directly (no compression)
+- Images > 5MB: Compress to max 4MB using Canvas API
+- **Result:** Faster uploads for selfies, reduced payload for large images
+
+#### 3. Bunny.net CORS Configuration
+**Finding:** Bunny.net Storage API requires CORS headers for direct browser uploads.
+
+**Solution:** Enable CORS in Bunny.net dashboard
+- Storage Zone → CDN → Headers → "Add CORS headers" enabled
+- Extension list includes: `jpg, jpeg, png`
+- **Result:** Direct upload from browser works correctly
+
+### Best Practices
+
+1. **Always use direct Bunny.net upload first** - Reduces Netlify function payload by 99.997%
+2. **Compress only when necessary** - Selfies work fine without compression
+3. **Implement automatic fallback** - If direct upload fails, use Netlify function
+4. **Test on Android devices** - Mobile networks have different behavior than desktop
+5. **Monitor Netlify function logs** - Check for timeout errors and payload sizes
+6. **Document all changes** - Use `docs/changes_with_justification.md` for every significant change
+
+### Common Patterns
+
+#### Upload Flow Pattern
+```javascript
+// 1. Get upload URL from Netlify function
+const urlResponse = await fetch('/.netlify/functions/get-upload-url', {...});
+const urlData = await urlResponse.json();
+
+// 2. Try direct upload to Bunny.net
+try {
+  await fetch(urlData.uploadUrl, {
+    method: 'PUT',
+    headers: { 'AccessKey': urlData.accessKey },
+    body: imageFile // File object, not base64!
+  });
+} catch (error) {
+  // 3. Fallback to Netlify function if CORS fails
+  await fetch('/.netlify/functions/upload-user-image', {
+    method: 'POST',
+    body: JSON.stringify({ imageBase64: base64, filename: filename })
+  });
+}
+```
+
+#### Error Handling Pattern
+```javascript
+// Always check for ProgressEvent errors on mobile
+if (error.constructor?.name === 'ProgressEvent') {
+  throw new Error('Network connection failed. Please check your internet and try again.');
+}
+
+// Check for timeout errors
+if (error.message?.includes('timeout')) {
+  throw new Error('Upload timeout - please check your internet connection and try again.');
+}
+```
 
 ---
 
 ## 📝 CHANGE LOG
 
 ### December 6, 2025
+- **Enhanced PROJECT_RULES.md** - Completely customized for Love Stories Dubrovnik project
+- Removed all Flutter/Xamarin/Angular references
+- Added project-specific workflow details
+- Added solved problems and best practices section
+- Enhanced AI Code Tracing Procedure with web-specific examples
+- Added key features and application workflow
+- **Status:** ✅ Fully customized for this project
+
+### December 6, 2025 (Earlier)
 - Enhanced AI Code Tracing Procedure (Version 4)
 - Added more detailed sequential problem solving approach
 - Improved documentation cross-referencing requirements

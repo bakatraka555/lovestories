@@ -20,6 +20,9 @@ ENV/
 *.swo
 *~
 
+# Cursor rules (local only, not for GitHub)
+.cursorrules
+
 # OS
 .DS_Store
 Thumbs.db

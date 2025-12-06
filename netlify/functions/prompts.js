@@ -119,8 +119,8 @@ function generatePrompt(templateId, isCouple) {
     return generatePrompt('template-01', isCouple);
   }
 
-  // Bazni prompt header
-  const baseHeader = `Ultra-photorealistic, highly cinematic ${template.name} photograph.`;
+  // Bazni prompt header - safely handle undefined name
+  const baseHeader = `Ultra-photorealistic, highly cinematic ${template.name || 'romantic couple'} photograph.`;
 
   // Input image processing section - razlikuje couple vs separate
   let inputProcessing;
@@ -161,20 +161,34 @@ function generatePrompt(templateId, isCouple) {
 - OPACITY: transparent
 - Logo should blend naturally into the scene`;
 
-  // Scene specific section
-  const sceneSection = `SCENE: ${template.scene}
-LOCATION: ${template.location}
-STYLE: ${template.style}`;
+  // Scene specific section - safely handle undefined values
+  const sceneSection = `SCENE: ${template.scene || 'Romantic couple scene'}
+LOCATION: ${template.location || 'Beautiful location'}
+STYLE: ${template.style || 'Cinematic, professional photography'}`;
 
   // Composition section
+  // Check if template has specific eye contact instructions (e.g., "looking into each others eyes")
+  // Safely check specialInstructions - it might be undefined
+  const specialInstructions = template.specialInstructions || '';
+  const hasSpecificEyeContact = specialInstructions.toLowerCase().includes('looking into') || 
+                                 specialInstructions.toLowerCase().includes('looking at each other') ||
+                                 specialInstructions.toLowerCase().includes('gaze between');
+  
+  // Eye contact instruction - default to camera unless template specifies otherwise
+  const eyeContactInstruction = hasSpecificEyeContact 
+    ? '' // Template has specific eye contact instruction, don't override
+    : '- EYE CONTACT: Both people looking directly at the camera with engaging eye contact, professional portrait style, confident and warm expressions';
+  
   const composition = `COMPOSITION:
 - Both people should be clearly visible in the scene
-- ${template.specialInstructions}
+${specialInstructions ? `- ${specialInstructions}` : ''}
+${eyeContactInstruction}
 - Natural interaction between the couple
 - Professional photography quality
 - High resolution, sharp details
 - Balanced composition with both faces clearly visible
-- Romantic and emotional connection between the couple`;
+- Romantic and emotional connection between the couple
+- Camera angle: Eye-level or slightly above, engaging and professional portrait perspective`;
 
   // Kombinira sve sekcije
   return `${baseHeader}

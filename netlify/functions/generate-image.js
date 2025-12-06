@@ -104,6 +104,10 @@ exports.handler = async (event, context) => {
       };
     }
 
+    // Učitaj model iz environment varijable (može se mijenjati bez promjene koda)
+    const REPLICATE_MODEL = process.env.REPLICATE_MODEL || 'google/nano-banana-pro'; // Fallback na pro verziju
+    console.log('Using Replicate model:', REPLICATE_MODEL);
+
     // Učitaj template database za prompt
     const templates = require('../../docs/couples-templates-database.json');
     const template = templates.templates.find(t => t.id === templateId);
@@ -281,7 +285,7 @@ exports.handler = async (event, context) => {
     console.log('Making Replicate API request...');
     let replicateResponse;
     try {
-      replicateResponse = await fetch('https://api.replicate.com/v1/models/google/nano-banana-pro/predictions', {
+      replicateResponse = await fetch(`https://api.replicate.com/v1/models/${REPLICATE_MODEL}/predictions`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,  // Replicate API koristi Bearer (kao u dokumentaciji)
