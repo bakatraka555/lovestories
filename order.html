@@ -505,6 +505,56 @@
                 padding: 20px;
             }
         }
+
+        /* ANDROID DEBUG PANEL */
+        .debug-panel {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            z-index: 1000;
+            max-width: 300px;
+            max-height: 200px;
+            overflow: auto;
+            display: none;
+        }
+
+        .debug-toggle {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .debug-log {
+            margin: 2px 0;
+            padding: 2px;
+            border-bottom: 1px solid #444;
+            font-family: monospace;
+        }
+
+        .debug-log.error {
+            color: #ff6b6b;
+        }
+
+        .debug-log.success {
+            color: #51cf66;
+        }
+
+        .debug-log.info {
+            color: #339af0;
+        }
     </style>
 </head>
 <body>
@@ -623,25 +673,100 @@
         </div>
     </div>
 
+    <!-- ANDROID DEBUG PANEL -->
+    <button class="debug-toggle" onclick="toggleDebugPanel()">🐛 Debug</button>
+    <div class="debug-panel" id="debugPanel">
+        <div style="margin-bottom: 5px; font-weight: bold;">Android Debug Logs:</div>
+        <div id="debugLogs"></div>
+    </div>
+
     <script>
         // Get template from URL
         const urlParams = new URLSearchParams(window.location.search);
         const templateId = urlParams.get('template');
         
-        // ANDROID DETECTION & DEBUGGING
+        // ANDROID DEBUGGING SYSTEM
+        const debugLogs = [];
         const isAndroid = /Android/i.test(navigator.userAgent);
         const isChrome = /Chrome/i.test(navigator.userAgent);
         const isMobile = /Mobi/i.test(navigator.userAgent);
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         
-        console.log('=== DEVICE DETECTION ===');
-        console.log('User Agent:', navigator.userAgent);
-        console.log('Is Android:', isAndroid);
-        console.log('Is Chrome:', isChrome);
-        console.log('Is Mobile:', isMobile);
-        console.log('Is iOS:', isIOS);
-        console.log('Platform:', navigator.platform);
-        console.log('=== END DETECTION ===');
+        // Enhanced console.log that also logs to debug panel
+        function debugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            
+            // Log to console
+            console.log(`[DEBUG] ${logEntry}`);
+            
+            // Add to debug logs array
+            debugLogs.push({ message: logEntry, type, timestamp });
+            
+            // Update debug panel if visible
+            updateDebugPanel();
+            
+            // Also log to our custom debug function
+            logToDebugPanel(logEntry, type);
+        }
+        
+        function logToDebugPanel(message, type = 'info') {
+            const debugLogsDiv = document.getElementById('debugLogs');
+            if (!debugLogsDiv) return;
+            
+            const logElement = document.createElement('div');
+            logElement.className = `debug-log ${type}`;
+            logElement.textContent = message;
+            
+            debugLogsDiv.appendChild(logElement);
+            
+            // Keep only last 20 logs
+            const logs = debugLogsDiv.querySelectorAll('.debug-log');
+            if (logs.length > 20) {
+                logs[0].remove();
+            }
+            
+            // Auto-scroll to bottom
+            debugLogsDiv.scrollTop = debugLogsDiv.scrollHeight;
+        }
+        
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debugPanel');
+            if (panel.style.display === 'block') {
+                panel.style.display = 'none';
+            } else {
+                panel.style.display = 'block';
+                updateDebugPanel();
+            }
+        }
+        
+        function updateDebugPanel() {
+            const debugLogsDiv = document.getElementById('debugLogs');
+            if (!debugLogsDiv) return;
+            
+            // Clear and rebuild
+            debugLogsDiv.innerHTML = '';
+            
+            // Add device info
+            logToDebugPanel(`📱 Device: ${navigator.userAgent.substring(0, 50)}...`, 'info');
+            logToDebugPanel(`🤖 Android: ${isAndroid} | Chrome: ${isChrome} | Mobile: ${isMobile}`, 'info');
+            logToDebugPanel(`🌐 Platform: ${navigator.platform}`, 'info');
+            logToDebugPanel(`📏 Screen: ${window.innerWidth}x${window.innerHeight}`, 'info');
+            logToDebugPanel(`🔗 URL: ${window.location.href}`, 'info');
+            logToDebugPanel('---', 'info');
+            
+            // Add recent logs
+            debugLogs.slice(-10).forEach(log => {
+                logToDebugPanel(log.message, log.type);
+            });
+        }
+        
+        // Initialize debug logging
+        debugLog('=== ANDROID DEBUG INITIALIZED ===', 'success');
+        debugLog(`User Agent: ${navigator.userAgent}`, 'info');
+        debugLog(`Is Android: ${isAndroid}`, isAndroid ? 'success' : 'info');
+        debugLog(`Is Chrome: ${isChrome}`, isChrome ? 'success' : 'info');
+        debugLog(`Is Mobile: ${isMobile}`, isMobile ? 'success' : 'info');
         
         // ANDROID FIX: Use separate approach for Android
         const useAndroidFix = isAndroid && isMobile;
@@ -1969,12 +2094,21 @@
         
         // ANDROID FIX: Setup listeners if using Android fix
         if (useAndroidFix) {
-            console.log('Using Android fix with separate camera/gallery inputs');
+            debugLog('Using Android fix with separate camera/gallery inputs', 'success');
             setupAndroidInputListeners();
             // Hide original buttons, show Android-specific message
             showValidationMessage('📱 Android detected: Using optimized file selection', 'success');
         } else {
-            console.log('Using standard file input approach');
+            debugLog('Using standard file input approach', 'info');
+        }
+        
+        // Auto-show debug panel on Android for testing
+        if (isAndroid) {
+            setTimeout(() => {
+                debugLog('Android device detected - debug panel available', 'success');
+                // Uncomment next line to auto-show debug panel on Android
+                // toggleDebugPanel();
+            }, 1000);
         }
     </script>
 </body>
