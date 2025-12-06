@@ -1226,71 +1226,95 @@
                 const userId = generateUserId();
                 updateLoadingStep(1, 'Uploading images...');
                 
-                // NOVO: Direktan upload na Bunny.net iz browsera (bez base64 kroz Netlify!)
+                // Upload kroz Netlify function (Bunny.net ne podržava CORS za direktan upload)
                 const image1File = uploadedImages.couple || uploadedImages.person1;
                 const image1Filename = `${userId}-image1.jpg`;
                 
-                console.log('🚀 Direct upload to Bunny.net (no base64 through Netlify!)');
+                console.log('📤 Uploading image1 through Netlify function...');
                 console.log('Image1 file size:', (image1File.size / 1024 / 1024).toFixed(2), 'MB');
                 console.log('Image1 filename:', image1Filename);
                 
                 let image1Url;
                 try {
-                    // Korak 1: Dobij upload URL i credentials
-                    console.log('Step 1: Getting upload URL from Netlify...');
-                    const urlResponse = await fetch('/.netlify/functions/get-upload-url', {
+                    // Konvertuj u base64 (potrebno za Netlify function)
+                    const image1Base64 = await fileToBase64(image1File);
+                    console.log('Image1 base64 length:', image1Base64 ? image1Base64.length : 0);
+                    
+                    // Timeout wrapper za fetch (60 sekundi za Android)
+                    const fetchWithTimeout = (url, options, timeout = 60000) => {
+                        return Promise.race([
+                            fetch(url, options),
+                            new Promise((_, reject) =>
+                                setTimeout(() => reject(new Error('Request timeout - upload took too long')), timeout)
+                            )
+                        ]);
+                    };
+                    
+                    const upload1Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
+                            imageBase64: image1Base64,
                             filename: image1Filename
                         })
-                    });
+                    }, 60000); // 60 sekundi timeout
                     
-                    if (!urlResponse.ok) {
-                        const errorText = await urlResponse.text();
-                        throw new Error(`Failed to get upload URL: ${errorText}`);
+                    // Provjeri da li je response valjan Response objekt
+                    if (!upload1Response) {
+                        console.error('Response is null or undefined');
+                        throw new Error('Network error - no response from server. Please check your internet connection and try again.');
                     }
                     
-                    const urlData = await urlResponse.json();
-                    console.log('Step 1: Got upload URL:', urlData.uploadUrl.substring(0, 80) + '...');
-                    console.log('Step 1: CDN URL will be:', urlData.cdnUrl);
+                    // Provjeri da li je Response objekt (ne ProgressEvent)
+                    if (upload1Response.constructor && upload1Response.constructor.name === 'ProgressEvent') {
+                        console.error('Received ProgressEvent instead of Response:', upload1Response);
+                        throw new Error('Network error - connection failed. Please check your internet connection and try again.');
+                    }
                     
-                    // Korak 2: Upload direktno na Bunny.net iz browsera (BLOB, ne base64!)
-                    console.log('Step 2: Uploading directly to Bunny.net from browser...');
-                    const bunnyUploadResponse = await fetch(urlData.uploadUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'AccessKey': urlData.accessKey,
-                            'Content-Type': 'image/jpeg'
-                        },
-                        body: image1File // Direktno File objekt - NEMA base64 konverzije!
-                    });
-                    
-                    if (!bunnyUploadResponse.ok) {
-                        const errorText = await bunnyUploadResponse.text();
-                        console.error('Bunny.net direct upload error:', {
-                            status: bunnyUploadResponse.status,
-                            statusText: bunnyUploadResponse.statusText,
-                            error: errorText
+                    if (typeof upload1Response.text !== 'function') {
+                        console.error('Invalid response object - not a Response:', {
+                            type: typeof upload1Response,
+                            constructor: upload1Response.constructor?.name,
+                            keys: Object.keys(upload1Response)
                         });
-                        throw new Error(`Bunny.net upload failed: ${errorText || bunnyUploadResponse.statusText}`);
+                        throw new Error('Network error - invalid response from server. Please check your internet connection and try again.');
                     }
                     
-                    // Korak 3: Koristi CDN URL koji smo dobili
-                    image1Url = urlData.cdnUrl;
-                    console.log('✅ Step 2: Direct upload successful!');
-                    console.log('✅ Image1 CDN URL:', image1Url);
-                    console.log('📊 Payload reduction: ~11MB base64 → ~200 bytes URL!');
+                    console.log('Upload1 response status:', upload1Response.status);
+                    console.log('Upload1 response ok:', upload1Response.ok);
+                    
+                    let upload1Result;
+                    try {
+                        const upload1Text = await upload1Response.text();
+                        console.log('Upload1 response text length:', upload1Text ? upload1Text.length : 0);
+                        
+                        if (!upload1Text || upload1Text.trim().length === 0) {
+                            throw new Error('Empty response from upload service. Please try again.');
+                        }
+                        
+                        upload1Result = JSON.parse(upload1Text);
+                        console.log('Upload1 result parsed:', upload1Result);
+                    } catch (parseError) {
+                        console.error('Failed to parse upload1 response:', parseError);
+                        throw new Error('Invalid response from server. Please try again.');
+                    }
+                    
+                    if (!upload1Response.ok || !upload1Result.success) {
+                        throw new Error(upload1Result.error || upload1Result.details || 'Failed to upload image1');
+                    }
+                    
+                    image1Url = upload1Result.url;
+                    console.log('✅ Image1 uploaded successfully:', image1Url);
                     
                 } catch (uploadError) {
-                    console.error('Direct upload error:', uploadError);
+                    console.error('Upload error:', uploadError);
                     
                     if (uploadError.message && uploadError.message.includes('timeout')) {
                         throw new Error('Upload timeout - please check your internet connection and try again.');
                     } else if (uploadError.message && uploadError.message.includes('Failed to fetch')) {
-                        throw new Error('Network error - could not connect to Bunny.net. Please check your internet connection.');
+                        throw new Error('Network error - could not connect to server. Please check your internet connection.');
                     } else if (uploadError.constructor && uploadError.constructor.name === 'ProgressEvent') {
                         throw new Error('Network connection failed. Please check your internet and try again.');
                     } else {
@@ -1298,64 +1322,84 @@
                     }
                 }
                 
-                // Uploadaj image2 ako postoji - TAKOĐER direktno na Bunny.net!
+                // Uploadaj image2 ako postoji - kroz Netlify function
                 let image2Url = null;
                 if (!isCouple && uploadedImages.person2) {
                     updateLoadingStep(1, 'Uploading second image...');
                     
                     const image2Filename = `${userId}-image2.jpg`;
                     
-                    console.log('🚀 Direct upload image2 to Bunny.net...');
+                    console.log('📤 Uploading image2 through Netlify function...');
                     console.log('Image2 file size:', (uploadedImages.person2.size / 1024 / 1024).toFixed(2), 'MB');
                     console.log('Image2 filename:', image2Filename);
                     
                     try {
-                        // Korak 1: Dobij upload URL i credentials
-                        console.log('Step 1 (image2): Getting upload URL...');
-                        const url2Response = await fetch('/.netlify/functions/get-upload-url', {
+                        const image2Base64 = await fileToBase64(uploadedImages.person2);
+                        console.log('Image2 base64 length:', image2Base64 ? image2Base64.length : 0);
+                        
+                        const fetchWithTimeout = (url, options, timeout = 60000) => {
+                            return Promise.race([
+                                fetch(url, options),
+                                new Promise((_, reject) =>
+                                    setTimeout(() => reject(new Error('Request timeout - upload took too long')), timeout)
+                                )
+                            ]);
+                        };
+                        
+                        const upload2Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
+                                imageBase64: image2Base64,
                                 filename: image2Filename
                             })
-                        });
+                        }, 60000);
                         
-                        if (!url2Response.ok) {
-                            const errorText = await url2Response.text();
-                            throw new Error(`Failed to get upload URL: ${errorText}`);
+                        if (!upload2Response) {
+                            throw new Error('Network error - no response from server.');
                         }
                         
-                        const url2Data = await url2Response.json();
-                        console.log('Step 1 (image2): Got upload URL');
-                        
-                        // Korak 2: Upload direktno na Bunny.net iz browsera
-                        console.log('Step 2 (image2): Uploading directly to Bunny.net...');
-                        const bunnyUpload2Response = await fetch(url2Data.uploadUrl, {
-                            method: 'PUT',
-                            headers: {
-                                'AccessKey': url2Data.accessKey,
-                                'Content-Type': 'image/jpeg'
-                            },
-                            body: uploadedImages.person2 // Direktno File objekt!
-                        });
-                        
-                        if (!bunnyUpload2Response.ok) {
-                            const errorText = await bunnyUpload2Response.text();
-                            throw new Error(`Bunny.net upload failed: ${errorText || bunnyUpload2Response.statusText}`);
+                        if (upload2Response.constructor && upload2Response.constructor.name === 'ProgressEvent') {
+                            throw new Error('Network error - connection failed.');
                         }
                         
-                        image2Url = url2Data.cdnUrl;
+                        if (typeof upload2Response.text !== 'function') {
+                            throw new Error('Network error - invalid response from server.');
+                        }
+                        
+                        console.log('Upload2 response status:', upload2Response.status);
+                        
+                        let upload2Result;
+                        try {
+                            const upload2Text = await upload2Response.text();
+                            
+                            if (!upload2Text || upload2Text.trim().length === 0) {
+                                throw new Error('Empty response from upload service.');
+                            }
+                            
+                            upload2Result = JSON.parse(upload2Text);
+                            console.log('Upload2 result parsed:', upload2Result);
+                        } catch (parseError) {
+                            console.error('Failed to parse upload2 response:', parseError);
+                            throw new Error('Invalid response from server.');
+                        }
+                        
+                        if (!upload2Response.ok || !upload2Result.success) {
+                            throw new Error(upload2Result.error || upload2Result.details || 'Failed to upload image2');
+                        }
+                        
+                        image2Url = upload2Result.url;
                         console.log('✅ Image2 uploaded successfully:', image2Url);
                         
                     } catch (upload2Error) {
-                        console.error('Direct upload error for image2:', upload2Error);
+                        console.error('Upload error for image2:', upload2Error);
                         
                         if (upload2Error.message && upload2Error.message.includes('timeout')) {
                             throw new Error('Upload timeout - please check your internet connection and try again.');
                         } else if (upload2Error.message && upload2Error.message.includes('Failed to fetch')) {
-                            throw new Error('Network error - could not connect to Bunny.net. Please check your internet connection.');
+                            throw new Error('Network error - could not connect to server. Please check your internet connection.');
                         } else if (upload2Error.constructor && upload2Error.constructor.name === 'ProgressEvent') {
                             throw new Error('Network connection failed. Please check your internet and try again.');
                         } else {

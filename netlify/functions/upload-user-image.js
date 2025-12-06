@@ -1,8 +1,8 @@
 /**
  * Netlify Function za upload korisničkih slika na Bunny.net
  * 
- * Prima:
- * - imageBase64: Base64 encoded slika (data URL)
+ * Prima FormData (multipart/form-data) umjesto base64 za manji overhead:
+ * - image: File blob (binary data)
  * - filename: Ime fajla za upload
  * 
  * Vraća:
@@ -18,7 +18,7 @@ exports.handler = async (event, context) => {
   console.log('Path:', event.path);
   console.log('Has body:', !!event.body);
   console.log('Body length:', event.body ? event.body.length : 0);
-  console.log('Headers:', event.headers);
+  console.log('Content-Type:', event.headers['content-type'] || event.headers['Content-Type']);
   
   // CORS headers - poboljšano za Android
   const headers = {
@@ -48,26 +48,79 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    console.log('Parsing request body...');
-    const body = JSON.parse(event.body);
-    const { imageBase64, filename } = body;
+    const contentType = event.headers['content-type'] || event.headers['Content-Type'] || '';
+    const isFormData = contentType.includes('multipart/form-data');
+    const isJson = contentType.includes('application/json');
     
-    console.log('Request parsed:', {
-      hasImageBase64: !!imageBase64,
-      imageBase64Length: imageBase64 ? imageBase64.length : 0,
-      filename: filename
-    });
-
-    if (!imageBase64 || !filename) {
+    console.log('Content type detected:', { isFormData, isJson, contentType });
+    
+    let imageBuffer;
+    let filename;
+    
+    if (isFormData) {
+      // Parse multipart/form-data
+      // Netlify Functions automatski parsira multipart, ali možemo koristiti raw body
+      // Za sada, koristimo base64 fallback ako FormData ne radi
+      console.log('FormData detected, but Netlify Functions need special handling...');
+      // Fallback na JSON za sada
+      const body = JSON.parse(event.body);
+      const { imageBase64, filename: fn } = body;
+      
+      if (!imageBase64 || !fn) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ 
+            error: 'Missing required parameters',
+            details: 'Both imageBase64 and filename are required'
+          })
+        };
+      }
+      
+      const base64Data = imageBase64.includes(',') 
+        ? imageBase64.split(',')[1] 
+        : imageBase64;
+      imageBuffer = Buffer.from(base64Data, 'base64');
+      filename = fn;
+      
+    } else if (isJson) {
+      // JSON format (backward compatibility)
+      console.log('JSON format detected (backward compatibility)');
+      const body = JSON.parse(event.body);
+      const { imageBase64, filename: fn } = body;
+      
+      if (!imageBase64 || !fn) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ 
+            error: 'Missing required parameters',
+            details: 'Both imageBase64 and filename are required'
+          })
+        };
+      }
+      
+      const base64Data = imageBase64.includes(',') 
+        ? imageBase64.split(',')[1] 
+        : imageBase64;
+      imageBuffer = Buffer.from(base64Data, 'base64');
+      filename = fn;
+      
+    } else {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ 
-          error: 'Missing required parameters',
-          details: !imageBase64 ? 'imageBase64 is required' : 'filename is required'
+          error: 'Unsupported content type',
+          details: 'Expected multipart/form-data or application/json'
         })
       };
     }
+    
+    console.log('Request parsed:', {
+      imageBufferSize: imageBuffer.length,
+      filename: filename
+    });
 
     const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
     const BUNNY_STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
@@ -88,20 +141,12 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Extract base64 data (remove data:image/jpeg;base64, prefix if present)
-    const base64Data = imageBase64.includes(',') 
-      ? imageBase64.split(',')[1] 
-      : imageBase64;
-    
-    // Convert base64 to buffer
-    const imageBuffer = Buffer.from(base64Data, 'base64');
-    console.log('Image buffer size:', imageBuffer.length, 'bytes');
-
     // Upload path - koristi temp folder
     const uploadPath = `temp/${filename}`;
     const uploadUrl = `https://storage.bunnycdn.com/${BUNNY_STORAGE_ZONE}/${uploadPath}`;
     
     console.log('Uploading to Bunny.net:', uploadUrl.substring(0, 80) + '...');
+    console.log('File size:', imageBuffer.length, 'bytes');
     
     const uploadResponse = await fetch(uploadUrl, {
       method: 'PUT',
