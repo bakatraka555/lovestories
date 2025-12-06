@@ -811,22 +811,18 @@
                     uploadedImages.couple = processedFile;
                     uploadedImages.person1 = null;
                     uploadedImages.person2 = null;
-                    // Clear other inputs
-                    document.getElementById('person1Image').value = '';
-                    document.getElementById('person2Image').value = '';
-                    // Clear Android fix inputs
-                    document.getElementById('person1ImageGallery').value = '';
-                    document.getElementById('person1ImageCamera').value = '';
-                    document.getElementById('person2ImageGallery').value = '';
-                    document.getElementById('person2ImageCamera').value = '';
+                    
+                    // ANDROID FIX: Clear other inputs safely
+                    clearAllInputsForType('person1');
+                    clearAllInputsForType('person2');
+                    
                 } else if (imageType === 'person1') {
                     uploadedImages.person1 = processedFile;
                     uploadedImages.couple = null;
-                    // Clear couple input
-                    document.getElementById('coupleImage').value = '';
-                    // Clear Android fix inputs
-                    document.getElementById('coupleImageGallery').value = '';
-                    document.getElementById('coupleImageCamera').value = '';
+                    
+                    // ANDROID FIX: Clear other inputs safely
+                    clearAllInputsForType('couple');
+                    
                 } else if (imageType === 'person2') {
                     uploadedImages.person2 = processedFile;
                 }
@@ -916,13 +912,18 @@
         function removeImage(type) {
             if (type === 'couple') {
                 uploadedImages.couple = null;
-                document.getElementById('coupleImage').value = '';
+                // ANDROID FIX: Use safe helper function
+                clearAllInputsForType('couple');
+                
             } else if (type === 'person1') {
                 uploadedImages.person1 = null;
-                document.getElementById('person1Image').value = '';
+                // ANDROID FIX: Use safe helper function
+                clearAllInputsForType('person1');
+                
             } else if (type === 'person2') {
                 uploadedImages.person2 = null;
-                document.getElementById('person2Image').value = '';
+                // ANDROID FIX: Use safe helper function
+                clearAllInputsForType('person2');
             }
             
             if (!uploadedImages.couple && !uploadedImages.person1) {
@@ -1843,6 +1844,35 @@
             return 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
         }
 
+        // ANDROID FIX: Safe function to clear input values without null errors
+        function safeClearInput(inputId) {
+            const input = document.getElementById(inputId);
+            if (input && input.value !== undefined) {
+                input.value = '';
+                console.log(`Cleared input: ${inputId}`);
+            } else {
+                console.log(`Input not found or not clearable: ${inputId}`);
+            }
+        }
+
+        // ANDROID FIX: Clear all related inputs for an image type
+        function clearAllInputsForType(imageType) {
+            console.log(`Clearing all inputs for: ${imageType}`);
+            
+            if (imageType === 'couple') {
+                safeClearInput('coupleImage');
+                safeClearInput('coupleImageGallery');
+                safeClearInput('coupleImageCamera');
+            } else if (imageType === 'person1') {
+                safeClearInput('person1Image');
+                safeClearInput('person1ImageGallery');
+                safeClearInput('person1ImageCamera');
+            } else if (imageType === 'person2') {
+                safeClearInput('person2Image');
+                safeClearInput('person2ImageGallery');
+                safeClearInput('person2ImageCamera');
+            }
+        }
 
         function showResults(imageUrl, videoUrl) {
             const resultsContainer = document.getElementById('resultsContainer');
