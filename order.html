@@ -151,6 +151,15 @@
             transform: translateY(0);
         }
 
+        /* ANDROID FIX: Hidden file inputs for separate camera/gallery */
+        .android-fix-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
+        }
+
         .preview-section {
             margin-bottom: 30px;
         }
@@ -517,32 +526,38 @@
             
             <div class="upload-options">
                 <div class="upload-option">
-                    <input type="file" id="coupleImage" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif" style="display: none;" />
+                    <!-- ANDROID FIX: Separate inputs for camera and gallery -->
+                    <input type="file" id="coupleImageGallery" class="android-fix-input" accept="image/*" />
+                    <input type="file" id="coupleImageCamera" class="android-fix-input" accept="image/*" capture="user" />
                     <div class="upload-icon">👫</div>
                     <div class="upload-text">Couple in one photo</div>
                     <div class="upload-buttons">
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('coupleImage', false)">📁 Gallery</button>
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('coupleImage', true)">📷 Camera</button>
+                        <button type="button" class="upload-btn" onclick="triggerAndroidGallery('couple')">📁 Gallery</button>
+                        <button type="button" class="upload-btn" onclick="triggerAndroidCamera('couple')">📷 Camera</button>
                     </div>
                 </div>
                 <div class="upload-option">
-                    <input type="file" id="person1Image" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif" style="display: none;" />
+                    <!-- ANDROID FIX: Separate inputs for camera and gallery -->
+                    <input type="file" id="person1ImageGallery" class="android-fix-input" accept="image/*" />
+                    <input type="file" id="person1ImageCamera" class="android-fix-input" accept="image/*" capture="user" />
                     <div class="upload-icon">👤</div>
                     <div class="upload-text">Person 1</div>
                     <div class="upload-buttons">
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('person1Image', false)">📁 Gallery</button>
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('person1Image', true)">📷 Camera</button>
+                        <button type="button" class="upload-btn" onclick="triggerAndroidGallery('person1')">📁 Gallery</button>
+                        <button type="button" class="upload-btn" onclick="triggerAndroidCamera('person1')">📷 Camera</button>
                     </div>
                 </div>
             </div>
             <div class="upload-options">
                 <div class="upload-option" style="grid-column: 1 / -1;">
-                    <input type="file" id="person2Image" accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif" style="display: none;" />
+                    <!-- ANDROID FIX: Separate inputs for camera and gallery -->
+                    <input type="file" id="person2ImageGallery" class="android-fix-input" accept="image/*" />
+                    <input type="file" id="person2ImageCamera" class="android-fix-input" accept="image/*" capture="user" />
                     <div class="upload-icon">👤</div>
                     <div class="upload-text">Person 2 (optional)</div>
                     <div class="upload-buttons">
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('person2Image', false)">📁 Gallery</button>
-                        <button type="button" class="upload-btn" onclick="triggerFileInput('person2Image', true)">📷 Camera</button>
+                        <button type="button" class="upload-btn" onclick="triggerAndroidGallery('person2')">📁 Gallery</button>
+                        <button type="button" class="upload-btn" onclick="triggerAndroidCamera('person2')">📷 Camera</button>
                     </div>
                     <div class="upload-hint" style="margin-top: 10px; font-size: 12px; color: #666;">Only if using separate photos</div>
                 </div>
@@ -613,6 +628,24 @@
         const urlParams = new URLSearchParams(window.location.search);
         const templateId = urlParams.get('template');
         
+        // ANDROID DETECTION & DEBUGGING
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isChrome = /Chrome/i.test(navigator.userAgent);
+        const isMobile = /Mobi/i.test(navigator.userAgent);
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        
+        console.log('=== DEVICE DETECTION ===');
+        console.log('User Agent:', navigator.userAgent);
+        console.log('Is Android:', isAndroid);
+        console.log('Is Chrome:', isChrome);
+        console.log('Is Mobile:', isMobile);
+        console.log('Is iOS:', isIOS);
+        console.log('Platform:', navigator.platform);
+        console.log('=== END DETECTION ===');
+        
+        // ANDROID FIX: Use separate approach for Android
+        const useAndroidFix = isAndroid && isMobile;
+        
         let currentTemplate = null;
         let uploadedImages = {
             couple: null,
@@ -650,192 +683,174 @@
             }
         }
 
-        // Function to trigger file input with or without capture
-        function triggerFileInput(inputId, useCamera) {
+        // ANDROID FIX: Separate functions for camera and gallery
+        function triggerAndroidGallery(imageType) {
+            console.log(`Android Gallery trigger for: ${imageType}`);
+            const inputId = `${imageType}ImageGallery`;
             const input = document.getElementById(inputId);
             
-            // Reset input prije svakog poziva (osigurava čist state)
-            input.value = '';
-            
-            if (useCamera) {
-                // Za kameru - postavi capture atribut
-                input.setAttribute('capture', 'environment');
-                input.setAttribute('accept', 'image/*');
-            } else {
-                // Za galeriju - UKLONI capture atribut potpuno
-                input.removeAttribute('capture');
-                // Eksplicitno postavi accept bez capture-a
-                input.setAttribute('accept', 'image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif');
+            if (!input) {
+                console.error(`Input not found: ${inputId}`);
+                showValidationMessage('❌ Error: Input element not found', 'error');
+                return;
             }
             
-            // Mali delay da se atributi pravilno postave (posebno važno za Android)
+            // Reset and trigger
+            input.value = '';
+            input.removeAttribute('capture');
+            input.setAttribute('accept', 'image/*');
+            
             setTimeout(() => {
                 try {
                     input.click();
                 } catch (error) {
-                    console.error('Error triggering file input:', error);
-                    // Fallback - pokušaj direktno
-                    input.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+                    console.error('Android Gallery click error:', error);
+                    showValidationMessage('❌ Error opening gallery', 'error');
                 }
-            }, 10);
+            }, 100);
         }
-
-        // File upload handlers with validation and HEIC conversion
-        document.getElementById('coupleImage').addEventListener('change', async function(e) {
-            // Provjeri da li je korisnik odustao (cancel)
-            if (!e.target.files || e.target.files.length === 0) {
-                console.log('User cancelled file selection');
+        
+        function triggerAndroidCamera(imageType) {
+            console.log(`Android Camera trigger for: ${imageType}`);
+            const inputId = `${imageType}ImageCamera`;
+            const input = document.getElementById(inputId);
+            
+            if (!input) {
+                console.error(`Input not found: ${inputId}`);
+                showValidationMessage('❌ Error: Input element not found', 'error');
                 return;
             }
             
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                console.log('File selected from coupleImage:', {
-                    name: file.name,
-                    type: file.type,
-                    size: file.size,
-                    hasCapture: e.target.hasAttribute('capture')
-                });
+            // Reset and trigger
+            input.value = '';
+            input.setAttribute('capture', 'user');
+            input.setAttribute('accept', 'image/*');
+            
+            setTimeout(() => {
                 try {
-                    // Provjeri je li HEIC
-                    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
-                                   file.name.toLowerCase().endsWith('.heic') || 
-                                   file.name.toLowerCase().endsWith('.heif');
-                    
-                    let processedFile = file;
-                    
-                    // Ako je HEIC, konvertuj s kratkom porukom
-                    if (isHeic) {
-                        showValidationMessage('🔄 Converting Samsung HEIC to JPEG...', 'warning');
-                        processedFile = await convertHeicToJpegInBrowser(file);
-                        showValidationMessage('✅ Converted successfully!', 'success');
-                    }
-                    
-                    await validateImage(processedFile);
+                    input.click();
+                } catch (error) {
+                    console.error('Android Camera click error:', error);
+                    showValidationMessage('❌ Error opening camera', 'error');
+                }
+            }, 100);
+        }
+        
+        // ANDROID FIX: Event listeners for separate inputs
+        function setupAndroidInputListeners() {
+            // Couple image listeners
+            document.getElementById('coupleImageGallery').addEventListener('change', function(e) {
+                handleFileSelect(e, 'couple', false);
+            });
+            document.getElementById('coupleImageCamera').addEventListener('change', function(e) {
+                handleFileSelect(e, 'couple', true);
+            });
+            
+            // Person1 image listeners
+            document.getElementById('person1ImageGallery').addEventListener('change', function(e) {
+                handleFileSelect(e, 'person1', false);
+            });
+            document.getElementById('person1ImageCamera').addEventListener('change', function(e) {
+                handleFileSelect(e, 'person1', true);
+            });
+            
+            // Person2 image listeners
+            document.getElementById('person2ImageGallery').addEventListener('change', function(e) {
+                handleFileSelect(e, 'person2', false);
+            });
+            document.getElementById('person2ImageCamera').addEventListener('change', function(e) {
+                handleFileSelect(e, 'person2', true);
+            });
+        }
+        
+        function handleFileSelect(event, imageType, fromCamera) {
+            console.log(`=== ANDROID FILE SELECT: ${imageType} (fromCamera: ${fromCamera}) ===`);
+            console.log('Event:', event);
+            console.log('Files:', event.target.files);
+            
+            if (!event.target.files || event.target.files.length === 0) {
+                console.log('User cancelled file selection');
+                showValidationMessage('❌ File selection cancelled', 'warning');
+                return;
+            }
+            
+            const file = event.target.files[0];
+            processSelectedFile(file, imageType);
+        }
+
+        // Common file processing function
+        async function processSelectedFile(file, imageType) {
+            console.log(`Processing file for ${imageType}:`, {
+                name: file.name,
+                type: file.type,
+                size: file.size,
+                isAndroid: isAndroid
+            });
+            
+            try {
+                // Provjeri je li HEIC
+                const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
+                               file.name.toLowerCase().endsWith('.heic') || 
+                               file.name.toLowerCase().endsWith('.heif');
+                
+                console.log('Is HEIC file:', isHeic);
+                
+                let processedFile = file;
+                
+                // Ako je HEIC, konvertuj
+                if (isHeic) {
+                    showValidationMessage('🔄 Converting Samsung HEIC to JPEG...', 'warning');
+                    processedFile = await convertHeicToJpegInBrowser(file);
+                    showValidationMessage('✅ Converted successfully!', 'success');
+                }
+                
+                await validateImage(processedFile);
+                
+                // Set the image based on type
+                if (imageType === 'couple') {
                     uploadedImages.couple = processedFile;
                     uploadedImages.person1 = null;
                     uploadedImages.person2 = null;
+                    // Clear other inputs
                     document.getElementById('person1Image').value = '';
                     document.getElementById('person2Image').value = '';
-                    
-                    // Ako nije HEIC, normalna poruka
-                    if (!isHeic) {
-                        showValidationMessage(`✅ Image validated! (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
-                    }
-                    
-                    // Provjeri button status ODMAH nakon postavljanja slike
-                    checkGenerateButton();
-                    updatePreview();
-                } catch (error) {
-                    const errorMsg = error?.message || error?.toString() || 'Invalid image file';
-                    showValidationMessage(`❌ ${errorMsg}`, 'error');
-                    e.target.value = ''; // Clear invalid file
-                    uploadedImages.couple = null;
-                }
-            }
-        });
-
-        document.getElementById('person1Image').addEventListener('change', async function(e) {
-            // Provjeri da li je korisnik odustao (cancel)
-            if (!e.target.files || e.target.files.length === 0) {
-                console.log('User cancelled file selection');
-                return;
-            }
-            
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                console.log('File selected from person1Image:', {
-                    name: file.name,
-                    type: file.type,
-                    size: file.size,
-                    hasCapture: e.target.hasAttribute('capture')
-                });
-                try {
-                    // Provjeri je li HEIC
-                    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
-                                   file.name.toLowerCase().endsWith('.heic') || 
-                                   file.name.toLowerCase().endsWith('.heif');
-                    
-                    let processedFile = file;
-                    
-                    // Ako je HEIC, konvertuj s kratkom porukom
-                    if (isHeic) {
-                        showValidationMessage('🔄 Converting Samsung HEIC to JPEG...', 'warning');
-                        processedFile = await convertHeicToJpegInBrowser(file);
-                        showValidationMessage('✅ Converted successfully!', 'success');
-                    }
-                    
-                    await validateImage(processedFile);
+                    // Clear Android fix inputs
+                    document.getElementById('person1ImageGallery').value = '';
+                    document.getElementById('person1ImageCamera').value = '';
+                    document.getElementById('person2ImageGallery').value = '';
+                    document.getElementById('person2ImageCamera').value = '';
+                } else if (imageType === 'person1') {
                     uploadedImages.person1 = processedFile;
                     uploadedImages.couple = null;
+                    // Clear couple input
                     document.getElementById('coupleImage').value = '';
-                    
-                    // Ako nije HEIC, normalna poruka
-                    if (!isHeic) {
-                        showValidationMessage(`✅ Image validated! (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
-                    }
-                    
-                    // Provjeri button status ODMAH nakon postavljanja slike
-                    checkGenerateButton();
-                    updatePreview();
-                } catch (error) {
-                    const errorMsg = error?.message || error?.toString() || 'Invalid image file';
-                    showValidationMessage(`❌ ${errorMsg}`, 'error');
-                    e.target.value = ''; // Clear invalid file
-                    uploadedImages.person1 = null;
-                }
-            }
-        });
-
-        document.getElementById('person2Image').addEventListener('change', async function(e) {
-            // Provjeri da li je korisnik odustao (cancel)
-            if (!e.target.files || e.target.files.length === 0) {
-                console.log('User cancelled file selection');
-                return;
-            }
-            
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                console.log('File selected from person2Image:', {
-                    name: file.name,
-                    type: file.type,
-                    size: file.size,
-                    hasCapture: e.target.hasAttribute('capture')
-                });
-                try {
-                    // Provjeri je li HEIC
-                    const isHeic = file.type === 'image/heic' || file.type === 'image/heif' || 
-                                   file.name.toLowerCase().endsWith('.heic') || 
-                                   file.name.toLowerCase().endsWith('.heif');
-                    
-                    let processedFile = file;
-                    
-                    // Ako je HEIC, konvertuj s kratkom porukom
-                    if (isHeic) {
-                        showValidationMessage('🔄 Converting Samsung HEIC to JPEG...', 'warning');
-                        processedFile = await convertHeicToJpegInBrowser(file);
-                        showValidationMessage('✅ Converted successfully!', 'success');
-                    }
-                    
-                    await validateImage(processedFile);
+                    // Clear Android fix inputs
+                    document.getElementById('coupleImageGallery').value = '';
+                    document.getElementById('coupleImageCamera').value = '';
+                } else if (imageType === 'person2') {
                     uploadedImages.person2 = processedFile;
-                    
-                    // Ako nije HEIC, normalna poruka
-                    if (!isHeic) {
-                        showValidationMessage(`✅ Image validated! (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
-                    }
-                    
-                    // Provjeri button status ODMAH nakon postavljanja slike
-                    checkGenerateButton();
-                    updatePreview();
-                } catch (error) {
-                    const errorMsg = error?.message || error?.toString() || 'Invalid image file';
-                    showValidationMessage(`❌ ${errorMsg}`, 'error');
-                    e.target.value = ''; // Clear invalid file
+                }
+                
+                if (!isHeic) {
+                    showValidationMessage(`✅ Image validated! (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
+                }
+                
+                checkGenerateButton();
+                updatePreview();
+            } catch (error) {
+                const errorMsg = error?.message || error?.toString() || 'Invalid image file';
+                console.error('Error processing image:', error);
+                showValidationMessage(`❌ ${errorMsg}`, 'error');
+                // Clear the specific input
+                if (imageType === 'couple') {
+                    uploadedImages.couple = null;
+                } else if (imageType === 'person1') {
+                    uploadedImages.person1 = null;
+                } else if (imageType === 'person2') {
                     uploadedImages.person2 = null;
                 }
             }
-        });
+        }
 
         // Update preview
         function updatePreview() {
@@ -1920,7 +1935,17 @@
         // Initialize
         loadTemplateInfo();
         checkGenerateButton();
-        loadSavedProgress(); // Try to load any saved progress
+        loadSavedProgress();
+        
+        // ANDROID FIX: Setup listeners if using Android fix
+        if (useAndroidFix) {
+            console.log('Using Android fix with separate camera/gallery inputs');
+            setupAndroidInputListeners();
+            // Hide original buttons, show Android-specific message
+            showValidationMessage('📱 Android detected: Using optimized file selection', 'success');
+        } else {
+            console.log('Using standard file input approach');
+        }
     </script>
 </body>
 </html>
