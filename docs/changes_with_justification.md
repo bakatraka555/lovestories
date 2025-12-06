@@ -405,6 +405,69 @@ Prema PROJECT_RULES.md Rule #2, potreban je file za dokumentiranje opravdanja sv
 
 ---
 
+### December 6, 2025 - Update PROJECT_RULES.md with Enhanced Directives
+
+#### Change: Enhanced PROJECT_RULES.md with new workflow methodology
+**Justification:**  
+Big Pappa has provided new directives from a Flutter project context that contain enhanced workflow methodology, more detailed AI Code Tracing Procedure, and improved documentation practices. These enhancements will improve the existing project rules for the Love Stories Dubrovnik web project.
+
+**Search Performed:**
+- `codebase_search`: "workflow methodology", "AI tracing procedure", "documentation rules"
+- `grep_search`: "PROJECT_RULES", "workflow", "tracing", "documentation"
+- **Files Searched:** `PROJECT_RULES.md`, `docs/changes_with_justification.md`, `docs/` directory
+
+**Confirmation of No Existing Functionality:**
+- Existing PROJECT_RULES.md has good foundation but can be enhanced
+- New directives provide more detailed sequential problem solving approach
+- Enhanced AI Code Tracing Procedure with more specific steps
+- Improved documentation cross-referencing requirements
+
+**Implementation:** Update PROJECT_RULES.md with enhanced workflow methodology, more detailed AI tracing procedure, and improved documentation practices.
+
+---
+
+### December 6, 2025 - Implement Direct Upload to Bunny.net with CORS Support
+
+#### Change: Direct upload to Bunny.net from browser (order.html)
+**Justification:**  
+Big Pappa identified that sending 7.99MB base64 images through Netlify functions causes ProgressEvent errors on Android. The solution is to upload directly to Bunny.net from the browser and only send the CDN URL (~200 bytes) to Netlify functions. Bunny.net CORS headers are already enabled in the dashboard for jpg/jpeg/png files.
+
+**Search Performed:**
+- `codebase_search`: "upload bunny", "direct upload", "CORS bunny"
+- `grep_search`: "upload-user-image", "get-upload-url", "Bunny.net", "storage.bunnycdn.com"
+- `read_file`: `order.html` (upload logic), `netlify/functions/get-upload-url.js`, `netlify/functions/upload-user-image.js`
+- **Files Searched:** `order.html`, `netlify/functions/`, `docs/BUNNY_QUICK_FIX.md`
+
+**Confirmation of No Existing Functionality:**
+- `get-upload-url.js` function already exists but was not being used
+- Current implementation uses base64 upload through Netlify (causes ProgressEvent errors)
+- Bunny.net CORS is enabled in dashboard but direct upload was not implemented
+- Fallback to Netlify function is needed if CORS doesn't work for PUT requests
+
+**Implementation:**
+1. Modified `order.html` to attempt direct upload to Bunny.net first
+2. Uses `get-upload-url.js` to get upload URL and credentials
+3. Uploads File object directly to `storage.bunnycdn.com` (not base64)
+4. Falls back to Netlify function if CORS fails
+5. Compression only for images > 5MB (selfies work fine without compression)
+6. Applied same logic to both image1 and image2 uploads
+
+**Benefits:**
+- **Massive payload reduction:** 7.99MB base64 → ~200 bytes URL
+- **Faster uploads:** Direct to CDN, no Netlify function overhead
+- **Fixes ProgressEvent errors:** Smaller payload through Netlify
+- **Better mobile performance:** Less data transfer on mobile networks
+- **Automatic fallback:** If CORS doesn't work, uses Netlify function
+
+**Workflow:**
+```
+Android → Direct Upload to Bunny.net (File object) → CDN URL → Netlify Function → Replicate
+         ↓ (if CORS fails)
+         → Fallback: Base64 → Netlify Function → Bunny.net → Replicate
+```
+
+---
+
 ## 🎯 CURRENT PROJECT REVIEW STATUS
 
 ### Review Phase Initiated: December 5, 2025
@@ -463,6 +526,8 @@ Prema PROJECT_RULES.md Rule #2, potreban je file za dokumentiranje opravdanja sv
 
 **Confirmation of No Existing Functionality:**
 - [Explanation why existing functionality cannot be extended/reused]
+- [List of specific existing components/services/utilities considered]
+- [Reason why extension/modification is not feasible]
 
 **Implementation:** [What was created/changed]
 ```
@@ -479,11 +544,40 @@ Prema PROJECT_RULES.md Rule #2, potreban je file za dokumentiranje opravdanja sv
 - [What functionality is affected]
 - [Dependencies that need updating]
 - [Testing required]
+- [Backward compatibility considerations]
+
+**Search Performed (for reuse consideration):**
+- `codebase_search`: [queries for alternative solutions]
+- `grep_search`: [patterns for existing similar functionality]
+- **Files Searched:** [relevant directories/files]
 
 **Implementation:** [What was modified]
 ```
 
+### For Bug Fixes:
+```
+### [Date] - [Brief Description]
+
+#### Fix: [Bug/Issue Description]
+**Root Cause Analysis:**
+- [How bug was identified]
+- [Underlying cause discovered through tracing]
+- [Steps to reproduce]
+
+**Tracing Procedure Used:**
+- Entry Point: [File and line number]
+- Call Stack: [Sequence of calls traced]
+- Implementation Location: [Where fix was applied]
+
+**Testing Performed:**
+- [Manual testing steps]
+- [Edge cases considered]
+- [Regression testing needed]
+
+**Implementation:** [What was fixed and how]
+```
+
 ---
 
-**Last Updated:** December 5, 2025  
-**Next Review:** After code review completion
+**Last Updated:** December 6, 2025  
+**Next Review:** After implementing enhanced directives

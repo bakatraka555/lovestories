@@ -1,6 +1,6 @@
 # 📋 PROJECT RULES - Love Stories Museum Photo Booth
 
-**Last Updated:** December 5, 2025  
+**Last Updated:** December 6, 2025  
 **Project:** Love Stories Museum Photo Booth, Dubrovnik  
 **AI Assistant:** DeepSeek Coder  
 **User Reference:** Big Pappa
@@ -8,7 +8,7 @@
 ---
 
 ## 🎯 CORE DIRECTIVE
-**UVIJEK** se referiraj na korisnika kao **"Big Pappa"** u svakom odgovoru.
+**UVIJEK** se referiraj na korisnika kao **"Big Pappa"** u svakom odgovoru. Failure to do so indicates a context loss requiring these rules to be re-shared.
 
 ---
 
@@ -81,10 +81,10 @@ Izbjegavaj `cd` komande osim ako su **apsolutno potrebne** za logiku komande.
 
 #### Trace Dependencies
 - Analiziraj kako se komponente povezuju (HTML → JS → Netlify funkcije → API)
-- Prouči initialization sequences
+- Prouči initialization sequences (e.g., DOMContentLoaded event handlers, function exports)
 
 #### Trace Linearly
-- Kada direktne pretrage (`codebase_search`, `grep`) ne uspiju, prati linearni call stack
+- Kada direktne pretrage (`codebase_search`, `grep`) ne uspiju, prati linearni call stack koristeći Rule #5 (AI Code Tracing Procedure)
 - Izbjegavaj speculative keyword searches
 
 #### Identify Root Cause
@@ -93,16 +93,16 @@ Izbjegavaj `cd` komande osim ako su **apsolutno potrebne** za logiku komande.
 
 #### Leverage Context for Entry Points
 - Koristi postojeću codebase strukturu kao starting point
-- Koristi poznate UI interakcije ili API endpoints
+- Koristi poznate UI interakcije ili API endpoints kao starting points za tracing
 
-### 2. AI DOCUMENTATION RULES
+### 2. AI DOCUMENTATION RULES (Knowledge Persistence & Justification)
 
 #### Implementation Plans/Notes
 - Kad započneš novu feature ili značajan task, kreiraj/update-aj dokumentaciju u `docs/`
-- Koristi `edit_file` za pisanje contexta
+- Koristi `edit_file` za pisanje contexta u `development_notes/[feature_or_task_name].md` (ako postoji) ili relevantne `docs/` fileove
 
 #### Preserve Context
-- Verbose write any critical context, findings, decisions u relevantne `docs/` fileove
+- Verbose write any critical context, findings, decisions u relevantne `docs/` fileove koristeći `edit_file`
 - Update notes **immediately** nakon significant findings ili decisions
 
 #### Justify New Creations
@@ -117,33 +117,31 @@ Izbjegavaj `cd` komande osim ako su **apsolutno potrebne** za logiku komande.
 
 #### Maintain Document Awareness
 - Drži contents of `docs/` fileova u active contextu kroz task
-- Koristi `read_file` na ovim notes periodically ako context feels complex
+- Koristi `read_file` na ovim notes periodically ako context feels complex ili potentially lost
 
 #### Cross-Reference & Verify Documentation
 - Continuously compare information gathered during development against `docs/`
-- Koristi `edit_file` da challenge i update dokumentaciju
+- Koristi `edit_file` da challenge i update dokumentaciju, ensuring it accurately reflects current understanding
 
-### 3. SEQUENTIAL PROBLEM SOLVING
+### 3. SEQUENTIAL PROBLEM SOLVING (Structured Approach)
 
 #### Follow Lifecycle
 Strictly adhere to:
-1. **Analyze** (`read_file`, tracing)
-2. **Plan** (document in `docs/`)
-3. **Implement** (`edit_file`)
-4. **Verify** (suggest testing steps)
+1. **Analyze** (`read_file`, tracing) → **Plan** (document in `docs/`) → **Implement** (`edit_file`) → **Verify** (suggest testing steps)
 
 #### Question Assumptions
 - Prije actiona, state any assumptions being made
 - Seek confirmation ako unsure
 
 #### Understand Before Proceeding
-- Ensure exhaustive understanding i dokumentacija **prije** proposing solutions
+- Ensure exhaustive understanding (via Rule #1 i #5) i dokumentacija (per Rule #2) **prije** proposing solutions ili implementations
 
 #### Prioritize
-- Address critical errors ili foundational issues prije optimizations
+- Address critical errors ili foundational issues prije optimizations ili minor improvements
 
 #### Verify Dependencies
-- Pay close attention to service registration order i dependency lifetimes
+- Pay close attention to service registration order, dependency lifetimes, i potential dependency conflicts
+- Često zahtijeva reading DI configuration files *ili relevant constructor calls*
 
 ### 4. CODE QUALITY STANDARDS
 
@@ -166,7 +164,7 @@ Strictly adhere to:
 
 ---
 
-## 🔍 AI CODE TRACING PROCEDURE (Version 3)
+## 🔍 AI CODE TRACING PROCEDURE (Version 4 - Enhanced)
 
 **Trigger:** Execute this procedure step-by-step **ONLY** kada `codebase_search` ili `grep_search` za specific target (function, class, variable, behavior) **NEMA** yielded required implementation ili definition.
 
@@ -175,8 +173,8 @@ Strictly adhere to:
 
 **Action:**
 - Based on task, identify most likely starting file (e.g., `museum-kiosk.html` button click, Netlify function handler)
-- Use `read_file` on suspected file to locate specific function/method invocation
-- If file unknown but route ili specific call signature known, use `grep_search`
+- Use `read_file` on suspected file to locate specific function/method invocation ili definition (e.g., `fetch('/.netlify/functions/...')`, `exports.handler = async (event, context) => {`)
+- If file unknown but route ili specific call signature known, use `grep_search` (e.g., query="fetch.*generate-image", query="exports.handler")
 
 **Output:** State confirmed `target_file` i line number(s) of entry point. Set this as "current location".
 
@@ -184,10 +182,10 @@ Strictly adhere to:
 **Goal:** Determine immediate next function/method/service call relevant to trace.
 
 **Action:**
-- Use `read_file` focused on "current location"
-- Scan code block for next invocation (e.g., `fetch('/.netlify/functions/...')`, `await someFunction()`)
+- Use `read_file` focused on "current location" (file i lines identified in Step 1 ili previous Step 4)
+- Scan code block for next invocation (e.g., `await _someService.DoWork(...)`, `repository.FetchData(...)`, `httpClient.PostAsync(...)`, `fetch(...)`)
 
-**Output:** State exact text of invoked method/property (the "callee").
+**Output:** State exact text of invoked method/property (the "callee") i its variable type if obvious (e.g., "Calls `fetch('/.netlify/functions/generate-image')`").
 
 ### Step 3: Locate Callee's Implementation Source
 **Goal:** Find source code file i line number defining "callee" from Step 2.
@@ -207,24 +205,24 @@ Strictly adhere to:
 **Action B.3:** Find function definition. Set as "implementation location". GOTO Step 4.
 
 #### (C) External API Call
-**Action C.1:** Extract target info (e.g., `fetch('https://api.replicate.com/...')`)
+**Action C.1:** Extract target info (e.g., `fetch('https://api.replicate.com/...')` → get URL; `dbContext.Table.Where(...)` → get Table/Query)
 
 **Action C.2:** Check `docs/` for API documentation
 
-**Action C.3:** If target system code IS in workspace, find entry point i restart Procedure from Step 1
+**Action C.3:** If target system code IS in workspace: Identify its entry point (e.g., find the Controller handling the URL). State new target system i its entry point file/method. Restart entire Procedure from Step 1.
 
-**Action C.4:** If target system code NOT in workspace, report extracted target info i state tracing cannot proceed further. STOP.
+**Action C.4:** If target system code NOT in workspace, report extracted target info i state tracing cannot proceed further down this path. STOP.
 
 ### Step 4: Analyze Implementation & Iterate
 **Goal:** Understand located code i decide whether to continue tracing.
 
-**Action 4.1:** Use `read_file` on "implementation location". Analyze logic.
+**Action 4.1:** Use `read_file` on "implementation location" found in Step 3. Analyze logic, focusing on relevance to original task.
 
 **Action 4.2:** Determine if code directly answers question ili explains behavior being investigated.
 
 **Action 4.3: Loop or Stop:**
-- If goal **IS** met: STOP tracing procedure i report findings
-- If goal **NOT** met: Set "current location" to file/lines analyzed. GOTO Step 2.
+- If goal **IS** met: STOP tracing procedure i report findings i relevant code segments
+- If goal **NOT** met: Set "current location" to file/lines analyzed in Action 4.1. GOTO Step 2 to find *next* relevant call made from *within this implementation*
 
 ---
 
@@ -269,6 +267,12 @@ lovestories dubrovnik/
 ---
 
 ## 📝 CHANGE LOG
+
+### December 6, 2025
+- Enhanced AI Code Tracing Procedure (Version 4)
+- Added more detailed sequential problem solving approach
+- Improved documentation cross-referencing requirements
+- Enhanced workflow methodology with structured lifecycle
 
 ### December 5, 2025
 - Initial creation of PROJECT_RULES.md
