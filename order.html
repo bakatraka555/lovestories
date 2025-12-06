@@ -1360,8 +1360,18 @@
                         console.log('✅ Image1 uploaded via Netlify function:', image1Url);
                     }
                     
+                    // FINALNA PROVJERA: Da li imamo image1Url?
+                    if (!image1Url) {
+                        throw new Error('Upload completed but no URL returned');
+                    }
+                    console.log('✅✅✅ FINAL CHECK: image1Url is valid:', image1Url);
+                    console.log('✅✅✅ image1Url starts with http:', image1Url.startsWith('http'));
+                    
                 } catch (uploadError) {
-                    console.error('Upload error:', uploadError);
+                    console.error('❌❌❌ Upload error:', uploadError);
+                    console.error('❌❌❌ Upload error type:', uploadError.constructor?.name);
+                    console.error('❌❌❌ Upload error message:', uploadError.message);
+                    console.error('❌❌❌ Upload error stack:', uploadError.stack);
                     
                     if (uploadError.message && uploadError.message.includes('timeout')) {
                         throw new Error('Upload timeout - please check your internet connection and try again.');
@@ -1510,12 +1520,22 @@
                 console.log('Calling generate-image function with URLs...');
                 
                 // Validacija URL-ova prije slanja
+                console.log('🔍🔍🔍 PRE-GENERATE VALIDATION:');
+                console.log('🔍 image1Url:', image1Url);
+                console.log('🔍 image1Url type:', typeof image1Url);
+                console.log('🔍 image1Url starts with http:', image1Url ? image1Url.startsWith('http') : 'N/A');
+                console.log('🔍 image2Url:', image2Url);
+                
                 if (!image1Url || !image1Url.startsWith('http')) {
+                    console.error('❌❌❌ Invalid image1Url:', image1Url);
                     throw new Error('Invalid image1 URL. Please try uploading the image again.');
                 }
                 if (image2Url && !image2Url.startsWith('http')) {
+                    console.error('❌❌❌ Invalid image2Url:', image2Url);
                     throw new Error('Invalid image2 URL. Please try uploading the image again.');
                 }
+                
+                console.log('✅✅✅ URL validation passed, proceeding to generate-image...');
                 
                 // Timeout wrapper za fetch
                 const fetchWithTimeout = (url, options, timeout = 30000) => {
@@ -1526,6 +1546,14 @@
                         )
                     ]);
                 };
+                
+                console.log('🚀🚀🚀 CALLING generate-image function...');
+                console.log('🚀 Request payload:', {
+                    templateId: currentTemplate.id,
+                    image1Url: image1Url ? image1Url.substring(0, 50) + '...' : 'MISSING',
+                    image2Url: image2Url ? image2Url.substring(0, 50) + '...' : null,
+                    isCouple: isCouple
+                });
                 
                 let generateResponse;
                 try {
@@ -1541,6 +1569,9 @@
                             isCouple: isCouple
                         })
                     }, 30000); // 30 sekundi timeout
+                    
+                    console.log('✅✅✅ generate-image response received');
+                    console.log('✅ Response status:', generateResponse.status);
                 } catch (fetchError) {
                     if (fetchError.message === 'Request timeout') {
                         throw new Error('Request timeout - the server took too long to respond. Please try again.');
