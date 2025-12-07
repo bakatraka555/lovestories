@@ -1021,12 +1021,14 @@
             console.log('File keys:', Object.keys(file));
             console.log('File constructor:', file.constructor?.name);
             
-            // NORMALIZACIJA: Ako galerija vraća File bez name ili type, popravi
+            // NORMALIZACIJA: Ako galerija vraća File bez name ili type, kreiraj novi File objekt
+            let normalizedFile = file;
             if (!fromCamera && (!file.name || !file.type)) {
-                console.warn('⚠️ GALLERY FILE MISSING METADATA - Normalizing...');
+                console.warn('⚠️ GALLERY FILE MISSING METADATA - Creating normalized File object...');
                 
-                // Ako nema type, pokušaj detektirati iz imena ili koristi default
-                if (!file.type) {
+                // Odredi type
+                let fileType = file.type;
+                if (!fileType) {
                     if (file.name) {
                         const ext = file.name.toLowerCase().split('.').pop();
                         const typeMap = {
@@ -1037,25 +1039,49 @@
                             'heic': 'image/heic',
                             'heif': 'image/heif'
                         };
-                        file.type = typeMap[ext] || 'image/jpeg';
-                        console.log('🔧 Inferred type from extension:', file.type);
+                        fileType = typeMap[ext] || 'image/jpeg';
+                        console.log('🔧 Inferred type from extension:', fileType);
                     } else {
-                        file.type = 'image/jpeg'; // Default fallback
+                        fileType = 'image/jpeg'; // Default fallback
                         console.log('🔧 Using default type: image/jpeg');
                     }
                 }
                 
-                // Ako nema name, generiraj default
-                if (!file.name) {
+                // Odredi name
+                let fileName = file.name;
+                if (!fileName) {
                     const timestamp = Date.now();
-                    const ext = file.type.includes('png') ? 'png' : 
-                               file.type.includes('webp') ? 'webp' : 'jpg';
-                    file.name = `gallery-image-${timestamp}.${ext}`;
-                    console.log('🔧 Generated filename:', file.name);
+                    const ext = fileType.includes('png') ? 'png' : 
+                               fileType.includes('webp') ? 'webp' : 'jpg';
+                    fileName = `gallery-image-${timestamp}.${ext}`;
+                    console.log('🔧 Generated filename:', fileName);
+                }
+                
+                // Kreiraj novi File objekt iz Blob-a (File je subklasa Blob-a)
+                try {
+                    normalizedFile = new File([file], fileName, {
+                        type: fileType,
+                        lastModified: file.lastModified || Date.now()
+                    });
+                    console.log('✅ Created normalized File object:', {
+                        name: normalizedFile.name,
+                        type: normalizedFile.type,
+                        size: normalizedFile.size
+                    });
+                } catch (fileError) {
+                    console.error('❌ Failed to create File object, using original:', fileError);
+                    // Fallback: pokušaj koristiti original, ali dodaj type ako je moguće
+                    if (!file.type && fileType) {
+                        // Ako File konstruktor ne radi, koristimo Blob i onda FileReader
+                        console.warn('⚠️ File constructor not supported, using Blob approach');
+                        normalizedFile = file; // Koristimo original, ali ćemo provjeriti u processSelectedFile
+                    } else {
+                        normalizedFile = file;
+                    }
                 }
             }
             
-            processSelectedFile(file, imageType, fromCamera);
+            processSelectedFile(normalizedFile, imageType, fromCamera);
         }
 
         // Common file processing function
@@ -1115,9 +1141,20 @@
                 
                 checkGenerateButton();
                 updatePreview();
+                
+                console.log('✅ File processing completed successfully for', imageType);
             } catch (error) {
                 const errorMsg = error?.message || error?.toString() || 'Invalid image file';
-                console.error('Error processing image:', error);
+                console.error('❌❌❌ Error processing image:', error);
+                console.error('❌❌❌ Error type:', typeof error);
+                console.error('❌❌❌ Error constructor:', error?.constructor?.name);
+                console.error('❌❌❌ Error stack:', error?.stack);
+                console.error('❌❌❌ File that caused error:', {
+                    name: file?.name,
+                    type: file?.type,
+                    size: file?.size,
+                    source: fromCamera ? 'CAMERA' : 'GALLERY'
+                });
                 showValidationMessage(`❌ ${errorMsg}`, 'error');
                 // Clear the specific input
                 if (imageType === 'couple') {
@@ -1126,6 +1163,13 @@
                     uploadedImages.person1 = null;
                 } else if (imageType === 'person2') {
                     uploadedImages.person2 = null;
+                }
+                // Pokušaj clearati preview
+                try {
+                    updatePreview();
+                    checkGenerateButton();
+                } catch (previewError) {
+                    console.error('Error clearing preview:', previewError);
                 }
             }
         }
@@ -1137,8 +1181,10 @@
             previewImages.innerHTML = '';
 
             if (uploadedImages.couple) {
+                console.log('📸 Updating preview for couple image...');
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    console.log('✅ Preview loaded for couple image');
                     previewImages.innerHTML = `
                         <div class="preview-item">
                             <img src="${e.target.result}" alt="Par">
@@ -1148,33 +1194,64 @@
                     previewSection.style.display = 'block';
                     checkGenerateButton();
                 };
-                reader.readAsDataURL(uploadedImages.couple);
+                reader.onerror = function(error) {
+                    console.error('❌ Error reading couple image for preview:', error);
+                    showValidationMessage('❌ Error loading preview image', 'error');
+                };
+                try {
+                    reader.readAsDataURL(uploadedImages.couple);
+                } catch (error) {
+                    console.error('❌ Exception reading couple image:', error);
+                    showValidationMessage('❌ Error loading preview: ' + (error.message || 'Unknown error'), 'error');
+                }
             } else if (uploadedImages.person1) {
+                console.log('📸 Updating preview for person1 image...');
                 const images = [];
                 const readers = [];
                 
                 if (uploadedImages.person1) {
                     const reader1 = new FileReader();
                     reader1.onload = function(e) {
+                        console.log('✅ Preview loaded for person1 image');
                         images.push({src: e.target.result, type: 'person1'});
                         if (images.length === (uploadedImages.person2 ? 2 : 1)) {
                             displayPreview(images);
                         }
                     };
+                    reader1.onerror = function(error) {
+                        console.error('❌ Error reading person1 image for preview:', error);
+                        showValidationMessage('❌ Error loading preview image', 'error');
+                    };
                     readers.push(reader1);
-                    reader1.readAsDataURL(uploadedImages.person1);
+                    try {
+                        reader1.readAsDataURL(uploadedImages.person1);
+                    } catch (error) {
+                        console.error('❌ Exception reading person1 image:', error);
+                        showValidationMessage('❌ Error loading preview: ' + (error.message || 'Unknown error'), 'error');
+                    }
                 }
                 
                 if (uploadedImages.person2) {
+                    console.log('📸 Updating preview for person2 image...');
                     const reader2 = new FileReader();
                     reader2.onload = function(e) {
+                        console.log('✅ Preview loaded for person2 image');
                         images.push({src: e.target.result, type: 'person2'});
                         if (images.length === 2) {
                             displayPreview(images);
                         }
                     };
+                    reader2.onerror = function(error) {
+                        console.error('❌ Error reading person2 image for preview:', error);
+                        showValidationMessage('❌ Error loading preview image', 'error');
+                    };
                     readers.push(reader2);
-                    reader2.readAsDataURL(uploadedImages.person2);
+                    try {
+                        reader2.readAsDataURL(uploadedImages.person2);
+                    } catch (error) {
+                        console.error('❌ Exception reading person2 image:', error);
+                        showValidationMessage('❌ Error loading preview: ' + (error.message || 'Unknown error'), 'error');
+                    }
                 }
             }
         }
@@ -1845,19 +1922,51 @@
                         updateLoadingStep(5, 'Adding final touches...');
                     }
                     
-                    const statusResponse = await fetch(`/.netlify/functions/check-prediction-status?predictionId=${predictionId}`);
-                    const statusText = await statusResponse.text();
+                    // PRODUCTION FIX: Dodaj timeout i error handling za status check
+                    let statusResponse;
+                    let statusText;
+                    try {
+                        statusResponse = await fetchWithTimeout(`/.netlify/functions/check-prediction-status?predictionId=${predictionId}`, {
+                            method: 'GET'
+                        }, 15000); // 15 sekundi timeout za status check
+                        
+                        if (!statusResponse.ok) {
+                            const errorText = await statusResponse.text();
+                            console.error('❌ Status check failed:', statusResponse.status, errorText);
+                            throw new Error(`Status check failed: ${statusResponse.status} ${statusResponse.statusText}`);
+                        }
+                        
+                        statusText = await statusResponse.text();
+                        
+                        // PRODUCTION FIX: Provjeri da li je response prazan
+                        if (!statusText || statusText.trim().length === 0) {
+                            console.error('❌ Empty status response');
+                            throw new Error('Empty response from status check');
+                        }
+                    } catch (fetchError) {
+                        console.error('❌ Error fetching prediction status:', fetchError);
+                        // Ako je timeout ili network error, pokušaj ponovno (ne bacaj grešku odmah)
+                        if (fetchError.message && (fetchError.message.includes('timeout') || fetchError.message.includes('fetch'))) {
+                            console.warn('⚠️ Status check timeout/error, retrying...');
+                            // Nastavi s poll-om, ali povećaj attempt
+                            attempt++;
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            continue;
+                        }
+                        throw fetchError;
+                    }
                     
                     try {
                         statusResult = JSON.parse(statusText);
-                } catch (e) {
-                    console.error('Failed to parse status response:', e);
-                    console.error('Status response text:', statusText);
-                    throw new Error('Failed to parse status response');
-                }
+                    } catch (e) {
+                        console.error('❌ Failed to parse status response:', e);
+                        console.error('Status response text:', statusText);
+                        throw new Error('Failed to parse status response: ' + (e.message || 'Invalid JSON'));
+                    }
 
-                if (!statusResponse.ok) {
-                    throw new Error(statusResult.error || 'Status check failed');
+                if (!statusResult || !statusResult.status) {
+                    console.error('❌ Invalid status result:', statusResult);
+                    throw new Error('Invalid status response from server');
                 }
 
                 console.log(`Prediction status: ${statusResult.status} (attempt ${attempt})`);
@@ -2047,6 +2156,25 @@
         // ============================================
         function validateImage(file) {
             return new Promise((resolve, reject) => {
+                console.log('🔍 Validating image:', {
+                    name: file?.name,
+                    type: file?.type,
+                    size: file?.size,
+                    constructor: file?.constructor?.name
+                });
+                
+                // Provjeri da li File objekt postoji i je li validan
+                if (!file) {
+                    reject(new Error('No file provided'));
+                    return;
+                }
+                
+                // Provjeri da li je File objekt ili Blob
+                if (!(file instanceof File) && !(file instanceof Blob)) {
+                    reject(new Error('Invalid file object - not a File or Blob'));
+                    return;
+                }
+                
                 const minWidth = 400;
                 const minHeight = 400;
                 const maxSize = 10 * 1024 * 1024; // 10MB
@@ -2063,31 +2191,67 @@
                     return;
                 }
                 
-                // Check file size
-                if (file.size > maxSize) {
-                    reject(new Error(`Image too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum size: 10MB`));
-                    return;
+                // Check file size (provjeri da li size postoji)
+                if (file.size !== undefined && file.size !== null) {
+                    if (file.size === 0) {
+                        reject(new Error('File is empty'));
+                        return;
+                    }
+                    if (file.size > maxSize) {
+                        reject(new Error(`Image too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Maximum size: 10MB`));
+                        return;
+                    }
+                } else {
+                    console.warn('⚠️ File size is undefined, skipping size check');
                 }
                 
                 // Check image dimensions
+                let objectURL;
+                try {
+                    objectURL = URL.createObjectURL(file);
+                    if (!objectURL) {
+                        reject(new Error('Failed to create object URL from file'));
+                        return;
+                    }
+                } catch (urlError) {
+                    console.error('❌ Error creating object URL:', urlError);
+                    reject(new Error('Invalid file - cannot create preview URL'));
+                    return;
+                }
+                
                 const img = new Image();
                 img.onload = function() {
-                    if (img.width < minWidth || img.height < minHeight) {
-                        reject(new Error(`Image too small (${img.width}x${img.height}px). Minimum: ${minWidth}x${minHeight}px`));
-                    } else {
-                        resolve({ 
-                            width: img.width, 
-                            height: img.height,
-                            size: file.size,
-                            type: file.type
-                        });
+                    try {
+                        if (img.width < minWidth || img.height < minHeight) {
+                            reject(new Error(`Image too small (${img.width}x${img.height}px). Minimum: ${minWidth}x${minHeight}px`));
+                        } else {
+                            console.log('✅ Image validation successful:', {
+                                width: img.width,
+                                height: img.height,
+                                size: file.size,
+                                type: file.type
+                            });
+                            resolve({ 
+                                width: img.width, 
+                                height: img.height,
+                                size: file.size,
+                                type: file.type
+                            });
+                        }
+                    } finally {
+                        if (objectURL) {
+                            URL.revokeObjectURL(objectURL);
+                        }
                     }
-                    URL.revokeObjectURL(img.src);
                 };
-                img.onerror = () => {
+                img.onerror = (error) => {
+                    console.error('❌ Image load error:', error);
+                    if (objectURL) {
+                        URL.revokeObjectURL(objectURL);
+                    }
                     reject(new Error('Invalid image file. Please choose a valid image.'));
                 };
-                img.src = URL.createObjectURL(file);
+                img.src = objectURL;
             });
         }
         
