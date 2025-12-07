@@ -793,9 +793,19 @@
                         if (error.name === 'AbortError') {
                             throw new Error('Request timeout - server took too long to respond');
                         } else if (error.constructor && error.constructor.name === 'ProgressEvent') {
-                            throw new Error('Network connection failed. Please check your internet.');
+                            // Provjeri da li je uređaj stvarno offline
+                            if (!navigator.onLine) {
+                                throw new Error('Network connection failed. Please check your internet.');
+                            } else {
+                                throw new Error('Upload failed - please try again. If the problem persists, check your connection.');
+                            }
                         } else if (error.message && error.message.includes('Failed to fetch')) {
-                            throw new Error('Could not connect to server. Please check your internet connection.');
+                            // Provjeri da li je uređaj stvarno offline
+                            if (!navigator.onLine) {
+                                throw new Error('Could not connect to server. Please check your internet connection.');
+                            } else {
+                                throw new Error('Server connection failed - please try again.');
+                            }
                         }
                         throw error;
                     }
@@ -998,16 +1008,66 @@
             }
             
             const file = event.target.files[0];
-            processSelectedFile(file, imageType);
+            
+            // DETALJNO LOGIRANJE: Provjeri File objekt iz galerije vs camera
+            console.log('=== FILE OBJECT ANALYSIS ===');
+            console.log('Source:', fromCamera ? 'CAMERA' : 'GALLERY');
+            console.log('File name:', file.name);
+            console.log('File type:', file.type);
+            console.log('File size:', file.size);
+            console.log('File lastModified:', file.lastModified);
+            console.log('File has name?', file.name !== undefined && file.name !== null && file.name !== '');
+            console.log('File has type?', file.type !== undefined && file.type !== null && file.type !== '');
+            console.log('File keys:', Object.keys(file));
+            console.log('File constructor:', file.constructor?.name);
+            
+            // NORMALIZACIJA: Ako galerija vraća File bez name ili type, popravi
+            if (!fromCamera && (!file.name || !file.type)) {
+                console.warn('⚠️ GALLERY FILE MISSING METADATA - Normalizing...');
+                
+                // Ako nema type, pokušaj detektirati iz imena ili koristi default
+                if (!file.type) {
+                    if (file.name) {
+                        const ext = file.name.toLowerCase().split('.').pop();
+                        const typeMap = {
+                            'jpg': 'image/jpeg',
+                            'jpeg': 'image/jpeg',
+                            'png': 'image/png',
+                            'webp': 'image/webp',
+                            'heic': 'image/heic',
+                            'heif': 'image/heif'
+                        };
+                        file.type = typeMap[ext] || 'image/jpeg';
+                        console.log('🔧 Inferred type from extension:', file.type);
+                    } else {
+                        file.type = 'image/jpeg'; // Default fallback
+                        console.log('🔧 Using default type: image/jpeg');
+                    }
+                }
+                
+                // Ako nema name, generiraj default
+                if (!file.name) {
+                    const timestamp = Date.now();
+                    const ext = file.type.includes('png') ? 'png' : 
+                               file.type.includes('webp') ? 'webp' : 'jpg';
+                    file.name = `gallery-image-${timestamp}.${ext}`;
+                    console.log('🔧 Generated filename:', file.name);
+                }
+            }
+            
+            processSelectedFile(file, imageType, fromCamera);
         }
 
         // Common file processing function
-        async function processSelectedFile(file, imageType) {
-            console.log(`Processing file for ${imageType}:`, {
+        async function processSelectedFile(file, imageType, fromCamera = false) {
+            console.log(`=== PROCESSING FILE: ${imageType} (fromCamera: ${fromCamera}) ===`);
+            console.log('File details:', {
                 name: file.name,
                 type: file.type,
                 size: file.size,
-                isAndroid: isAndroid
+                lastModified: file.lastModified,
+                isAndroid: isAndroid,
+                source: fromCamera ? 'CAMERA' : 'GALLERY'
             });
             
             try {
@@ -1244,6 +1304,30 @@
                     console.log('🚀 Attempting direct upload to Bunny.net...');
                     console.log('Image1 file size:', (image1File.size / 1024 / 1024).toFixed(2), 'MB');
                     
+                    // NORMALIZACIJA: Provjeri i popravi File objekt (posebno važno za galeriju)
+                    console.log('🔍 Validating File object before upload...');
+                    console.log('File name:', image1File.name);
+                    console.log('File type:', image1File.type);
+                    console.log('File size:', image1File.size);
+                    console.log('File constructor:', image1File.constructor?.name);
+                    
+                    // Ako File objekt nema name ili type, kreiraj novi iz Blob-a
+                    if (!image1File.name || !image1File.type || !image1File.size) {
+                        console.warn('⚠️ File object missing metadata - creating normalized File from Blob...');
+                        const blob = image1File instanceof Blob ? image1File : new Blob([image1File], { type: image1File.type || 'image/jpeg' });
+                        const normalizedName = image1File.name || `image-${Date.now()}.jpg`;
+                        const normalizedType = image1File.type || 'image/jpeg';
+                        image1File = new File([blob], normalizedName, { 
+                            type: normalizedType,
+                            lastModified: image1File.lastModified || Date.now()
+                        });
+                        console.log('✅ Normalized File object:', {
+                            name: image1File.name,
+                            type: image1File.type,
+                            size: image1File.size
+                        });
+                    }
+                    
                     // Kompresiraj samo ako je slika veća od 5MB (selfi prolazi s 5MB)
                     const maxSizeWithoutCompression = 5 * 1024 * 1024; // 5MB
                     let imageToUpload = image1File;
@@ -1376,11 +1460,21 @@
                     if (uploadError.message && uploadError.message.includes('timeout')) {
                         throw new Error('Upload timeout - please check your internet connection and try again.');
                     } else if (uploadError.message && (uploadError.message.includes('Failed to fetch') || uploadError.message.includes('CORS'))) {
-                        throw new Error('Network error - could not connect to server. Please check your internet connection.');
+                        // Provjeri da li je uređaj stvarno offline
+                        if (!navigator.onLine) {
+                            throw new Error('Network error - could not connect to server. Please check your internet connection.');
+                        } else {
+                            throw new Error('Server connection failed - please try again. If the problem persists, check your connection.');
+                        }
                     } else if (uploadError.constructor && uploadError.constructor.name === 'ProgressEvent') {
-                        throw new Error('Network connection failed. Please check your internet and try again.');
+                        // Provjeri da li je uređaj stvarno offline
+                        if (!navigator.onLine) {
+                            throw new Error('Network connection failed. Please check your internet and try again.');
+                        } else {
+                            throw new Error('Upload failed - please try again. If the problem persists, check your connection.');
+                        }
                     } else {
-                        throw new Error('Failed to upload image1: ' + (uploadError.message || 'Network error'));
+                        throw new Error('Failed to upload image1: ' + (uploadError.message || 'Upload error'));
                     }
                 }
                 
@@ -1396,17 +1490,42 @@
                     console.log('Image2 filename:', image2Filename);
                     
                     try {
+                        // NORMALIZACIJA: Provjeri i popravi File objekt (posebno važno za galeriju)
+                        let image2File = uploadedImages.person2;
+                        console.log('🔍 Validating image2 File object before upload...');
+                        console.log('File name:', image2File.name);
+                        console.log('File type:', image2File.type);
+                        console.log('File size:', image2File.size);
+                        console.log('File constructor:', image2File.constructor?.name);
+                        
+                        // Ako File objekt nema name ili type, kreiraj novi iz Blob-a
+                        if (!image2File.name || !image2File.type || !image2File.size) {
+                            console.warn('⚠️ Image2 File object missing metadata - creating normalized File from Blob...');
+                            const blob = image2File instanceof Blob ? image2File : new Blob([image2File], { type: image2File.type || 'image/jpeg' });
+                            const normalizedName = image2File.name || `image2-${Date.now()}.jpg`;
+                            const normalizedType = image2File.type || 'image/jpeg';
+                            image2File = new File([blob], normalizedName, { 
+                                type: normalizedType,
+                                lastModified: image2File.lastModified || Date.now()
+                            });
+                            console.log('✅ Normalized image2 File object:', {
+                                name: image2File.name,
+                                type: image2File.type,
+                                size: image2File.size
+                            });
+                        }
+                        
                         // Kompresiraj samo ako je slika veća od 5MB
                         const maxSizeWithoutCompression = 5 * 1024 * 1024; // 5MB
-                        let image2ToUpload = uploadedImages.person2;
+                        let image2ToUpload = image2File;
                         
-                        if (uploadedImages.person2.size > maxSizeWithoutCompression) {
+                        if (image2File.size > maxSizeWithoutCompression) {
                             console.log('📦 Image2 is larger than 5MB, compressing...');
-                            image2ToUpload = await compressImage(uploadedImages.person2, 4); // Max 4MB
-                            console.log(`Original size: ${(uploadedImages.person2.size / 1024 / 1024).toFixed(2)}MB`);
+                            image2ToUpload = await compressImage(image2File, 4); // Max 4MB
+                            console.log(`Original size: ${(image2File.size / 1024 / 1024).toFixed(2)}MB`);
                             console.log(`Compressed size: ${(image2ToUpload.size / 1024 / 1024).toFixed(2)}MB`);
                         } else {
-                            console.log(`✅ Image2 size OK (${(uploadedImages.person2.size / 1024 / 1024).toFixed(2)}MB), skipping compression`);
+                            console.log(`✅ Image2 size OK (${(image2File.size / 1024 / 1024).toFixed(2)}MB), skipping compression`);
                         }
                         
                         const fetchWithTimeout = (url, options, timeout = 60000) => {
@@ -1506,11 +1625,21 @@
                         if (upload2Error.message && upload2Error.message.includes('timeout')) {
                             throw new Error('Upload timeout - please check your internet connection and try again.');
                         } else if (upload2Error.message && upload2Error.message.includes('Failed to fetch')) {
-                            throw new Error('Network error - could not connect to server. Please check your internet connection.');
+                            // Provjeri da li je uređaj stvarno offline
+                            if (!navigator.onLine) {
+                                throw new Error('Network error - could not connect to server. Please check your internet connection.');
+                            } else {
+                                throw new Error('Server connection failed - please try again. If the problem persists, check your connection.');
+                            }
                         } else if (upload2Error.constructor && upload2Error.constructor.name === 'ProgressEvent') {
-                            throw new Error('Network connection failed. Please check your internet and try again.');
+                            // Provjeri da li je uređaj stvarno offline
+                            if (!navigator.onLine) {
+                                throw new Error('Network connection failed. Please check your internet and try again.');
+                            } else {
+                                throw new Error('Upload failed - please try again. If the problem persists, check your connection.');
+                            }
                         } else {
-                            throw new Error('Failed to upload image2: ' + (upload2Error.message || 'Network error'));
+                            throw new Error('Failed to upload image2: ' + (upload2Error.message || 'Upload error'));
                         }
                     }
                 }
@@ -2154,18 +2283,32 @@
                 errorDiv.style.display = 'block';
             }
             
-            // ANDROID FIX: Always show retry for network errors
+            // ANDROID FIX: Provjeri da li je stvarno network error ili samo upload/server error
             const isNetworkError = message && (message.includes('Network') || 
                                   message.includes('connection') || 
                                   message.includes('internet'));
             
+            // Provjeri da li je uređaj stvarno offline
+            const isActuallyOffline = !navigator.onLine;
+            
+            // Ako je uređaj online, ali poruka sugerira network error, to je vjerojatno server/upload error
+            const isServerError = isNetworkError && !isActuallyOffline;
+            
             if (errorRecovery && (showRetry || isNetworkError)) {
                 errorRecovery.style.display = 'block';
                 
-                // Update retry button text for network errors
+                // Update retry button text ovisno o tipu greške
                 const retryButton = errorRecovery.querySelector('.retry-button');
-                if (retryButton && isNetworkError) {
-                    retryButton.textContent = '🔄 Retry (Network Issue)';
+                if (retryButton) {
+                    if (isActuallyOffline) {
+                        retryButton.textContent = '🔄 Retry (Network Issue)';
+                    } else if (isServerError) {
+                        retryButton.textContent = '🔄 Retry (Server Issue)';
+                    } else if (isNetworkError) {
+                        retryButton.textContent = '🔄 Retry';
+                    } else {
+                        retryButton.textContent = '🔄 Retry';
+                    }
                 }
             } else if (errorRecovery) {
                 errorRecovery.style.display = 'none';

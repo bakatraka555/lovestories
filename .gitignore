@@ -39,4 +39,6 @@ generation-results.json
 # Test files
 test-couple.jpg
 logo.png
+test-bunny-env.js
+*test*.js
 
