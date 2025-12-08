@@ -50,9 +50,16 @@
   [headers.values]
     Cache-Control = "public, max-age=3600"
 
-# Functions directory (if you add serverless functions later)
+# Functions directory
 [functions]
   directory = "netlify/functions"
+
+# Function-specific configuration
+[[functions."upload-user-image"]]
+  timeout = 30  # 30 seconds for mobile uploads (default is 10s)
+
+[[functions."generate-image"]]
+  timeout = 30  # 30 seconds for AI generation calls
 
 # Environment variables (set these in Netlify dashboard, not here!)
 # REPLICATE_API_TOKEN = "your-token-here"  # Set in Netlify UI!
