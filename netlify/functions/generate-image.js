@@ -275,14 +275,23 @@ exports.handler = async (event, context) => {
       format: hasNewFormat ? 'NEW' : 'LEGACY'
     });
 
-    console.log('Input data for Replicate:', {
-      promptLength: inputData.prompt.length,
-      imageInputCount: inputData.image_input.length,
-      imageInputUrls: inputData.image_input.map(url => url.substring(0, 50) + '...')
-    });
+    console.log('=== FULL INPUT DATA FOR REPLICATE ===');
+    console.log('Prompt:', inputData.prompt);
+    console.log('Prompt length:', inputData.prompt.length);
+    console.log('Image input count:', inputData.image_input.length);
+    console.log('Image input URLs:', inputData.image_input);
+    console.log('Full inputData object:', JSON.stringify(inputData, null, 2));
+    console.log('=== END INPUT DATA ===');
 
     // Replicate API poziv (bez Prefer: wait - koristimo polling kao u dokumentaciji)
     console.log('Making Replicate API request...');
+    const requestBody = {
+      input: inputData
+    };
+    console.log('=== FULL REQUEST BODY TO REPLICATE ===');
+    console.log(JSON.stringify(requestBody, null, 2));
+    console.log('=== END REQUEST BODY ===');
+    
     let replicateResponse;
     try {
       replicateResponse = await fetch(`https://api.replicate.com/v1/models/${REPLICATE_MODEL}/predictions`, {
@@ -293,9 +302,7 @@ exports.handler = async (event, context) => {
           // NOTE: Ne koristimo 'Prefer: wait' jer Netlify funkcije imaju timeout limit
           // Umjesto toga koristimo polling pattern (check-prediction-status.js)
         },
-        body: JSON.stringify({
-          input: inputData
-        })
+        body: JSON.stringify(requestBody)
       });
       console.log('Replicate API request completed, status:', replicateResponse.status);
     } catch (fetchError) {
