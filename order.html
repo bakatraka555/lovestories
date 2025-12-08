@@ -1182,76 +1182,45 @@
 
             if (uploadedImages.couple) {
                 console.log('📸 Updating preview for couple image...');
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    console.log('✅ Preview loaded for couple image');
+                try {
+                    // Koristi URL.createObjectURL umjesto FileReader (brže i pouzdanije)
+                    const blobUrl = URL.createObjectURL(uploadedImages.couple);
+                    console.log('✅ Preview URL created for couple image');
                     previewImages.innerHTML = `
                         <div class="preview-item">
-                            <img src="${e.target.result}" alt="Par">
+                            <img src="${blobUrl}" alt="Par">
                             <button class="remove" onclick="removeImage('couple')">×</button>
                         </div>
                     `;
                     previewSection.style.display = 'block';
                     checkGenerateButton();
-                };
-                reader.onerror = function(error) {
-                    console.error('❌ Error reading couple image for preview:', error);
-                    showValidationMessage('❌ Error loading preview image', 'error');
-                };
-                try {
-                    reader.readAsDataURL(uploadedImages.couple);
                 } catch (error) {
-                    console.error('❌ Exception reading couple image:', error);
+                    console.error('❌ Error creating preview for couple image:', error);
                     showValidationMessage('❌ Error loading preview: ' + (error.message || 'Unknown error'), 'error');
                 }
             } else if (uploadedImages.person1) {
-                console.log('📸 Updating preview for person1 image...');
+                console.log('📸 Updating preview for person1 and/or person2 images...');
                 const images = [];
-                const readers = [];
                 
-                if (uploadedImages.person1) {
-                    const reader1 = new FileReader();
-                    reader1.onload = function(e) {
-                        console.log('✅ Preview loaded for person1 image');
-                        images.push({src: e.target.result, type: 'person1'});
-                        if (images.length === (uploadedImages.person2 ? 2 : 1)) {
-                            displayPreview(images);
-                        }
-                    };
-                    reader1.onerror = function(error) {
-                        console.error('❌ Error reading person1 image for preview:', error);
-                        showValidationMessage('❌ Error loading preview image', 'error');
-                    };
-                    readers.push(reader1);
-                    try {
-                        reader1.readAsDataURL(uploadedImages.person1);
-                    } catch (error) {
-                        console.error('❌ Exception reading person1 image:', error);
-                        showValidationMessage('❌ Error loading preview: ' + (error.message || 'Unknown error'), 'error');
+                try {
+                    if (uploadedImages.person1) {
+                        const blobUrl1 = URL.createObjectURL(uploadedImages.person1);
+                        console.log('✅ Preview URL created for person1 image');
+                        images.push({src: blobUrl1, type: 'person1'});
                     }
-                }
-                
-                if (uploadedImages.person2) {
-                    console.log('📸 Updating preview for person2 image...');
-                    const reader2 = new FileReader();
-                    reader2.onload = function(e) {
-                        console.log('✅ Preview loaded for person2 image');
-                        images.push({src: e.target.result, type: 'person2'});
-                        if (images.length === 2) {
-                            displayPreview(images);
-                        }
-                    };
-                    reader2.onerror = function(error) {
-                        console.error('❌ Error reading person2 image for preview:', error);
-                        showValidationMessage('❌ Error loading preview image', 'error');
-                    };
-                    readers.push(reader2);
-                    try {
-                        reader2.readAsDataURL(uploadedImages.person2);
-                    } catch (error) {
-                        console.error('❌ Exception reading person2 image:', error);
-                        showValidationMessage('❌ Error loading preview: ' + (error.message || 'Unknown error'), 'error');
+                    
+                    if (uploadedImages.person2) {
+                        const blobUrl2 = URL.createObjectURL(uploadedImages.person2);
+                        console.log('✅ Preview URL created for person2 image');
+                        images.push({src: blobUrl2, type: 'person2'});
                     }
+                    
+                    if (images.length > 0) {
+                        displayPreview(images);
+                    }
+                } catch (error) {
+                    console.error('❌ Error creating preview:', error);
+                    showValidationMessage('❌ Error loading preview: ' + (error.message || 'Unknown error'), 'error');
                 }
             }
         }
