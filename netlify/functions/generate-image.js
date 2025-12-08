@@ -207,6 +207,20 @@ exports.handler = async (event, context) => {
       if (finalImage2Url) {
         console.log('Image2 URL:', finalImage2Url.substring(0, 80) + '...');
       }
+      
+      // VALIDACIJA: Provjeri da li Replicate može dohvatiti sliku
+      console.log('Validating image URL accessibility...');
+      try {
+        const headResponse = await fetch(finalImage1Url, { method: 'HEAD' });
+        console.log('Image1 HEAD response:', headResponse.status, headResponse.statusText);
+        if (!headResponse.ok) {
+          console.error('Image1 URL not accessible:', finalImage1Url);
+          throw new Error(`Image URL not accessible (${headResponse.status}). CDN might not be ready yet.`);
+        }
+      } catch (validationError) {
+        console.error('Image URL validation failed:', validationError.message);
+        throw new Error(`Image URL validation failed: ${validationError.message}`);
+      }
     } else {
       // STARI FORMAT: Upload base64 slika na Bunny.net
       console.log('Using legacy format - uploading base64 images to Bunny.net');
