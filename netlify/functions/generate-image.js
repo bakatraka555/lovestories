@@ -248,7 +248,7 @@ exports.handler = async (event, context) => {
     }
 
     // Logo URL (već je na Bunny.net)
-    const logoUrl = 'https://lovestories-cdn.b-cdn.net/logo.jpg';
+    const logoUrl = 'https://examples.b-cdn.net/logo.jpg';
 
     // Pripremi image_input array (kao u tvom uspješnom primjeru)
     const imageInput = [finalImage1Url];
