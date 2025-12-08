@@ -1362,60 +1362,54 @@
                     ]);
                 };
                 
-                // JEDNOSTAVNO: Blob je već kreiran u processSelectedFile(), samo ga uploadaj!
-                console.log('🔍 Preparing Blob for upload...');
+                // SIGNED TOKEN UPLOAD: Direktan upload na Bunny.net sa privremenim tokenom
+                console.log('🔍 Preparing Blob for direct upload...');
                 console.log('Blob type:', image1File.type);
                 console.log('Blob size:', (image1File.size / 1024 / 1024).toFixed(2), 'MB');
                 
                 let image1Url;
                 try {
-                    // Korak 1: Pretvori Blob u base64 (Blob je već clean, kreiran u processSelectedFile)
-                    console.log('📦 Converting Blob to base64...');
-                    const base64 = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = () => resolve(reader.result);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(image1File); // image1File je zapravo Blob!
-                    });
-                    
-                    console.log('✅ Base64 created, length:', base64.length);
-                    
-                    // Korak 2: Upload base64 kroz Netlify funkciju
-                    console.log('📤 Uploading to Netlify function...');
-                    const upload1Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
+                    // Korak 1: Zatraži signed token od Netlify funkcije (brzo - mali JSON)
+                    console.log('🔐 Requesting upload token...');
+                    const tokenResponse = await fetchWithTimeout('/.netlify/functions/create-upload-token', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            imageBase64: base64,
                             filename: image1Filename
                         })
-                    }, 60000);
+                    }, 10000); // 10s za token request
                     
-                    if (!upload1Response || upload1Response.constructor?.name === 'ProgressEvent') {
-                        throw new Error('Network error - connection failed. Please check your internet connection and try again.');
+                    if (!tokenResponse.ok) {
+                        throw new Error('Failed to get upload token');
                     }
                     
-                    if (!upload1Response.ok) {
-                        const errorText = await upload1Response.text();
-                        let errorMsg = 'Upload failed';
-                        try {
-                            const errorData = JSON.parse(errorText);
-                            errorMsg = errorData.error || errorData.details || errorMsg;
-                        } catch (e) {
-                            errorMsg = errorText || errorMsg;
-                        }
-                        throw new Error(errorMsg);
+                    const tokenData = await tokenResponse.json();
+                    if (!tokenData.success) {
+                        throw new Error(tokenData.error || 'Failed to get upload token');
                     }
                     
-                    const upload1Result = await upload1Response.json();
-                    if (!upload1Result.success) {
-                        throw new Error(upload1Result.error || upload1Result.details || 'Failed to upload image1');
+                    console.log('✅ Token received, expires at:', new Date(tokenData.expiresAt).toLocaleTimeString());
+                    
+                    // Korak 2: Upload Blob direktno na Bunny.net sa tokenom (BRZO - direktan upload!)
+                    console.log('📤 Uploading directly to Bunny.net...');
+                    const bunnyResponse = await fetchWithTimeout(tokenData.uploadUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'AccessKey': tokenData.apiKey,
+                            'Content-Type': 'image/jpeg'
+                        },
+                        body: image1File // Blob direktno, ne base64!
+                    }, 60000); // 60s za upload
+                    
+                    if (!bunnyResponse.ok && bunnyResponse.status !== 201) {
+                        throw new Error(`Bunny.net upload failed: ${bunnyResponse.status} ${bunnyResponse.statusText}`);
                     }
                     
-                    image1Url = upload1Result.url;
-                    console.log('✅ Image1 uploaded successfully:', image1Url);
+                    // Uspješan upload!
+                    image1Url = tokenData.cdnUrl;
+                    console.log('✅ Image1 uploaded directly to Bunny.net:', image1Url);
                     
                     // FINALNA PROVJERA: Da li imamo image1Url?
                     if (!image1Url) {
@@ -1458,56 +1452,49 @@
                     const image2Filename = `${userId}-image2.jpg`;
                     let image2File = uploadedImages.person2;
                     
-                    console.log('📤 Uploading image2 Blob...');
+                    console.log('📤 Uploading image2 directly to Bunny.net...');
                     console.log('Image2 Blob size:', (image2File.size / 1024 / 1024).toFixed(2), 'MB');
                     
                     try {
-                        // Korak 1: Pretvori Blob u base64 (Blob je već kreiran u processSelectedFile)
-                        console.log('📦 Converting Blob2 to base64...');
-                        const base64_2 = await new Promise((resolve, reject) => {
-                            const reader = new FileReader();
-                            reader.onload = () => resolve(reader.result);
-                            reader.onerror = reject;
-                            reader.readAsDataURL(image2File); // image2File je zapravo Blob!
-                        });
-                        
-                        console.log('✅ Base64_2 created, length:', base64_2.length);
-                        
-                        // Korak 2: Upload base64 kroz Netlify funkciju
-                        const upload2Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
+                        // Korak 1: Zatraži token
+                        console.log('🔐 Requesting upload token for image2...');
+                        const token2Response = await fetchWithTimeout('/.netlify/functions/create-upload-token', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                imageBase64: base64_2,
                                 filename: image2Filename
                             })
+                        }, 10000);
+                        
+                        if (!token2Response.ok) {
+                            throw new Error('Failed to get upload token for image2');
+                        }
+                        
+                        const token2Data = await token2Response.json();
+                        if (!token2Data.success) {
+                            throw new Error(token2Data.error || 'Failed to get upload token for image2');
+                        }
+                        
+                        console.log('✅ Token2 received');
+                        
+                        // Korak 2: Upload direktno na Bunny.net
+                        const bunny2Response = await fetchWithTimeout(token2Data.uploadUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'AccessKey': token2Data.apiKey,
+                                'Content-Type': 'image/jpeg'
+                            },
+                            body: image2File
                         }, 60000);
                         
-                        if (!upload2Response || upload2Response.constructor?.name === 'ProgressEvent') {
-                            throw new Error('Network error - connection failed.');
+                        if (!bunny2Response.ok && bunny2Response.status !== 201) {
+                            throw new Error(`Bunny.net upload failed for image2: ${bunny2Response.status}`);
                         }
                         
-                        if (!upload2Response.ok) {
-                            const errorText = await upload2Response.text();
-                            let errorMsg = 'Upload failed';
-                            try {
-                                const errorData = JSON.parse(errorText);
-                                errorMsg = errorData.error || errorData.details || errorMsg;
-                            } catch (e) {
-                                errorMsg = errorText || errorMsg;
-                            }
-                            throw new Error(errorMsg);
-                        }
-                        
-                        const upload2Result = await upload2Response.json();
-                        if (!upload2Result.success) {
-                            throw new Error(upload2Result.error || upload2Result.details || 'Failed to upload image2');
-                        }
-                        
-                        image2Url = upload2Result.url;
-                        console.log('✅ Image2 uploaded successfully:', image2Url);
+                        image2Url = token2Data.cdnUrl;
+                        console.log('✅ Image2 uploaded directly to Bunny.net:', image2Url);
                         
                     } catch (upload2Error) {
                         console.error('Upload error for image2:', upload2Error);

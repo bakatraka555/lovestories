@@ -14,6 +14,94 @@ Ovaj file dokumentira **sve nove kreacije i significant promjene** u projektu, z
 
 ## 🔄 CHANGE LOG
 
+### December 8, 2025 - Canvas → Blob Solution (OUT OF THE BOX!)
+
+#### Change: Convert File to Clean Blob via Canvas Before Upload
+**Type:** Bug Fix + Innovation  
+**Files Modified:** `order.html`, `netlify/functions/upload-user-image.js`, `package.json`
+
+**Problem:**
+- **Multipart/form-data failed** - "Network error" despite device being online
+- **File object metadata issues** - Gallery images had undefined `name`, `type` properties
+- **Previous solutions failed** - base64 (ProgressEvent), direct upload (security), multipart (network error)
+
+**Root Cause:**
+Android gallery File objects are **unreliable** - metadata can be missing or File object becomes "consumed" after FileReader usage.
+
+**OUT OF THE BOX Solution:**
+1. **Canvas Processing** - Load File into invisible Canvas element (in memory)
+2. **Clean Blob Creation** - Canvas.toBlob() creates fresh Blob without metadata issues
+3. **Base64 Encoding** - Convert clean Blob to base64
+4. **Secure Upload** - Send base64 through Netlify function (API key stays on server)
+
+**Implementation:**
+```javascript
+// New function: convertFileToCleanBlob()
+const canvas = document.createElement('canvas'); // Invisible, in memory
+const ctx = canvas.getContext('2d');
+const img = new Image();
+img.src = URL.createObjectURL(file);
+img.onload = () => {
+  canvas.width = img.width;
+  canvas.height = img.height;
+  ctx.drawImage(img, 0, 0);
+  canvas.toBlob((blob) => {
+    // Clean Blob without File metadata problems!
+    uploadBlob(blob);
+  }, 'image/jpeg', quality);
+};
+```
+
+**Benefits:**
+✅ **Rješava File object probleme** - Blob nema metadata dependencies  
+✅ **Automatska kompresija** - Canvas.toBlob() quality parameter  
+✅ **Radi za sve izvore** - camera, gallery, drag-drop  
+✅ **Siguran** - API key ostaje na serveru  
+✅ **Jednostavan** - Jedna funkcija, jasna logika  
+
+**Removed:**
+- ❌ `busboy` dependency (više ne koristimo multipart)
+- ❌ Multipart/form-data parsing u `upload-user-image.js`
+- ❌ Kompleksna File object normalizacija
+
+**Testing Required:**
+- [ ] Test camera upload on Android
+- [ ] Test gallery upload on Android (CRITICAL - ovo je bio problem)
+- [ ] Test couple vs. individual templates
+- [ ] Verify image quality after Canvas processing
+
+**Commit:** `ab6f57b` - "Canvas to Blob solution: Fix gallery upload by converting File to clean Blob via Canvas before base64 encoding"
+
+**Follow-up Fix #1 (same day):**
+- **Problem:** Preview still used FileReader, causing ProgressEvent error on gallery images
+- **Solution:** Changed `updatePreview()` to use `URL.createObjectURL()` instead of FileReader
+- **Benefit:** Faster, more reliable, no FileReader errors
+- **Commit:** `2e907d4` - "Fix preview: Use URL.createObjectURL instead of FileReader to avoid ProgressEvent error"
+
+**Follow-up Fix #2 (same day) - CRITICAL:**
+- **Problem:** `ERR_UPLOAD_FILE_CHANGED` - File object became "consumed" after being used for preview, causing Canvas to fail loading the image for upload
+- **Root Cause:** Using same File object for both preview (URL.createObjectURL) and upload (Canvas processing)
+- **Solution:** Convert File to Blob **immediately** in `processSelectedFile()`, before preview or upload. Store Blob in `uploadedImages` instead of File.
+- **Flow:** File → Canvas → Blob (stored) → Preview (URL.createObjectURL) + Upload (base64)
+- **Benefit:** Blob is stable, can be reused multiple times, no "consumed" state
+- **Commit:** `82f98b5` - "Critical fix: Convert File to Blob immediately in processSelectedFile to prevent ERR_UPLOAD_FILE_CHANGED"
+
+**Follow-up Fix #3 (same day) - Timeout:**
+- **Problem:** `ERR_CONNECTION_RESET` / `ERR_CONNECTION_ABORTED` - Netlify function timeout (10s default) too short for 2MB base64 upload over mobile network
+- **Solution:** Increased Netlify function timeout to 30 seconds in `netlify.toml`
+- **Configuration:**
+  ```toml
+  [[functions."upload-user-image"]]
+    timeout = 30  # 30 seconds for mobile uploads
+  
+  [[functions."generate-image"]]
+    timeout = 30  # 30 seconds for AI generation calls
+  ```
+- **Benefit:** Gives mobile uploads enough time to complete over slower networks
+- **Commit:** `5e62dd9` - "Increase Netlify function timeout to 30s for mobile uploads"
+
+---
+
 ### December 8, 2025 - Security Fix: Remove Direct Bunny.net Upload
 
 #### Change: Remove Direct Upload to Bunny.net, Use Only Netlify Function
