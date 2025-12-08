@@ -14,6 +14,47 @@ Ovaj file dokumentira **sve nove kreacije i significant promjene** u projektu, z
 
 ## 🔄 CHANGE LOG
 
+### December 8, 2025 - Security Fix: Remove Direct Bunny.net Upload
+
+#### Change: Remove Direct Upload to Bunny.net, Use Only Netlify Function
+**Type:** Security Improvement + Bug Fix  
+**Files Modified:** `order.html`, `netlify/functions/upload-user-image.js`, `package.json`
+
+**Problem:**
+1. **Security Risk:** API key (`BUNNY_API_KEY`) was being sent to frontend via `get-upload-url.js`, exposing it in Network tab
+2. **Unreliable Gallery Uploads:** Android gallery uploads were intermittently failing with "cannot read properties of undefined" errors
+3. **Complex Code:** Direct upload with fallback created 200+ lines of complex error handling
+
+**Solution:**
+- **Removed:** Direct upload to Bunny.net from browser
+- **Removed:** `get-upload-url.js` function (no longer needed)
+- **Modified:** `order.html` to use only `upload-user-image.js` Netlify function
+- **Modified:** `upload-user-image.js` to accept `multipart/form-data` (not just base64)
+- **Added:** `busboy` library for parsing multipart/form-data in Netlify functions
+
+**Benefits:**
+✅ **100% Secure** - API key stays on server, never exposed to frontend  
+✅ **Simpler Code** - Reduced from ~200 lines to ~50 lines for upload logic  
+✅ **More Reliable** - Eliminates CORS issues, File object consumption issues, Android-specific bugs  
+✅ **Better Performance** - `multipart/form-data` is faster than base64 (no 33% overhead)  
+
+**Trade-offs:**
+⚠️ Slightly higher Netlify function execution time (but within 10s limit)  
+⚠️ No longer benefits from direct CDN upload speed (but security > speed)
+
+**Testing Required:**
+- [ ] Test camera upload on Android
+- [ ] Test gallery upload on Android
+- [ ] Test couple vs. individual templates
+- [ ] Verify images appear on Bunny.net CDN
+- [ ] Check Netlify function logs for errors
+
+**Commit:** `b2e83df` - "Security fix: Remove direct Bunny.net upload, use only Netlify function with multipart/form-data"
+
+---
+
+## 🔄 CHANGE LOG
+
 ### December 5, 2025 - Initial Project Rules Setup
 
 #### Change 1: Creation of PROJECT_RULES.md

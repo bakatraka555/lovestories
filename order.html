@@ -1385,38 +1385,46 @@
                     ]);
                 };
                 
-                // SIGURNO RJEŠENJE: Sve slike šalji kroz Netlify funkciju (API key ostaje na serveru)
+                // NOVO RJEŠENJE: Canvas → Blob → base64 (Rješava File object probleme)
                 console.log('🔍 Preparing image for upload...');
                 console.log('File name:', image1File.name);
                 console.log('File type:', image1File.type);
                 console.log('File size:', (image1File.size / 1024 / 1024).toFixed(2), 'MB');
                 
-                // Kompresiraj samo ako je slika veća od 5MB
-                const maxSizeWithoutCompression = 5 * 1024 / 1024; // 5MB
-                let imageToUpload = image1File;
-                
-                if (image1File.size > maxSizeWithoutCompression) {
-                    console.log('📦 Image is larger than 5MB, compressing...');
-                    imageToUpload = await compressImage(image1File, 4); // Max 4MB
-                    console.log(`Original size: ${(image1File.size / 1024 / 1024).toFixed(2)}MB`);
-                    console.log(`Compressed size: ${(imageToUpload.size / 1024 / 1024).toFixed(2)}MB`);
-                } else {
-                    console.log(`✅ Image size OK (${(image1File.size / 1024 / 1024).toFixed(2)}MB), skipping compression`);
-                }
-                
                 let image1Url;
                 try {
-                    console.log('📤 Uploading image through secure Netlify function...');
+                    // Korak 1: Pretvori File u čisti Blob preko Canvas-a
+                    console.log('🎨 Step 1: Converting File to clean Blob via Canvas...');
+                    const quality = image1File.size > (5 * 1024 * 1024) ? 0.8 : 0.9; // Niža kvaliteta za velike slike
+                    const cleanBlob = await convertFileToCleanBlob(image1File, quality);
                     
-                    // Kreiraj FormData za multipart/form-data upload (brže od base64)
-                    const formData = new FormData();
-                    formData.append('image', imageToUpload, image1Filename);
-                    formData.append('filename', image1Filename);
+                    console.log('✅ Clean Blob created:', {
+                        size: (cleanBlob.size / 1024 / 1024).toFixed(2) + ' MB',
+                        type: cleanBlob.type
+                    });
                     
+                    // Korak 2: Pretvori Blob u base64
+                    console.log('📦 Step 2: Converting Blob to base64...');
+                    const base64 = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(cleanBlob);
+                    });
+                    
+                    console.log('✅ Base64 created, length:', base64.length);
+                    
+                    // Korak 3: Upload base64 kroz Netlify funkciju
+                    console.log('📤 Step 3: Uploading to Netlify function...');
                     const upload1Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
                         method: 'POST',
-                        body: formData
-                        // Ne šalji Content-Type header - browser će automatski dodati boundary za multipart
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            imageBase64: base64,
+                            filename: image1Filename
+                        })
                     }, 60000);
                     
                     if (!upload1Response || upload1Response.constructor?.name === 'ProgressEvent') {
@@ -1484,31 +1492,38 @@
                     const image2Filename = `${userId}-image2.jpg`;
                     let image2File = uploadedImages.person2;
                     
-                    console.log('📤 Uploading image2 through secure Netlify function...');
+                    console.log('📤 Uploading image2 via Canvas → Blob → base64...');
                     console.log('Image2 file size:', (image2File.size / 1024 / 1024).toFixed(2), 'MB');
                     
                     try {
-                        // Kompresiraj samo ako je slika veća od 5MB
-                        const maxSizeWithoutCompression = 5 * 1024 * 1024; // 5MB
-                        let image2ToUpload = image2File;
+                        // Korak 1: Pretvori File u čisti Blob preko Canvas-a
+                        console.log('🎨 Converting image2 to clean Blob via Canvas...');
+                        const quality2 = image2File.size > (5 * 1024 * 1024) ? 0.8 : 0.9;
+                        const cleanBlob2 = await convertFileToCleanBlob(image2File, quality2);
                         
-                        if (image2File.size > maxSizeWithoutCompression) {
-                            console.log('📦 Image2 is larger than 5MB, compressing...');
-                            image2ToUpload = await compressImage(image2File, 4); // Max 4MB
-                            console.log(`Original size: ${(image2File.size / 1024 / 1024).toFixed(2)}MB`);
-                            console.log(`Compressed size: ${(image2ToUpload.size / 1024 / 1024).toFixed(2)}MB`);
-                        } else {
-                            console.log(`✅ Image2 size OK (${(image2File.size / 1024 / 1024).toFixed(2)}MB), skipping compression`);
-                        }
+                        console.log('✅ Clean Blob2 created:', (cleanBlob2.size / 1024 / 1024).toFixed(2) + ' MB');
                         
-                        // Kreiraj FormData za multipart/form-data upload
-                        const formData2 = new FormData();
-                        formData2.append('image', image2ToUpload, image2Filename);
-                        formData2.append('filename', image2Filename);
+                        // Korak 2: Pretvori Blob u base64
+                        console.log('📦 Converting Blob2 to base64...');
+                        const base64_2 = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(cleanBlob2);
+                        });
                         
+                        console.log('✅ Base64_2 created, length:', base64_2.length);
+                        
+                        // Korak 3: Upload base64 kroz Netlify funkciju
                         const upload2Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
                             method: 'POST',
-                            body: formData2
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                imageBase64: base64_2,
+                                filename: image2Filename
+                            })
                         }, 60000);
                         
                         if (!upload2Response || upload2Response.constructor?.name === 'ProgressEvent') {
@@ -1930,6 +1945,70 @@
                 updateProgress(0); // Reset progress
             }
         });
+
+        // ============================================
+        // CANVAS → BLOB CONVERSION (Rješava File object probleme)
+        // ============================================
+        async function convertFileToCleanBlob(file, quality = 0.9) {
+            return new Promise((resolve, reject) => {
+                console.log('🎨 Converting File to clean Blob via Canvas...');
+                console.log('Input file:', {
+                    name: file.name,
+                    type: file.type,
+                    size: (file.size / 1024 / 1024).toFixed(2) + ' MB'
+                });
+                
+                // Kreiraj nevidljivi canvas u memoriji
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = () => {
+                    try {
+                        // Postavi dimenzije canvas-a
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+                        
+                        // Nacrtaj sliku na canvas
+                        ctx.drawImage(img, 0, 0);
+                        
+                        // Pretvori canvas u čisti Blob
+                        canvas.toBlob((blob) => {
+                            if (!blob) {
+                                reject(new Error('Failed to create Blob from canvas'));
+                                return;
+                            }
+                            
+                            console.log('✅ Clean Blob created:', {
+                                size: (blob.size / 1024 / 1024).toFixed(2) + ' MB',
+                                type: blob.type
+                            });
+                            
+                            // Cleanup
+                            URL.revokeObjectURL(img.src);
+                            
+                            resolve(blob);
+                        }, 'image/jpeg', quality);
+                        
+                    } catch (error) {
+                        console.error('❌ Canvas processing error:', error);
+                        URL.revokeObjectURL(img.src);
+                        reject(error);
+                    }
+                };
+                
+                img.onerror = (error) => {
+                    console.error('❌ Image load error:', error);
+                    URL.revokeObjectURL(img.src);
+                    reject(new Error('Failed to load image for canvas processing'));
+                };
+                
+                // Učitaj sliku iz File objekta
+                img.src = URL.createObjectURL(file);
+            });
+        }
 
         // ============================================
         // HEIC CONVERSION

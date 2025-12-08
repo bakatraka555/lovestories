@@ -11,7 +11,6 @@
  */
 
 const fetch = require('node-fetch');
-const busboy = require('busboy');
 
 exports.handler = async (event, context) => {
   console.log('=== upload-user-image function called ===');
@@ -49,113 +48,28 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const contentType = event.headers['content-type'] || event.headers['Content-Type'] || '';
-    const isFormData = contentType.includes('multipart/form-data');
-    const isJson = contentType.includes('application/json');
+    // Parse JSON body (base64 format)
+    console.log('Parsing JSON body...');
+    const body = JSON.parse(event.body);
+    const { imageBase64, filename } = body;
     
-    console.log('Content type detected:', { isFormData, isJson, contentType });
-    
-    let imageBuffer;
-    let filename;
-    
-    if (isFormData) {
-      // Parse multipart/form-data using busboy
-      console.log('Parsing multipart/form-data...');
-      
-      const result = await new Promise((resolve, reject) => {
-        const bb = busboy({ 
-          headers: {
-            'content-type': contentType
-          }
-        });
-        
-        let fileBuffer;
-        let fileName;
-        const fields = {};
-        
-        bb.on('file', (fieldname, file, info) => {
-          console.log(`File field: ${fieldname}, filename: ${info.filename}`);
-          const chunks = [];
-          
-          file.on('data', (data) => {
-            chunks.push(data);
-          });
-          
-          file.on('end', () => {
-            fileBuffer = Buffer.concat(chunks);
-            console.log(`File ${fieldname} received: ${fileBuffer.length} bytes`);
-          });
-        });
-        
-        bb.on('field', (fieldname, value) => {
-          console.log(`Field ${fieldname}: ${value}`);
-          fields[fieldname] = value;
-        });
-        
-        bb.on('finish', () => {
-          resolve({ fileBuffer, fields });
-        });
-        
-        bb.on('error', (error) => {
-          reject(error);
-        });
-        
-        // Netlify Functions daju body kao base64 string ako je binary
-        const bodyBuffer = event.isBase64Encoded 
-          ? Buffer.from(event.body, 'base64')
-          : Buffer.from(event.body);
-        
-        bb.write(bodyBuffer);
-        bb.end();
-      });
-      
-      imageBuffer = result.fileBuffer;
-      filename = result.fields.filename;
-      
-      if (!imageBuffer || !filename) {
-        return {
-          statusCode: 400,
-          headers,
-          body: JSON.stringify({ 
-            error: 'Missing required parameters',
-            details: 'Both image file and filename are required'
-          })
-        };
-      }
-      
-    } else if (isJson) {
-      // JSON format (backward compatibility)
-      console.log('JSON format detected (backward compatibility)');
-      const body = JSON.parse(event.body);
-      const { imageBase64, filename: fn } = body;
-      
-      if (!imageBase64 || !fn) {
-        return {
-          statusCode: 400,
-          headers,
-          body: JSON.stringify({ 
-            error: 'Missing required parameters',
-            details: 'Both imageBase64 and filename are required'
-          })
-        };
-      }
-      
-      const base64Data = imageBase64.includes(',') 
-        ? imageBase64.split(',')[1] 
-        : imageBase64;
-      imageBuffer = Buffer.from(base64Data, 'base64');
-      filename = fn;
-      
-    } else {
+    if (!imageBase64 || !filename) {
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ 
-          error: 'Unsupported content type',
-          details: 'Expected multipart/form-data or application/json'
+          error: 'Missing required parameters',
+          details: 'Both imageBase64 and filename are required'
         })
       };
     }
+    
+    // Extract base64 data (remove data:image/jpeg;base64, prefix if present)
+    const base64Data = imageBase64.includes(',') 
+      ? imageBase64.split(',')[1] 
+      : imageBase64;
+    
+    const imageBuffer = Buffer.from(base64Data, 'base64');
     
     console.log('Request parsed:', {
       imageBufferSize: imageBuffer.length,
