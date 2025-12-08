@@ -55,10 +55,10 @@
   directory = "netlify/functions"
 
 # Function-specific configuration
-[[functions."upload-user-image"]]
+[functions."upload-user-image"]
   timeout = 30  # 30 seconds for mobile uploads (default is 10s)
 
-[[functions."generate-image"]]
+[functions."generate-image"]
   timeout = 30  # 30 seconds for AI generation calls
 
 # Environment variables (set these in Netlify dashboard, not here!)
