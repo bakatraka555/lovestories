@@ -257,13 +257,11 @@ exports.handler = async (event, context) => {
     }
     imageInput.push(logoUrl); // Logo je uvijek zadnji
 
-    // Pozovi Replicate API s URL-ovima
+    // Pozovi Replicate API s URL-ovima (prema službenom primjeru)
     const inputData = {
       prompt: prompt,
-      image_input: imageInput,  // Array: [couple_image, logo] ili [male_image, female_image, logo]
-      aspect_ratio: '4:3',        // Najbolji za Instagram + Print
-      output_format: 'jpg'        // Brži, manji file
-      // NOTE: google/nano-banana ne podržava 'resolution' i 'safety_filter_level' parametre
+      image_input: imageInput  // Array: [couple_image, logo] ili [male_image, female_image, logo]
+      // NOTE: google/nano-banana ne podržava 'aspect_ratio', 'output_format', 'resolution', 'safety_filter_level'
     };
 
     console.log('Calling Replicate API with:', {
@@ -280,9 +278,7 @@ exports.handler = async (event, context) => {
     console.log('Input data for Replicate:', {
       promptLength: inputData.prompt.length,
       imageInputCount: inputData.image_input.length,
-      aspectRatio: inputData.aspect_ratio,
-      outputFormat: inputData.output_format,
-      resolution: inputData.resolution
+      imageInputUrls: inputData.image_input.map(url => url.substring(0, 50) + '...')
     });
 
     // Replicate API poziv (bez Prefer: wait - koristimo polling kao u dokumentaciji)
@@ -292,8 +288,10 @@ exports.handler = async (event, context) => {
       replicateResponse = await fetch(`https://api.replicate.com/v1/models/${REPLICATE_MODEL}/predictions`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,  // Replicate API koristi Bearer (kao u dokumentaciji)
+          'Authorization': `Bearer ${REPLICATE_API_TOKEN}`,
           'Content-Type': 'application/json'
+          // NOTE: Ne koristimo 'Prefer: wait' jer Netlify funkcije imaju timeout limit
+          // Umjesto toga koristimo polling pattern (check-prediction-status.js)
         },
         body: JSON.stringify({
           input: inputData
