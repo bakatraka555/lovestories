@@ -1114,9 +1114,17 @@
                 
                 await validateImage(processedFile);
                 
-                // Set the image based on type
+                // KRITIČNO: Odmah pretvori File u Blob preko Canvas-a
+                // Razlog: File objekt može postati "consumed" nakon što se koristi za preview
+                // Blob je siguran i može se koristiti više puta (preview + upload)
+                console.log('🎨 Converting to clean Blob immediately after validation...');
+                const quality = processedFile.size > (5 * 1024 * 1024) ? 0.8 : 0.9;
+                const cleanBlob = await convertFileToCleanBlob(processedFile, quality);
+                console.log('✅ Clean Blob created:', (cleanBlob.size / 1024 / 1024).toFixed(2) + ' MB');
+                
+                // Set the BLOB (not File) based on type
                 if (imageType === 'couple') {
-                    uploadedImages.couple = processedFile;
+                    uploadedImages.couple = cleanBlob;
                     uploadedImages.person1 = null;
                     uploadedImages.person2 = null;
                     
@@ -1125,18 +1133,18 @@
                     clearAllInputsForType('person2');
                     
                 } else if (imageType === 'person1') {
-                    uploadedImages.person1 = processedFile;
+                    uploadedImages.person1 = cleanBlob;
                     uploadedImages.couple = null;
                     
                     // ANDROID FIX: Clear other inputs safely
                     clearAllInputsForType('couple');
                     
                 } else if (imageType === 'person2') {
-                    uploadedImages.person2 = processedFile;
+                    uploadedImages.person2 = cleanBlob;
                 }
                 
                 if (!isHeic) {
-                    showValidationMessage(`✅ Image validated! (${(file.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
+                    showValidationMessage(`✅ Image validated! (${(cleanBlob.size / 1024 / 1024).toFixed(1)}MB)`, 'success');
                 }
                 
                 checkGenerateButton();
@@ -1354,37 +1362,26 @@
                     ]);
                 };
                 
-                // NOVO RJEŠENJE: Canvas → Blob → base64 (Rješava File object probleme)
-                console.log('🔍 Preparing image for upload...');
-                console.log('File name:', image1File.name);
-                console.log('File type:', image1File.type);
-                console.log('File size:', (image1File.size / 1024 / 1024).toFixed(2), 'MB');
+                // JEDNOSTAVNO: Blob je već kreiran u processSelectedFile(), samo ga uploadaj!
+                console.log('🔍 Preparing Blob for upload...');
+                console.log('Blob type:', image1File.type);
+                console.log('Blob size:', (image1File.size / 1024 / 1024).toFixed(2), 'MB');
                 
                 let image1Url;
                 try {
-                    // Korak 1: Pretvori File u čisti Blob preko Canvas-a
-                    console.log('🎨 Step 1: Converting File to clean Blob via Canvas...');
-                    const quality = image1File.size > (5 * 1024 * 1024) ? 0.8 : 0.9; // Niža kvaliteta za velike slike
-                    const cleanBlob = await convertFileToCleanBlob(image1File, quality);
-                    
-                    console.log('✅ Clean Blob created:', {
-                        size: (cleanBlob.size / 1024 / 1024).toFixed(2) + ' MB',
-                        type: cleanBlob.type
-                    });
-                    
-                    // Korak 2: Pretvori Blob u base64
-                    console.log('📦 Step 2: Converting Blob to base64...');
+                    // Korak 1: Pretvori Blob u base64 (Blob je već clean, kreiran u processSelectedFile)
+                    console.log('📦 Converting Blob to base64...');
                     const base64 = await new Promise((resolve, reject) => {
                         const reader = new FileReader();
                         reader.onload = () => resolve(reader.result);
                         reader.onerror = reject;
-                        reader.readAsDataURL(cleanBlob);
+                        reader.readAsDataURL(image1File); // image1File je zapravo Blob!
                     });
                     
                     console.log('✅ Base64 created, length:', base64.length);
                     
-                    // Korak 3: Upload base64 kroz Netlify funkciju
-                    console.log('📤 Step 3: Uploading to Netlify function...');
+                    // Korak 2: Upload base64 kroz Netlify funkciju
+                    console.log('📤 Uploading to Netlify function...');
                     const upload1Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
                         method: 'POST',
                         headers: {
@@ -1461,29 +1458,22 @@
                     const image2Filename = `${userId}-image2.jpg`;
                     let image2File = uploadedImages.person2;
                     
-                    console.log('📤 Uploading image2 via Canvas → Blob → base64...');
-                    console.log('Image2 file size:', (image2File.size / 1024 / 1024).toFixed(2), 'MB');
+                    console.log('📤 Uploading image2 Blob...');
+                    console.log('Image2 Blob size:', (image2File.size / 1024 / 1024).toFixed(2), 'MB');
                     
                     try {
-                        // Korak 1: Pretvori File u čisti Blob preko Canvas-a
-                        console.log('🎨 Converting image2 to clean Blob via Canvas...');
-                        const quality2 = image2File.size > (5 * 1024 * 1024) ? 0.8 : 0.9;
-                        const cleanBlob2 = await convertFileToCleanBlob(image2File, quality2);
-                        
-                        console.log('✅ Clean Blob2 created:', (cleanBlob2.size / 1024 / 1024).toFixed(2) + ' MB');
-                        
-                        // Korak 2: Pretvori Blob u base64
+                        // Korak 1: Pretvori Blob u base64 (Blob je već kreiran u processSelectedFile)
                         console.log('📦 Converting Blob2 to base64...');
                         const base64_2 = await new Promise((resolve, reject) => {
                             const reader = new FileReader();
                             reader.onload = () => resolve(reader.result);
                             reader.onerror = reject;
-                            reader.readAsDataURL(cleanBlob2);
+                            reader.readAsDataURL(image2File); // image2File je zapravo Blob!
                         });
                         
                         console.log('✅ Base64_2 created, length:', base64_2.length);
                         
-                        // Korak 3: Upload base64 kroz Netlify funkciju
+                        // Korak 2: Upload base64 kroz Netlify funkciju
                         const upload2Response = await fetchWithTimeout('/.netlify/functions/upload-user-image', {
                             method: 'POST',
                             headers: {
