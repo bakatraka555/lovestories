@@ -63,7 +63,7 @@ exports.handler = async (event, context) => {
 
     const BUNNY_API_KEY = process.env.BUNNY_API_KEY;
     const BUNNY_STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
-    const BUNNY_CDN_DOMAIN = process.env.BUNNY_CDN_DOMAIN || 'lovestories-cdn.b-cdn.net';
+    const BUNNY_CDN_DOMAIN = process.env.BUNNY_CDN_DOMAIN || 'examples.b-cdn.net';
     const TOKEN_SECRET = process.env.TOKEN_SECRET || BUNNY_API_KEY; // Fallback na API key ako nema TOKEN_SECRET
 
     if (!BUNNY_API_KEY || !BUNNY_STORAGE_ZONE) {
