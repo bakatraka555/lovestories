@@ -271,9 +271,8 @@ exports.handler = async (event, context) => {
       prompt: prompt,
       image_input: imageInput,  // Array: [couple_image, logo] ili [male_image, female_image, logo]
       aspect_ratio: '4:3',        // Najbolji za Instagram + Print
-      output_format: 'jpg',       // Brži, manji file
-      resolution: '2K',           // Visoka kvaliteta
-      safety_filter_level: 'block_only_high'
+      output_format: 'jpg'        // Brži, manji file
+      // NOTE: google/nano-banana ne podržava 'resolution' i 'safety_filter_level' parametre
     };
 
     console.log('Calling Replicate API with:', {
